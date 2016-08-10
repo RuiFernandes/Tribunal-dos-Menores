@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- View of customized component DualListbox -->
+
+
+<vlayout width="100%">
+<label value="Distribuicao de Peticoes" style="font-size:20px"/>
+<hlayout vflex="true" width="100%" style="padding:10px" spacing="20px" viewModel="@id('list') @init('tribunal.controler.distribuirPeticao')" apply="org.zkoss.bind.BindComposer">
+<zscript><![CDATA[
+                  String imgPath = "/widgets/listbox/dual_listbox/img"; ]]></zscript>
+	<listbox model="@bind(list.peticoes)" id="peticoes" oddRowSclass="non-odd" vflex="true"  multiple="true" rows="8" width="400px"  droppable="false" selectedIndex="@save(list.index)" selectedItem="@save(list.peticao)" onDrop="@command('move')" >
+		<listhead>
+			<listheader label="Data" width="80px"></listheader>
+			<listheader label="Resumo" width="140px"></listheader>
+			<listheader label="Remetente"></listheader>
+			
+		</listhead>
+		  <template name="model" var="pet">
+			<listitem draggable="true" droppable="true" >
+				<listcell label="@load(pet.data)" />
+				<listcell label="@load(pet.resumo)"  />
+				<listcell label="@load(pet.remetente)"  />
+				
+			</listitem>
+		</template>
+	</listbox>
+	
+
+	<vbox spacing="10px" width="24px">
+		
+		<button label="Distribuir" onClick="@command('ditribuir')" />
+		<button label="Auto Dist." onClick="@command('automatic')" />
+		<button label="Limpar" onClick="@command('retorno')" />
+	</vbox>
+	<vbox width="50%">
+	<listbox model="@bind(list.seccao1)" id="seccao1" width="100%" selectedIndex="@save(list.index)"  vflex="true" multiple="true" rows="4" droppable="true" oddRowSclass="non-odd" onDrop="@command('move1')">
+		<listhead>
+			<listheader label="Data" width="80px"></listheader>
+			<listheader label="Resumo" width="140px"></listheader>
+			<listheader label="Remetente"></listheader>
+		</listhead>
+		<template name="model" var="distribuido">
+			<listitem  draggable="true" droppable="true">
+				<listcell label="@load(distribuido.data)" />
+				<listcell label="@load(distribuido.resumo)"  />
+				<listcell label="@load(distribuido.remetente)"  />
+				
+			</listitem>
+		</template>
+		</listbox>
+		
+		<listbox model="@bind(list.seccao2)" id="seccao2" width="100%" selectedIndex="@save(list.index)"  vflex="true" multiple="true" rows="4" droppable="true" oddRowSclass="non-odd" onDrop="@command('move2')">
+		<listhead>
+			<listheader label="Data" width="80px"></listheader>
+			<listheader label="Resumo" width="140px"></listheader>
+			<listheader label="Remetente"></listheader>
+			
+		</listhead>
+		<template name="model" var="distribuido">
+			<listitem  draggable="true" droppable="true">
+				<listcell label="@load(distribuido.data)" />
+				<listcell label="@load(distribuido.resumo)"  />
+				<listcell label="@load(distribuido.remetente)"  />
+				
+			</listitem>
+		</template>
+	</listbox>
+	<listbox model="@bind(list.seccao3)" id="seccao3" width="100%" selectedIndex="@save(list.index)"  vflex="true" multiple="true" rows="4" droppable="true" onDrop="@command('move3')" oddRowSclass="non-odd">
+		<listhead>
+			<listheader label="Data" width="80px"></listheader>
+			<listheader label="Resumo" width="140px"></listheader>
+			<listheader label="Remetente"></listheader>
+			
+		</listhead>
+		<template name="model" var="distribuido">
+			<listitem  draggable="true" droppable="true">
+				<listcell label="@load(distribuido.data)" />
+				<listcell label="@load(distribuido.resumo)"  />
+				<listcell label="@load(distribuido.remetente)"  />
+				
+			</listitem>
+		</template>
+	</listbox>
+	
+	
+	</vbox>
+
+
+	<vbox spacing="10px" width="24px">
+		<image style="cursor:pointer" id="topBtn" src="${imgPath}/upuparrow_g.png" />
+		<image style="cursor:pointer" id="upBtn" src="${imgPath}/uparrow_g.png" />
+		<image style="cursor:pointer" id="downBtn" src="${imgPath}/downarrow_g.png" />
+		<image style="cursor:pointer" id="bottomBtn" src="${imgPath}/downdownarrow_g.png" />
+	</vbox>
+</hlayout>
+</vlayout>
+
+
+
+

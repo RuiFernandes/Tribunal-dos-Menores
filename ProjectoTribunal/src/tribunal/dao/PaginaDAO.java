@@ -7,8 +7,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
+import tribunal.entities.Livro;
 import tribunal.entities.Pagina;
 
 /**
@@ -25,12 +26,13 @@ public class PaginaDAO {
 	
 	public final static String FIELD__ID = getField(Pagina.class, "id");
 	public final static String FIELD__PAG = getField(Pagina.class, "pag");
+	public final static String FIELD__LIVRO = getField(Pagina.class, "livro");
 	
 	/**
 	 * Creates a Pagina using all read-only and all non-null properties.
 	 */
-	public Pagina create(EntityManager em, String pag) {
-		return create(em, pag, null);
+	public Pagina create(EntityManager em, int pag, Livro livro) {
+		return create(em, pag, livro, null);
 	}
 	
 	/**
@@ -38,9 +40,9 @@ public class PaginaDAO {
 	 * per-persist action is executed before the entity is persisted and allows to set
 	 * properties which are not read-only or nullable.
 	 */
-	public Pagina create(EntityManager em, String pag, IAction<Pagina> prePersistAction) {
+	public Pagina create(EntityManager em, int pag, Livro livro, IAction<Pagina> prePersistAction) {
 		@java.lang.SuppressWarnings("deprecation")
-		Pagina newEntity = new Pagina(pag);
+		Pagina newEntity = new Pagina(pag, livro);
 		// Call prePersistAction
 		if (prePersistAction != null) {
 			prePersistAction.execute(newEntity);
@@ -56,6 +58,25 @@ public class PaginaDAO {
 	public Pagina get(EntityManager em, int id) {
 		Pagina entity = (Pagina) em.find(Pagina.class, id);
 		return entity;
+	}
+	
+	/**
+	 * Returns the Paginas with the given livro.
+	 */
+	public List<Pagina> getByLivro(EntityManager em, Livro livro) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<Pagina> _query = _builder.createQuery(Pagina.class);
+		Root<Pagina> _root = _query.from(Pagina.class);
+		_query.select(_root);
+		Expression<Boolean> _expression1;
+		if (livro == null) {
+			_expression1 = _builder.isNull(_root.get(PaginaDAO.FIELD__LIVRO));
+		} else {
+			_expression1 = _builder.equal(_root.get(PaginaDAO.FIELD__LIVRO), livro);
+		}
+		_query.where(_expression1);
+		List<Pagina> entities = em.createQuery(_query).getResultList();
+		return entities;
 	}
 	
 	/**
@@ -88,14 +109,7 @@ public class PaginaDAO {
 		
 		CriteriaBuilder _builder = _em.getCriteriaBuilder();
 		CriteriaQuery<Pagina> _query = _builder.createQuery(Pagina.class);
-		
-		// Create disjunction of all string properties.
-		java.lang.String _trimmedSearchString = "%" + _searchString.trim() + "%";
-		Root<Pagina> _root = _query.from(Pagina.class);
-		Predicate[] _predicates = new Predicate[1];
-		_predicates[0] = _builder.like(_root.<java.lang.String>get(PaginaDAO.FIELD__PAG), _builder.literal(_trimmedSearchString));
-		_query.where(_builder.or(_predicates));
-		
+		// Return all entities as there are no string properties we could search in.
 		List<Pagina> entities = _em.createQuery(_query).setMaxResults(_maxResults).getResultList();
 		return entities;
 	}

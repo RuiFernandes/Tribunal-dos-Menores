@@ -1,6 +1,5 @@
 package tribunal.test;
 
-import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,7 +71,7 @@ public class LivroTest {
 		final Livro[] entities = new Livro[1];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				entities[0] = operations.createLivro("stringValue" + (dummyValueCounter++), operations.createProcesso("stringValue" + (dummyValueCounter++), new Date(), operations.createRequerente("stringValue" + (dummyValueCounter++)), operations.createRequerido("stringValue" + (dummyValueCounter++)), "stringValue" + (dummyValueCounter++)));
+				entities[0] = operations.createLivro("stringValue" + (dummyValueCounter++), (dummyValueCounter++));
 			}
 		});
 		final Livro entity = entities[0];
@@ -82,7 +81,7 @@ public class LivroTest {
 		// test creation of a second object having the same (unique) value
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				Livro secondEntity = operations.createLivro("stringValue" + (dummyValueCounter++), operations.createProcesso("stringValue" + (dummyValueCounter++), new Date(), operations.createRequerente("stringValue" + (dummyValueCounter++)), operations.createRequerido("stringValue" + (dummyValueCounter++)), "stringValue" + (dummyValueCounter++)));
+				Livro secondEntity = operations.createLivro("stringValue" + (dummyValueCounter++), (dummyValueCounter++));
 				secondEntity.setNome(entities[0].getNome());
 			}
 		});
@@ -132,7 +131,7 @@ public class LivroTest {
 		final Livro[] result = new Livro[1];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				result[0] = operations.createLivro("stringValue" + (dummyValueCounter++), operations.createProcesso("stringValue" + (dummyValueCounter++), new Date(), operations.createRequerente("stringValue" + (dummyValueCounter++)), operations.createRequerido("stringValue" + (dummyValueCounter++)), "stringValue" + (dummyValueCounter++)));
+				result[0] = operations.createLivro("stringValue" + (dummyValueCounter++), (dummyValueCounter++));
 			}
 		});
 		return result[0];

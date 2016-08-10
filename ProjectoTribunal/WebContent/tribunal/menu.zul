@@ -1,14 +1,14 @@
 <?page title="Auto Generated index.zul"?>
-<zk>
+<zk >
 	
 
-	<div vflex="true"><navbar orient="vertical" width="100%" >
+	<div vflex="true" apply="org.zkoss.bind.BindComposer" viewModel="@id('nav') @init('tribunal.controler.navbarVm')"><navbar orient="vertical" width="100%" >
 		<nav label="Livro de Entrada/Correspondencia">
 			<navitem label="Receber Documento" style="font:20px; bold:true"></navitem>
 			<navitem label="Distribuir Peticoes"></navitem>
 		</nav>
-		<nav label="Livro de Porta">
-			<navitem label="Autuar Processo"></navitem>
+		<nav label="Livro de Porta" >
+			<navitem id="autuar" label="Autuar Processo" onClick="@global-command('site')"></navitem>
 			<navitem label="Lista de Processos Autuados"></navitem>
 			
 		</nav>
@@ -23,8 +23,9 @@
 			<navitem label="Teste"></navitem>
 		</nav>
 			<nav label="Livro de Mandato">
-			<navitem label="Teste"></navitem>
+			
 		</nav>
-	</navbar></div>
+		<navitem label="Propriedades do Sistema"></navitem></navbar>
+	</div>
 </zk>
 

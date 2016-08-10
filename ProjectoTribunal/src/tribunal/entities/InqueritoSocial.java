@@ -24,7 +24,7 @@ public class InqueritoSocial implements IIntIdentifiable {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
 	
-	@OneToOne(cascade = {CascadeType.ALL})
+	@OneToOne(cascade = {CascadeType.MERGE})
 	@JoinColumn(name = "processo", nullable = false)
 	private Processo processo;
 	
@@ -91,10 +91,32 @@ public class InqueritoSocial implements IIntIdentifiable {
 	}
 	
 	/**
-	 * Returns the value of property {@link #processo}.
+	 * Returns the value of property {@link #processo}. This method does not return
+	 * archived entities. This method is marked as deprecated, because it does not
+	 * return archived entities. Please use {@link #getProcesso(boolean)} instead.
 	 */
+	@java.lang.Deprecated
 	public Processo getProcesso() {
-		return processo;
+		return getProcesso(false);
+	}
+	
+	/**
+	 * Returns the value of property {@link #processo}. This method is marked as
+	 * deprecated, because it does not return archived entities. Please use {@link
+	 * #getProcesso(boolean)} instead.
+	 */
+	public Processo getProcesso(boolean includeArchivedEntities) {
+		if (includeArchivedEntities) {
+			return processo;
+		} else {
+			if (processo == null) {
+				return processo;
+			}
+			if (!processo.isArchived() || includeArchivedEntities) {
+				return processo;
+			}
+			return null;
+		}
 	}
 	
 	/**

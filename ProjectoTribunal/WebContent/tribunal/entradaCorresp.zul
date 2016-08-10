@@ -1,67 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zk>
-    <vlayout>
+    <vlayout zclass="container" viewModel="@id('correspondencia') @init('tribunal.controler.livroEntrada')" apply="org.zkoss.bind.BindComposer">
         <hbox hflex="true">
-            <label value="Tribunal"/>
-            <label value="dos Menores"/>
+            <label value="Entrada de" style="font-size:30px" />
+            <label value="Correspondencias" style="font-size:30px"/>
         </hbox>
-        <groupbox open="false" closable="true">
-            <caption label="Entrada de Correspondencia" style="color: #428bca;" iconSclass="z-icon-hand-o-down" vflex="true"> </caption>
+        <groupbox open="false" closable="true" zclass="input-group">
+            <caption zclass="well" label="Entrada de Correspondencia" style="color: #428bca;" iconSclass="z-icon-hand-o-down" vflex="true"> </caption>
             <div>
-                <grid hflex="true" vflex="true">
+                <grid hflex="true" vflex="true" zclass="table-hover">
                     <columns>
                         <column label="" width="25%" align="right"/>
                         <column label=""/>
                     </columns>
                     <rows>
                         <row>
-                            <label value="Numero :"/>
-                            <textbox disabled="true"/>
+                            <label value="Identificacao Nr :" />
+                            <textbox value="@bind(correspondencia.numero)" constraint="no empty" placeholder="BI/Passaporte/Carta"/>
                         </row>
                         <row>
                             <label value="Data de Entrada :"/>
-                            <datebox/>
+                            <datebox value="@bind(correspondencia.data)" constraint="no empty"  disabled="true"/>
                         </row>
                         <row>
                             <label value="Nome do remetente :"/>
-                            <textbox width="75%"/>
+                            <textbox  value="@bind(correspondencia.nomeDoRemetente)"  constraint="no empty" width="75%"/>
                         </row>
                         <row>
-                            <label value="Requerent :"/>
-                            <textbox width="75%"/>
+                            <label value="Requerente :"/>
+                            <textbox value="@bind(correspondencia.requerente)" width="75%" constraint="no empty" />
                         </row>
                         <row>
                             <label value="Requerido :"/>
-                            <textbox width="75%"/>
+                            <textbox value="@bind(correspondencia.requerido)" width="75%" constraint="no empty" />
                         </row>
                         <row>
                             <label value="Resumo :"/>
-                            <textbox multiline="true" mold="rounded" width="100%" rows="2"/>
+                            <textbox multiline="true" mold="rounded" width="100%" rows="2" value="@bind(correspondencia.resumo)" constraint="no empty" />
                         </row>
                         <row>
-                            <checkbox value="true" name="apenso" label="apenso"/>
-                            <bandbox placeholder="Processo" autodrop="true" disabled="true"/>
+                            <checkbox id="apenso" value="true" label=" Nao apenso" checked="true" onClick="processoApenso.setDisabled(apenso.isChecked())" 	 />
+                            <bandbox value="@bind(correspondencia.processo.identification)" readonly="true" placeholder="Processo" autodrop="true" disabled="true" id="processoApenso" onBlur="@command('search')" onChanging="@command('search')" onOK="@command('search')">
+                            <bandpopup>
+			<vbox>
+				<hbox>
+					Pesquisa
+					<textbox  value="@save(correspondencia.processoSearch)" onChanging="@command('search')"/>
+				</hbox>
+				<listbox mold="paging" pagingPosition="bottom" vflex="true" model="@bind(correspondencia.processos)" width="400px" selectedItem="@bind(correspondencia.processo)">
+					<listhead>
+						<listheader label="Numero Do Processo" width="35%" />
+						<listheader label="Auto" />
+					</listhead>
+					  <template  name="model" var="corr">
+                    	<listitem>
+                    		<listcell label="@load(corr.identification)"></listcell>
+                    		<listcell label="@load(corr.auto.auto)"></listcell>
+                    		
+                    </listitem>
+                    </template>
+				</listbox>
+			</vbox>
+		</bandpopup>
+                            
+                            </bandbox>
                         </row>
                     </rows>
                 </grid>
             </div>
             <hbox hflex="true" vflex="true">
-                <button label="Entrada" sclass="btn-primary" id="salvar"/>
-                <button label="limpar" sclass="btn-danger"/>
+                <button label="Registrar Entrada" zclass="btn btn-Default" id="salvar" onClick="@command('registarEntrada')"/>
+                <space spacing="20px"/>
+                <button label="limpar" zclass="btn btn-danger pull-right"/>
             </hbox>
         </groupbox>
         <vbox vflex="true" hflex="true">
             <groupbox>
-                <listbox id="box" mold="paging" pagingPosition="bottom" rows="5" multiple="true" checkmark="true">
+                <listbox model="@bind(correspondencia.peticoes)" selectedItem="@bind(correspondencia.peticao)" id="box" mold="paging" pagingPosition="bottom" rows="5" multiple="true" checkmark="true" zclass="table-hover">
                     <listhead>
                         <listheader label="numero"/>
-                        <listheader label="Auto de"/>
+                        <listheader label="Remetente"/>
                         <listheader label="Requerente"/>
                         <listheader label="Requerido"/>
                         <listheader label="Data"/>
-                        <listheader label="OBS"/>
+                        <listheader label="Resumo"/>
                     </listhead>
-                    <template/>
+                    <template name="model" var="entrada" >
+                    	<listitem>
+                    		<listcell label="@load(entrada.numeroId)"></listcell>
+                    		<listcell label="@load(entrada.remetente)"></listcell>
+                    		<listcell label="@load(entrada.requerente)"></listcell>
+                    		<listcell label="@load(entrada.requerido)"></listcell>
+                    		<listcell label="@load(entrada.data)"></listcell>
+                    		<listcell label="@load(entrada.resumo)"></listcell>
+                    </listitem>
+                    </template>
                 </listbox>
             </groupbox>
         </vbox>

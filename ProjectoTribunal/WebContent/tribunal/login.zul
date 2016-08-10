@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<zk>
-    <space orient="vertical" height="40%"/>
-    <div align="center" hflex="true" vflex="true">
+<zk apply="org.zkoss.bind.BindComposer" viewModel="@id('vm') @init('tribunal.controler.ViewModel')" >
+    <space orient="vertical" height="25%"/>
+    <div style="border-color:black;" align="center" apply="org.zkoss.bind.BindComposer" viewModel="@id('vm') @init('tribunal.controler.usersload')">
         <vbox vflex="true" align="center" width="70%" spacing="5%">
-            <label value="Autenticacao" style="font-size:30px"/>
-            <grid>
+        <image src="../imgs/kid.png" width="90px"/>
+            <label value="Autenticação" style="font-size:30px"/>
+            <grid zclass="table-hover">
                 <columns width="50%">
                     <column align="right" valign="middle" width="35%"/>
                     <column/>
@@ -12,15 +13,17 @@
                 <rows>
                     <row>
                         <label value="Usuario :"/>
-                        <textbox id="ususario" width="80%" constraint="no empty" focus="true" popup="username"/>
+                         <combobox id="ususario" width="80%" model="@load(vm.userList)" constraint="no empty" focus="true" popup="username" selectedItem="@bind(vm.selected)"><template name="model" var="user"><comboitem label="@load(user.nome)"/></template></combobox>                                      
+                        <label value="@load(vm.selected.categoria)" />
                     </row>
                     <row>
                         <label value="Password :"/>
-                        <textbox id="password" width="80%" constraint="no empty" type="password"/>
+                        <textbox id="password" width="80%" constraint="no empty" type="password"  value="@bind(vm.pass)"/>
+                        
                     </row>
-                    <row spans="1" valign="middle" align="center">
+                     <row spans="1" valign="middle" align="center">
                         <button label="Cancelar"/>
-                        <button label="Autenticar"/>
+                        <button label="Autenticar" onClick="@command('autenticar')"/>
                     </row>
                 </rows>
             </grid>

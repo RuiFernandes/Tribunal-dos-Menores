@@ -1,13 +1,14 @@
 package tribunal.entities;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import tribunal.dao.TribunalListenerRegistry;
 
@@ -27,9 +28,11 @@ public class Livro implements IIntIdentifiable {
 	@Column(name = "nome", unique = true, nullable = false)
 	private String nome;
 	
-	@ManyToOne(cascade = {CascadeType.ALL})
-	@JoinColumn(name = "processo", nullable = false)
-	private Processo processo;
+	@Column(name = "numero", nullable = false)
+	private long numero;
+	
+	@OneToMany(cascade = {CascadeType.MERGE}, mappedBy = "livro")
+	private List<Pagina> pagina;
 	
 	/**
 	 * <p>
@@ -54,16 +57,13 @@ public class Livro implements IIntIdentifiable {
 	 * </p>
 	 */
 	@java.lang.Deprecated
-	public Livro(String nome, Processo processo) {
+	public Livro(String nome, long numero) {
 		super();
 		if (nome == null) {
 			throw new java.lang.IllegalArgumentException("'nome' must not be null.");
 		}
-		if (processo == null) {
-			throw new java.lang.IllegalArgumentException("'processo' must not be null.");
-		}
 		this.nome = nome;
-		this.processo = processo;
+		this.numero = numero;
 	}
 	
 	/**
@@ -111,20 +111,41 @@ public class Livro implements IIntIdentifiable {
 	}
 	
 	/**
-	 * Returns the value of property {@link #processo}.
+	 * Returns the value of property {@link #numero}.
 	 */
-	public Processo getProcesso() {
-		return processo;
+	public long getNumero() {
+		return numero;
 	}
 	
 	/**
-	 * Sets the value of property {@link #processo}.
+	 * Sets the value of property {@link #numero}.
 	 */
-	public void setProcesso(Processo newValue) {
-		if (newValue == null) {
-			throw new java.lang.IllegalArgumentException("'processo' must not be null.");
+	public void setNumero(long newValue) {
+		this.numero = newValue;
+	}
+	
+	/**
+	 * Returns the value of property {@link #pagina}.
+	 */
+	public List<Pagina> getPagina() {
+		if (pagina == null) {
+			pagina = new ArrayList<Pagina>(1);
 		}
-		this.processo = newValue;
+		return pagina;
+	}
+	
+	/**
+	 * Sets the value of property {@link #pagina}.
+	 */
+	public void setPagina(List<Pagina> newValue) {
+		if (newValue == null) {
+			throw new java.lang.IllegalArgumentException("'pagina' must not be null.");
+		}
+		this.pagina = newValue;
+		// Set mapped-by reference
+		for (Pagina _next : this.pagina) {
+			_next.setLivro(this);
+		}
 	}
 	
 	@java.lang.Override
@@ -167,6 +188,9 @@ public class Livro implements IIntIdentifiable {
 		result.append(" [");
 		result.append("nome = ");
 		result.append(getNome());
+		result.append(", ");
+		result.append("numero = ");
+		result.append(getNumero());
 		result.append("]");
 		return result.toString();
 	}

@@ -1,5 +1,6 @@
 package tribunal.dao;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,7 +12,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import tribunal.entities.Livro;
-import tribunal.entities.Processo;
+import tribunal.entities.Pagina;
 
 /**
  * <p>
@@ -27,13 +28,14 @@ public class LivroDAO {
 	
 	public final static String FIELD__ID = getField(Livro.class, "id");
 	public final static String FIELD__NOME = getField(Livro.class, "nome");
-	public final static String FIELD__PROCESSO = getField(Livro.class, "processo");
+	public final static String FIELD__NUMERO = getField(Livro.class, "numero");
+	public final static String FIELD__PAGINA = getField(Livro.class, "pagina");
 	
 	/**
 	 * Creates a Livro using all read-only and all non-null properties.
 	 */
-	public Livro create(EntityManager em, String nome, Processo processo) {
-		return create(em, nome, processo, null);
+	public Livro create(EntityManager em, String nome, long numero) {
+		return create(em, nome, numero, null);
 	}
 	
 	/**
@@ -41,9 +43,9 @@ public class LivroDAO {
 	 * per-persist action is executed before the entity is persisted and allows to set
 	 * properties which are not read-only or nullable.
 	 */
-	public Livro create(EntityManager em, String nome, Processo processo, IAction<Livro> prePersistAction) {
+	public Livro create(EntityManager em, String nome, long numero, IAction<Livro> prePersistAction) {
 		@java.lang.SuppressWarnings("deprecation")
-		Livro newEntity = new Livro(nome, processo);
+		Livro newEntity = new Livro(nome, numero);
 		// Call prePersistAction
 		if (prePersistAction != null) {
 			prePersistAction.execute(newEntity);
@@ -87,20 +89,17 @@ public class LivroDAO {
 	}
 	
 	/**
-	 * Returns the Livros with the given processo.
+	 * Returns all Livros where the given pagina is contained in the collection
+	 * 'pagina'.
 	 */
-	public List<Livro> getByProcesso(EntityManager em, Processo processo) {
+	public List<Livro> getByPagina(EntityManager em, Pagina pagina) {
 		CriteriaBuilder _builder = em.getCriteriaBuilder();
 		CriteriaQuery<Livro> _query = _builder.createQuery(Livro.class);
 		Root<Livro> _root = _query.from(Livro.class);
 		_query.select(_root);
-		Expression<Boolean> _expression1;
-		if (processo == null) {
-			_expression1 = _builder.isNull(_root.get(LivroDAO.FIELD__PROCESSO));
-		} else {
-			_expression1 = _builder.equal(_root.get(LivroDAO.FIELD__PROCESSO), processo);
-		}
-		_query.where(_expression1);
+		Expression<Collection<Pagina>> path = _root.get(LivroDAO.FIELD__PAGINA);
+		Expression<Boolean> expression = _builder.isMember(pagina, path);
+		_query.where(expression);
 		List<Livro> entities = em.createQuery(_query).getResultList();
 		return entities;
 	}

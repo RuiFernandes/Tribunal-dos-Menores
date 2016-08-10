@@ -1,7 +1,32 @@
-<window width="80%" title="Session Timeout" border="normal">
-	<vbox>
-The page or component you request is no longer available.
-This is normally caused by timeout, opening too many Web pages, or rebooting
-the server.
-	</vbox>
-</window>
+<?xml version="1.0" encoding="UTF-8"?>
+<zk apply="org.zkoss.bind.BindComposer" viewModel="@id('vm') @init('tribunal.controler.ViewModel')" >
+    <space orient="vertical" height="25%"/>
+    <div style="border-color:black;" align="center" hflex="true" vflex="true" apply="org.zkoss.bind.BindComposer" viewModel="@id('vm') @init('tribunal.controler.usersload')">
+        <vbox vflex="true" align="center" width="70%" spacing="5%">
+        <image src="./imgs/kid.png" width="90px"/>
+            <label value="Autenticação" style="font-size:30px"/>
+            <grid zclass="table-hover" >
+                <columns width="50%">
+                    <column align="right" valign="middle" width="35%"/>
+                    <column/>
+                </columns>
+                <rows>
+                    <row>
+                        <label value="Usuario :"/>
+                         <combobox id="ususario" width="80%" model="@load(vm.userList)" constraint="no empty" focus="true" popup="username" selectedItem="@bind(vm.selected)"><template name="model" var="user"><comboitem label="@load(user.nome)"/></template></combobox>                                      
+                        <label value="@load(vm.selected.categoria)" />
+                    </row>
+                    <row>
+                        <label value="Password :"/>
+                        <textbox id="password" width="80%" constraint="no empty" type="password"  value="@bind(vm.pass)"/>
+                        
+                    </row>
+                     <row spans="1" valign="middle" align="center">
+                        <button label="Cancelar"/>
+                        <button label="Autenticar" onClick="@command('autenticar2')"/>
+                    </row>
+                </rows>
+            </grid>
+        </vbox>
+    </div>
+</zk>

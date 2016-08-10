@@ -73,7 +73,7 @@ public class UsuarioTest {
 		final Usuario[] entities = new Usuario[1];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				entities[0] = operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++));
+				entities[0] = operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)));
 			}
 		});
 		final Usuario entity = entities[0];
@@ -83,7 +83,7 @@ public class UsuarioTest {
 		// test creation of a second object having the same (unique) value
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				Usuario secondEntity = operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++));
+				Usuario secondEntity = operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)));
 				secondEntity.setUsername(entities[0].getUsername());
 			}
 		});
@@ -196,7 +196,7 @@ public class UsuarioTest {
 		final Usuario[] result = new Usuario[1];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				result[0] = operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++));
+				result[0] = operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)));
 			}
 		});
 		return result[0];

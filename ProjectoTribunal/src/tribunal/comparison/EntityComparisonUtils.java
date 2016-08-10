@@ -1,13 +1,19 @@
 package tribunal.comparison;
 
+import tribunal.entities.Auto;
+import tribunal.entities.Categoria;
 import tribunal.entities.IIntIdentifiable;
 import tribunal.entities.InqueritoSocial;
 import tribunal.entities.Livro;
 import tribunal.entities.Log;
 import tribunal.entities.Pagina;
+import tribunal.entities.Peticao;
+import tribunal.entities.PeticaoApenso;
+import tribunal.entities.PeticaoDistribuida;
 import tribunal.entities.Processo;
-import tribunal.entities.Requerente;
-import tribunal.entities.Requerido;
+import tribunal.entities.ProcessoAutuado;
+import tribunal.entities.Registro;
+import tribunal.entities.Seccao;
 import tribunal.entities.Usuario;
 
 /**
@@ -67,6 +73,22 @@ public class EntityComparisonUtils {
 		return areNotEqual((IIntIdentifiable) usuario1, (IIntIdentifiable) usuario2);
 	}
 	
+	public boolean areEqual(Categoria categoria1, Categoria categoria2) {
+		return areEqual((IIntIdentifiable) categoria1, (IIntIdentifiable) categoria2);
+	}
+	
+	public boolean areNotEqual(Categoria categoria1, Categoria categoria2) {
+		return areNotEqual((IIntIdentifiable) categoria1, (IIntIdentifiable) categoria2);
+	}
+	
+	public boolean areEqual(Seccao seccao1, Seccao seccao2) {
+		return areEqual((IIntIdentifiable) seccao1, (IIntIdentifiable) seccao2);
+	}
+	
+	public boolean areNotEqual(Seccao seccao1, Seccao seccao2) {
+		return areNotEqual((IIntIdentifiable) seccao1, (IIntIdentifiable) seccao2);
+	}
+	
 	public boolean areEqual(Livro livro1, Livro livro2) {
 		return areEqual((IIntIdentifiable) livro1, (IIntIdentifiable) livro2);
 	}
@@ -91,20 +113,52 @@ public class EntityComparisonUtils {
 		return areNotEqual((IIntIdentifiable) processo1, (IIntIdentifiable) processo2);
 	}
 	
-	public boolean areEqual(Requerente requerente1, Requerente requerente2) {
-		return areEqual((IIntIdentifiable) requerente1, (IIntIdentifiable) requerente2);
+	public boolean areEqual(ProcessoAutuado processoAutuado1, ProcessoAutuado processoAutuado2) {
+		return areEqual((IIntIdentifiable) processoAutuado1, (IIntIdentifiable) processoAutuado2);
 	}
 	
-	public boolean areNotEqual(Requerente requerente1, Requerente requerente2) {
-		return areNotEqual((IIntIdentifiable) requerente1, (IIntIdentifiable) requerente2);
+	public boolean areNotEqual(ProcessoAutuado processoAutuado1, ProcessoAutuado processoAutuado2) {
+		return areNotEqual((IIntIdentifiable) processoAutuado1, (IIntIdentifiable) processoAutuado2);
 	}
 	
-	public boolean areEqual(Requerido requerido1, Requerido requerido2) {
-		return areEqual((IIntIdentifiable) requerido1, (IIntIdentifiable) requerido2);
+	public boolean areEqual(Registro registro1, Registro registro2) {
+		return areEqual((IIntIdentifiable) registro1, (IIntIdentifiable) registro2);
 	}
 	
-	public boolean areNotEqual(Requerido requerido1, Requerido requerido2) {
-		return areNotEqual((IIntIdentifiable) requerido1, (IIntIdentifiable) requerido2);
+	public boolean areNotEqual(Registro registro1, Registro registro2) {
+		return areNotEqual((IIntIdentifiable) registro1, (IIntIdentifiable) registro2);
+	}
+	
+	public boolean areEqual(Peticao peticao1, Peticao peticao2) {
+		return areEqual((IIntIdentifiable) peticao1, (IIntIdentifiable) peticao2);
+	}
+	
+	public boolean areNotEqual(Peticao peticao1, Peticao peticao2) {
+		return areNotEqual((IIntIdentifiable) peticao1, (IIntIdentifiable) peticao2);
+	}
+	
+	public boolean areEqual(PeticaoDistribuida peticaoDistribuida1, PeticaoDistribuida peticaoDistribuida2) {
+		return areEqual((IIntIdentifiable) peticaoDistribuida1, (IIntIdentifiable) peticaoDistribuida2);
+	}
+	
+	public boolean areNotEqual(PeticaoDistribuida peticaoDistribuida1, PeticaoDistribuida peticaoDistribuida2) {
+		return areNotEqual((IIntIdentifiable) peticaoDistribuida1, (IIntIdentifiable) peticaoDistribuida2);
+	}
+	
+	public boolean areEqual(PeticaoApenso peticaoApenso1, PeticaoApenso peticaoApenso2) {
+		return areEqual((IIntIdentifiable) peticaoApenso1, (IIntIdentifiable) peticaoApenso2);
+	}
+	
+	public boolean areNotEqual(PeticaoApenso peticaoApenso1, PeticaoApenso peticaoApenso2) {
+		return areNotEqual((IIntIdentifiable) peticaoApenso1, (IIntIdentifiable) peticaoApenso2);
+	}
+	
+	public boolean areEqual(Auto auto1, Auto auto2) {
+		return areEqual((IIntIdentifiable) auto1, (IIntIdentifiable) auto2);
+	}
+	
+	public boolean areNotEqual(Auto auto1, Auto auto2) {
+		return areNotEqual((IIntIdentifiable) auto1, (IIntIdentifiable) auto2);
 	}
 	
 	public boolean areEqual(InqueritoSocial inqueritoSocial1, InqueritoSocial inqueritoSocial2) {

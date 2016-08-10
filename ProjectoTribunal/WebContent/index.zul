@@ -1,17 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zk>
-    <borderlayout>
+<style src="widgets/menu/navbar/style.css"/>
+    <borderlayout id="layout" apply="org.zkoss.bind.BindComposer" viewModel="@id('nav') @init('tribunal.controler.navbarVm')" >
         <north size="100px" border="none">
             <include localized="true" src="chapter1/banner.zul"/>
         </north>
         <center autoscroll="true" id="content">
-            <include localized="true" src="chapter1/main.zul"/>
+            <include id="center" localized="true" src="@bind(nav.src)"/>
         </center>
         <south size="10%" height="50px" border="none">
             <include localized="true" src="chapter1/footer.zul"/>
         </south>
-        <west size="25%" splittable="true" collapsible="true" border="none" minsize="300">
-            <include localized="true" src="./tribunal/menu.zul"/>
+        
+        
+        <west size="25%" splittable="true" collapsible="true" border="none" minsize="300" id="menu" autoscroll="true">
+           
+	<div vflex="100%" ><navbar  width="100%"  orient="vertical" zclass="z-navbar" >
+		<nav label="Livro de Entrada/Correspondencia">
+			<navitem label="-Receber Documento" style="font:20px; bold:true" onClick="@command('receberDocumento')"></navitem>
+			<navitem label="-Distribuir Peticoes" onClick="@command('distribuicao')"></navitem>
+			<navitem label="-Lista de Entradas/Correspondecias" onClick="@command('listaDeEntradas')"></navitem>
+		</nav>
+		<nav label="Livro de Porta" >
+		
+			<navitem id="autuar" label="-Autuar Processo" onClick="@command('autuarProcesso')"></navitem>
+			<navitem label="-Lista de Processos Autuados" onClick="@command('listaDeProcessos')"></navitem>
+			
+			
+		</nav>
+		<nav label="Livro de conclusao">
+			<navitem label="-Despacho de Processo" onClick="@command('despachoProcesso')"></navitem>
+			<navitem label="-Lista de Despachos" onClick="@command('listaDespacho')"></navitem>
+			
+		</nav>
+		<nav label="Livro de vista">
+			<navitem label="-Registrar Vista" onClick="@command('registarVista')"></navitem>
+		</nav>
+		<nav label="Livro de Assistencia Social">
+			<navitem label="-Teste"></navitem>
+		</nav>
+			<nav label="Livro de Mandato">
+			
+		</nav>
+		<nav label="Propriedades do Sistema"><navitem label="-Users" onClick="@command('users')"></navitem></nav>
+		</navbar>
+	</div>
         </west>
     </borderlayout>
 </zk>

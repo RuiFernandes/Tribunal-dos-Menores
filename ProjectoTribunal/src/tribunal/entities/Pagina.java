@@ -1,10 +1,13 @@
 package tribunal.entities;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -21,7 +24,11 @@ public class Pagina implements IIntIdentifiable {
 	private int id;
 	
 	@Column(name = "pag", nullable = false)
-	private String pag;
+	private int pag;
+	
+	@ManyToOne(cascade = {CascadeType.MERGE})
+	@JoinColumn(name = "livro", nullable = false)
+	private Livro livro;
 	
 	/**
 	 * <p>
@@ -46,12 +53,13 @@ public class Pagina implements IIntIdentifiable {
 	 * </p>
 	 */
 	@java.lang.Deprecated
-	public Pagina(String pag) {
+	public Pagina(int pag, Livro livro) {
 		super();
-		if (pag == null) {
-			throw new java.lang.IllegalArgumentException("'pag' must not be null.");
+		if (livro == null) {
+			throw new java.lang.IllegalArgumentException("'livro' must not be null.");
 		}
 		this.pag = pag;
+		this.livro = livro;
 	}
 	
 	/**
@@ -81,18 +89,32 @@ public class Pagina implements IIntIdentifiable {
 	/**
 	 * Returns the value of property {@link #pag}.
 	 */
-	public String getPag() {
+	public int getPag() {
 		return pag;
 	}
 	
 	/**
 	 * Sets the value of property {@link #pag}.
 	 */
-	public void setPag(String newValue) {
-		if (newValue == null) {
-			throw new java.lang.IllegalArgumentException("'pag' must not be null.");
-		}
+	public void setPag(int newValue) {
 		this.pag = newValue;
+	}
+	
+	/**
+	 * Returns the value of property {@link #livro}.
+	 */
+	public Livro getLivro() {
+		return livro;
+	}
+	
+	/**
+	 * Sets the value of property {@link #livro}.
+	 */
+	public void setLivro(Livro newValue) {
+		if (newValue == null) {
+			throw new java.lang.IllegalArgumentException("'livro' must not be null.");
+		}
+		this.livro = newValue;
 	}
 	
 	@java.lang.Override

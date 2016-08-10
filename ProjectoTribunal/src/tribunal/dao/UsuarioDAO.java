@@ -11,6 +11,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import tribunal.entities.Categoria;
+import tribunal.entities.Seccao;
 import tribunal.entities.Usuario;
 
 /**
@@ -31,12 +33,13 @@ public class UsuarioDAO {
 	public final static String FIELD__USERNAME = getField(Usuario.class, "username");
 	public final static String FIELD__PASSWORD = getField(Usuario.class, "password");
 	public final static String FIELD__CATEGORIA = getField(Usuario.class, "categoria");
+	public final static String FIELD__SECCAO = getField(Usuario.class, "seccao");
 	
 	/**
 	 * Creates a Usuario using all read-only and all non-null properties.
 	 */
-	public Usuario create(EntityManager em, String nome, Date dataDeNascimento, String username, String password, String categoria) {
-		return create(em, nome, dataDeNascimento, username, password, categoria, null);
+	public Usuario create(EntityManager em, String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao) {
+		return create(em, nome, dataDeNascimento, username, password, categoria, seccao, null);
 	}
 	
 	/**
@@ -44,9 +47,9 @@ public class UsuarioDAO {
 	 * per-persist action is executed before the entity is persisted and allows to set
 	 * properties which are not read-only or nullable.
 	 */
-	public Usuario create(EntityManager em, String nome, Date dataDeNascimento, String username, String password, String categoria, IAction<Usuario> prePersistAction) {
+	public Usuario create(EntityManager em, String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao, IAction<Usuario> prePersistAction) {
 		@java.lang.SuppressWarnings("deprecation")
-		Usuario newEntity = new Usuario(nome, dataDeNascimento, username, password, categoria);
+		Usuario newEntity = new Usuario(nome, dataDeNascimento, username, password, categoria, seccao);
 		// Call prePersistAction
 		if (prePersistAction != null) {
 			prePersistAction.execute(newEntity);
@@ -87,6 +90,44 @@ public class UsuarioDAO {
 			return _entities.get(0);
 		}
 		return null;
+	}
+	
+	/**
+	 * Returns the Usuarios with the given categoria.
+	 */
+	public List<Usuario> getByCategoria(EntityManager em, Categoria categoria) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<Usuario> _query = _builder.createQuery(Usuario.class);
+		Root<Usuario> _root = _query.from(Usuario.class);
+		_query.select(_root);
+		Expression<Boolean> _expression1;
+		if (categoria == null) {
+			_expression1 = _builder.isNull(_root.get(UsuarioDAO.FIELD__CATEGORIA));
+		} else {
+			_expression1 = _builder.equal(_root.get(UsuarioDAO.FIELD__CATEGORIA), categoria);
+		}
+		_query.where(_expression1);
+		List<Usuario> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
+	 * Returns the Usuarios with the given seccao.
+	 */
+	public List<Usuario> getBySeccao(EntityManager em, Seccao seccao) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<Usuario> _query = _builder.createQuery(Usuario.class);
+		Root<Usuario> _root = _query.from(Usuario.class);
+		_query.select(_root);
+		Expression<Boolean> _expression1;
+		if (seccao == null) {
+			_expression1 = _builder.isNull(_root.get(UsuarioDAO.FIELD__SECCAO));
+		} else {
+			_expression1 = _builder.equal(_root.get(UsuarioDAO.FIELD__SECCAO), seccao);
+		}
+		_query.where(_expression1);
+		List<Usuario> entities = em.createQuery(_query).getResultList();
+		return entities;
 	}
 	
 	/**
@@ -151,11 +192,10 @@ public class UsuarioDAO {
 		// Create disjunction of all string properties.
 		java.lang.String _trimmedSearchString = "%" + _searchString.trim() + "%";
 		Root<Usuario> _root = _query.from(Usuario.class);
-		Predicate[] _predicates = new Predicate[4];
+		Predicate[] _predicates = new Predicate[3];
 		_predicates[0] = _builder.like(_root.<java.lang.String>get(UsuarioDAO.FIELD__NOME), _builder.literal(_trimmedSearchString));
 		_predicates[1] = _builder.like(_root.<java.lang.String>get(UsuarioDAO.FIELD__USERNAME), _builder.literal(_trimmedSearchString));
 		_predicates[2] = _builder.like(_root.<java.lang.String>get(UsuarioDAO.FIELD__PASSWORD), _builder.literal(_trimmedSearchString));
-		_predicates[3] = _builder.like(_root.<java.lang.String>get(UsuarioDAO.FIELD__CATEGORIA), _builder.literal(_trimmedSearchString));
 		_query.where(_builder.or(_predicates));
 		
 		List<Usuario> entities = _em.createQuery(_query).setMaxResults(_maxResults).getResultList();

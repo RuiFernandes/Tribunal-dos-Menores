@@ -1,12 +1,14 @@
 package tribunal.test;
 
 import java.util.Date;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import tribunal.custom.IDBOperations;
 import tribunal.custom.TribunalDAO;
 import tribunal.dao.ICommand;
@@ -56,132 +58,125 @@ public class ProcessoTest {
 	
 	@Test
 	public void testCount() {
-		assertEquals("Empty database must contain no entities.", 0, dao.countProcessos());
+		assertEquals("Empty database must contain no entities.", 0, dao.countProcessos(true));
 	}
 	
 	@Test
 	public void testCreateAndCount() {
-		assertEquals("Empty database must contain no entities.", 0, dao.countProcessos());
+		assertEquals("Empty database must contain no entities.", 0, dao.countProcessos(true));
 		Processo newEntity = createInstance(dao);
 		assertNotNull("Newly created entity must not be null.", newEntity);
-		assertEquals("Database must contain 1 entity after creating one.", 1, dao.countProcessos());
+		assertEquals("Database must contain 1 entity after creating one.", 1, dao.countProcessos(true));
 	}
 	
 	@Test
-	public void testStringPropertyNumero() {
-		final Processo[] entities = new Processo[3];
+	public void testUniquePropertyIdentification() {
+		final Processo[] entities = new Processo[1];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				entities[0] = operations.createProcesso("stringValue" + (dummyValueCounter++), new Date(), operations.createRequerente("stringValue" + (dummyValueCounter++)), operations.createRequerido("stringValue" + (dummyValueCounter++)), "stringValue" + (dummyValueCounter++));
-				entities[0].setNumero("a");
-				entities[1] = operations.createProcesso("stringValue" + (dummyValueCounter++), new Date(), operations.createRequerente("stringValue" + (dummyValueCounter++)), operations.createRequerido("stringValue" + (dummyValueCounter++)), "stringValue" + (dummyValueCounter++));
-				entities[1].setNumero("ab");
-				entities[2] = operations.createProcesso("stringValue" + (dummyValueCounter++), new Date(), operations.createRequerente("stringValue" + (dummyValueCounter++)), operations.createRequerido("stringValue" + (dummyValueCounter++)), "stringValue" + (dummyValueCounter++));
-				entities[2].setNumero("abc");
+				entities[0] = operations.createProcesso("stringValue" + (dummyValueCounter++), operations.createPeticaoDistribuida(operations.createPeticao("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false), operations.createSeccao("stringValue" + (dummyValueCounter++)), false), operations.createAuto("stringValue" + (dummyValueCounter++)), operations.createPagina((dummyValueCounter++), operations.createLivro("stringValue" + (dummyValueCounter++), (dummyValueCounter++))), false);
 			}
 		});
-		assertNotNull("Entity must be created.", entities[0]);
-		assertNotNull("Entity must be created.", entities[1]);
-		assertNotNull("Entity must be created.", entities[2]);
+		final Processo entity = entities[0];
+		assertNotNull("Entity must be created.", entity);
 		
-		List<Processo> result = dao.searchProcessos("a", Integer.MAX_VALUE);
-		assertEquals("Expected three found entities.", 3, result.size());
-		result = dao.searchProcessos("ab", Integer.MAX_VALUE);
-		assertEquals("Expected two found entities.", 2, result.size());
-		result = dao.searchProcessos("abc", Integer.MAX_VALUE);
-		assertEquals("Expected one found entity.", 1, result.size());
-		result = dao.searchProcessos("bc", Integer.MAX_VALUE);
-		assertEquals("Expected one found entity.", 1, result.size());
-		result = dao.searchProcessos("ac", Integer.MAX_VALUE);
-		assertEquals("Expected no found entities.", 0, result.size());
-	}
-	
-	@Test
-	public void testStringPropertyAuto() {
-		final Processo[] entities = new Processo[3];
+		assertNull("There must not be exceptions up to this point.", lastException);
+		// test creation of a second object having the same (unique) value
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				entities[0] = operations.createProcesso("stringValue" + (dummyValueCounter++), new Date(), operations.createRequerente("stringValue" + (dummyValueCounter++)), operations.createRequerido("stringValue" + (dummyValueCounter++)), "stringValue" + (dummyValueCounter++));
-				entities[0].setAuto("a");
-				entities[1] = operations.createProcesso("stringValue" + (dummyValueCounter++), new Date(), operations.createRequerente("stringValue" + (dummyValueCounter++)), operations.createRequerido("stringValue" + (dummyValueCounter++)), "stringValue" + (dummyValueCounter++));
-				entities[1].setAuto("ab");
-				entities[2] = operations.createProcesso("stringValue" + (dummyValueCounter++), new Date(), operations.createRequerente("stringValue" + (dummyValueCounter++)), operations.createRequerido("stringValue" + (dummyValueCounter++)), "stringValue" + (dummyValueCounter++));
-				entities[2].setAuto("abc");
+				Processo secondEntity = operations.createProcesso("stringValue" + (dummyValueCounter++), operations.createPeticaoDistribuida(operations.createPeticao("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false), operations.createSeccao("stringValue" + (dummyValueCounter++)), false), operations.createAuto("stringValue" + (dummyValueCounter++)), operations.createPagina((dummyValueCounter++), operations.createLivro("stringValue" + (dummyValueCounter++), (dummyValueCounter++))), false);
+				secondEntity.setIdentification(entities[0].getIdentification());
 			}
 		});
-		assertNotNull("Entity must be created.", entities[0]);
-		assertNotNull("Entity must be created.", entities[1]);
-		assertNotNull("Entity must be created.", entities[2]);
+		assertNotNull("Must not be able to create second object with same value for unique property.", lastException);
+		lastException = null;
 		
-		List<Processo> result = dao.searchProcessos("a", Integer.MAX_VALUE);
-		assertEquals("Expected three found entities.", 3, result.size());
-		result = dao.searchProcessos("ab", Integer.MAX_VALUE);
-		assertEquals("Expected two found entities.", 2, result.size());
-		result = dao.searchProcessos("abc", Integer.MAX_VALUE);
-		assertEquals("Expected one found entity.", 1, result.size());
-		result = dao.searchProcessos("bc", Integer.MAX_VALUE);
-		assertEquals("Expected one found entity.", 1, result.size());
-		result = dao.searchProcessos("ac", Integer.MAX_VALUE);
-		assertEquals("Expected no found entities.", 0, result.size());
-	}
-	
-	@Test
-	public void testDatePropertyData() {
-		// create test object
-		assertEquals(0, dao.countProcessos());
-		Processo newEntity = createInstance(dao);
-		assertNotNull(newEntity);
-		assertEquals(1, dao.countProcessos());
+		// Use final arrays to store result of execute()
+		final String[] identification1 = new String[1];
+		final String[] identification2 = new String[1];
 		
-		final int id = newEntity.getId();
-		long oneHour = 60 * 1000;
-		final Date newDate = new Date(oneHour);
-		
-		// change date property
-		setData(dao, id, newDate);
-		
-		// fetch again from database
-		newEntity = dao.getProcesso(id);
-		assertEquals(newDate, newEntity.getData());
-		
-		List<Processo> before = dao.getProcessosWithDataBefore(newDate);
-		assertNotNull(before);
-		assertEquals(0, before.size());
-		
-		List<Processo> after = dao.getProcessosWithDataAfter(newDate);
-		assertNotNull(after);
-		assertEquals(0, after.size());
-		
-		// change date property again (add one hour)
-		setData(dao, id, new Date(2 * oneHour));
-		
-		before = dao.getProcessosWithDataBefore(newDate);
-		assertNotNull(before);
-		assertEquals(0, before.size());
-		
-		after = dao.getProcessosWithDataAfter(newDate);
-		assertNotNull(after);
-		assertEquals(1, after.size());
-		
-		// change date property again (subtract one hour)
-		setData(dao, id, new java.util.Date(0 * oneHour));
-		
-		before = dao.getProcessosWithDataBefore(newDate);
-		assertNotNull(before);
-		assertEquals(1, before.size());
-		
-		after = dao.getProcessosWithDataAfter(newDate);
-		assertNotNull(after);
-		assertEquals(0, after.size());
-	}
-	
-	private void setData(TribunalDAO dao, final int id, final Date newValue) {
+		// Create two new values for unique property
 		dao.executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				identification1[0] = "stringValue" + (dummyValueCounter++);
+				identification2[0] = "stringValue" + (dummyValueCounter++);
+			}
+		});
+		
+		// Check that objects were actually created
+		assertNull(lastException);
+		assertNotNull(identification1[0]);
+		assertNotNull(identification2[0]);
+		
+		// Change value of unique property and test retrieval
+		setIdentification(entity.getId(), identification2[0]);
+		
+		assertNull("Entity must not exist.", dao.getProcessoByIdentification(identification1[0], false));
+		assertNotNull("Entity must exist.", dao.getProcessoByIdentification(identification2[0], false));
+	}
+	
+	private void setIdentification(final int id, final String newValue) {
+		dao.executeInTransaction(new ICommand() {
+			
+			@java.lang.SuppressWarnings("deprecation")
 			public void execute(IDBOperations operations) {
 				
 				Processo entity = operations.getProcesso(id);
 				assertNotNull(entity);
-				entity.setData(newValue);
+				entity.setIdentification(newValue);
+				
+			}
+		});
+	}
+	
+	@Test
+	@java.lang.SuppressWarnings("deprecation")
+	public void testBooleanPropertyArchived() {
+		// create test objects
+		assertEquals(0, dao.countProcessos(true));
+		
+		Processo newEntity1 = createInstance(dao);
+		assertNotNull(newEntity1);
+		
+		Processo newEntity2 = createInstance(dao);
+		assertNotNull(newEntity2);
+		assertEquals(2, dao.countProcessos(true));
+		
+		final int id1 = newEntity1.getId();
+		final int id2 = newEntity2.getId();
+		
+		// change boolean property
+		setArchived(dao, id1, true);
+		
+		// fetch again from database
+		newEntity1 = dao.getProcesso(id1);
+		assertTrue(newEntity1.isArchived());
+		
+		// change boolean property
+		setArchived(dao, id1, false);
+		
+		// fetch again from database
+		newEntity1 = dao.getProcesso(id1);
+		assertFalse(newEntity1.isArchived());
+		
+		// change boolean property of all entries
+		dao.setProcessosArchived(true, true);
+		newEntity1 = dao.getProcesso(id1);
+		assertTrue(newEntity1.isArchived());
+		newEntity2 = dao.getProcesso(id2);
+		assertTrue(newEntity2.isArchived());
+	}
+	
+	private void setArchived(TribunalDAO dao, final int id, final boolean newValue) {
+		dao.executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				
+				@java.lang.SuppressWarnings("deprecation")
+				Processo entity = operations.getProcesso(id);
+				assertNotNull(entity);
+				entity.setArchived(newValue);
 			}
 		});
 	}
@@ -190,7 +185,7 @@ public class ProcessoTest {
 		final Processo[] result = new Processo[1];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				result[0] = operations.createProcesso("stringValue" + (dummyValueCounter++), new Date(), operations.createRequerente("stringValue" + (dummyValueCounter++)), operations.createRequerido("stringValue" + (dummyValueCounter++)), "stringValue" + (dummyValueCounter++));
+				result[0] = operations.createProcesso("stringValue" + (dummyValueCounter++), operations.createPeticaoDistribuida(operations.createPeticao("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false), operations.createSeccao("stringValue" + (dummyValueCounter++)), false), operations.createAuto("stringValue" + (dummyValueCounter++)), operations.createPagina((dummyValueCounter++), operations.createLivro("stringValue" + (dummyValueCounter++), (dummyValueCounter++))), false);
 			}
 		});
 		return result[0];

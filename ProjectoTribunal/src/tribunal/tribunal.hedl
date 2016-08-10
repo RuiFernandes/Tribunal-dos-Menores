@@ -1,42 +1,75 @@
-Usuario{
+Usuario implements java.io.Serializable{
 	String nome;
 	Date dataDeNascimento;
 	unique String username;
 	String password;
-	String categoria;
+merge	Categoria categoria;
+merge	Seccao seccao;
 	}
+
+Categoria{
+		String nome;
+		}
 	
+Seccao{
+	String nome;
+	}
+		
 Livro{
-		unique String nome;
-		Processo *processo;
+unique String nome;
+		Long numero;
+merge Pagina pagina* <= livro;
 	}
 
 Pagina{
-	String pag;
+	Int pag;
+  merge  Livro *livro;
+	}
+	
+@Archivable	
+Processo{
+unique	String identification;
+merge	PeticaoDistribuida peticao;
+merge	Auto auto;
+merge	Pagina pagina;
 	}
 
-Processo{
-	String numero;
+ProcessoAutuado extends Processo{
+	
+merge	Registro registro* <= processoAutuado;
+	}
+	
+Registro{
 	Date data;
-	Requerente requerente;
-	Requerido requerido;
+	String infoRegisto;
+merge	ProcessoAutuado *processoAutuado;
+	}
+	
+@Archivable	
+Peticao{
+String numeroId;
+	Date data;
+	String requerente;
+	String requerido;
+	String resumo;
+String remetente;
+
+		} 
+@Archivable	
+PeticaoDistribuida {
+merge Peticao peticao;
+merge Seccao seccao;
+	}			
+PeticaoApenso extends Peticao{
+merge Processo processo;
+	}	
+		
+Auto{
 	String auto;
-	
-		}
-				
-Requerente{
-	String nome;
-	
-	
-	}	
-	
-Requerido{ 
-	String nome;
-	
-	}	
+	}
 
 InqueritoSocial{
-	Processo processo;
+merge	Processo processo;
 	String assistenteSocial;
 	}
 	

@@ -4,13 +4,19 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import tribunal.entities.Auto;
+import tribunal.entities.Categoria;
 import tribunal.entities.InqueritoSocial;
 import tribunal.entities.Livro;
 import tribunal.entities.Log;
 import tribunal.entities.Pagina;
+import tribunal.entities.Peticao;
+import tribunal.entities.PeticaoApenso;
+import tribunal.entities.PeticaoDistribuida;
 import tribunal.entities.Processo;
-import tribunal.entities.Requerente;
-import tribunal.entities.Requerido;
+import tribunal.entities.ProcessoAutuado;
+import tribunal.entities.Registro;
+import tribunal.entities.Seccao;
 import tribunal.entities.Usuario;
 
 /**
@@ -26,11 +32,17 @@ import tribunal.entities.Usuario;
 public abstract class OperationProviderBase implements IDBOperationsBase {
 	
 	protected UsuarioDAO usuarioDAO = new UsuarioDAO();
+	protected CategoriaDAO categoriaDAO = new CategoriaDAO();
+	protected SeccaoDAO seccaoDAO = new SeccaoDAO();
 	protected LivroDAO livroDAO = new LivroDAO();
 	protected PaginaDAO paginaDAO = new PaginaDAO();
 	protected ProcessoDAO processoDAO = new ProcessoDAO();
-	protected RequerenteDAO requerenteDAO = new RequerenteDAO();
-	protected RequeridoDAO requeridoDAO = new RequeridoDAO();
+	protected ProcessoAutuadoDAO processoAutuadoDAO = new ProcessoAutuadoDAO();
+	protected RegistroDAO registroDAO = new RegistroDAO();
+	protected PeticaoDAO peticaoDAO = new PeticaoDAO();
+	protected PeticaoDistribuidaDAO peticaoDistribuidaDAO = new PeticaoDistribuidaDAO();
+	protected PeticaoApensoDAO peticaoApensoDAO = new PeticaoApensoDAO();
+	protected AutoDAO autoDAO = new AutoDAO();
 	protected InqueritoSocialDAO inqueritoSocialDAO = new InqueritoSocialDAO();
 	protected LogDAO logDAO = new LogDAO();
 	
@@ -53,8 +65,8 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Usuario createUsuario(final String nome, final Date dataDeNascimento, final String username, final String password, final String categoria) {
-		return usuarioDAO.create(getEntityManager(), nome, dataDeNascimento, username, password, categoria);
+	public Usuario createUsuario(final String nome, final Date dataDeNascimento, final String username, final String password, final Categoria categoria, final Seccao seccao) {
+		return usuarioDAO.create(getEntityManager(), nome, dataDeNascimento, username, password, categoria, seccao);
 	}
 	
 	/**
@@ -62,8 +74,8 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Usuario createUsuario(final String nome, final Date dataDeNascimento, final String username, final String password, final String categoria, final IAction<Usuario> prePersistAction) {
-		return usuarioDAO.create(getEntityManager(), nome, dataDeNascimento, username, password, categoria, prePersistAction);
+	public Usuario createUsuario(final String nome, final Date dataDeNascimento, final String username, final String password, final Categoria categoria, final Seccao seccao, final IAction<Usuario> prePersistAction) {
+		return usuarioDAO.create(getEntityManager(), nome, dataDeNascimento, username, password, categoria, seccao, prePersistAction);
 	}
 	
 	/**
@@ -84,6 +96,22 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	public Usuario getUsuarioByUsername(final String username) {
 		Usuario entity = usuarioDAO.getByUsername(getEntityManager(), username);
 		return entity;
+	}
+	
+	/**
+	 * Returns the Usuarios with the given categoria.
+	 */
+	public List<Usuario> getUsuariosByCategoria(final Categoria categoria) {
+		List<Usuario> entities = usuarioDAO.getByCategoria(getEntityManager(), categoria);
+		return entities;
+	}
+	
+	/**
+	 * Returns the Usuarios with the given seccao.
+	 */
+	public List<Usuario> getUsuariosBySeccao(final Seccao seccao) {
+		List<Usuario> entities = usuarioDAO.getBySeccao(getEntityManager(), seccao);
+		return entities;
 	}
 	
 	/**
@@ -161,12 +189,135 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	}
 	
 	/**
-	 * Creates a new Livro using all read-only and all non-null properties. If the new
-	 * entity violates uniqueness constraints and a Cache is used, an
+	 * Creates a new Categoria using all read-only and all non-null properties. If the
+	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Livro createLivro(final String nome, final Processo processo) {
-		return livroDAO.create(getEntityManager(), nome, processo);
+	public Categoria createCategoria(final String nome) {
+		return categoriaDAO.create(getEntityManager(), nome);
+	}
+	
+	/**
+	 * Creates a new Categoria using all read-only and all non-null properties. If the
+	 * new entity violates uniqueness constraints and a Cache is used, an
+	 * java.lang.IllegalArgumentException is thrown.
+	 */
+	public Categoria createCategoria(final String nome, final IAction<Categoria> prePersistAction) {
+		return categoriaDAO.create(getEntityManager(), nome, prePersistAction);
+	}
+	
+	/**
+	 * Returns the Categoria with the given id.
+	 */
+	public Categoria getCategoria(final int id) {
+		Categoria entity = categoriaDAO.get(getEntityManager(), id);
+		return entity;
+	}
+	
+	/**
+	 * Returns all entities of type Categoria.
+	 */
+	public List<Categoria> getAllCategorias() {
+		final List<Categoria> entities = categoriaDAO.getAll(getEntityManager());
+		return entities;
+	}
+	
+	/**
+	 * Searches for entities of type Categoria.
+	 */
+	public List<Categoria> searchCategorias(final java.lang.String _searchString, final int _maxResults) {
+		return categoriaDAO.search(getEntityManager(), _searchString, _maxResults);
+	}
+	
+	/**
+	 * Deletes the given Categoria.
+	 */
+	public void delete(final Categoria entity) {
+		categoriaDAO.delete(getEntityManager(), entity);
+	}
+	
+	/**
+	 * Deletes all given Categorias.
+	 */
+	public void deleteCategorias(final List<Categoria> entities) {
+		categoriaDAO.delete(getEntityManager(), entities);
+	}
+	
+	/**
+	 * Counts the number of Categoria entities.
+	 */
+	public int countCategorias() {
+		return categoriaDAO.count(getEntityManager());
+	}
+	
+	public Categoria merge(Categoria entity) {
+		return getEntityManager().merge(entity);
+	}
+	
+	/**
+	 * Creates a new Seccao using all read-only and all non-null properties. If the
+	 * new entity violates uniqueness constraints and a Cache is used, an
+	 * java.lang.IllegalArgumentException is thrown.
+	 */
+	public Seccao createSeccao(final String nome) {
+		return seccaoDAO.create(getEntityManager(), nome);
+	}
+	
+	/**
+	 * Creates a new Seccao using all read-only and all non-null properties. If the
+	 * new entity violates uniqueness constraints and a Cache is used, an
+	 * java.lang.IllegalArgumentException is thrown.
+	 */
+	public Seccao createSeccao(final String nome, final IAction<Seccao> prePersistAction) {
+		return seccaoDAO.create(getEntityManager(), nome, prePersistAction);
+	}
+	
+	/**
+	 * Returns the Seccao with the given id.
+	 */
+	public Seccao getSeccao(final int id) {
+		Seccao entity = seccaoDAO.get(getEntityManager(), id);
+		return entity;
+	}
+	
+	/**
+	 * Returns all entities of type Seccao.
+	 */
+	public List<Seccao> getAllSeccaos() {
+		final List<Seccao> entities = seccaoDAO.getAll(getEntityManager());
+		return entities;
+	}
+	
+	/**
+	 * Searches for entities of type Seccao.
+	 */
+	public List<Seccao> searchSeccaos(final java.lang.String _searchString, final int _maxResults) {
+		return seccaoDAO.search(getEntityManager(), _searchString, _maxResults);
+	}
+	
+	/**
+	 * Deletes the given Seccao.
+	 */
+	public void delete(final Seccao entity) {
+		seccaoDAO.delete(getEntityManager(), entity);
+	}
+	
+	/**
+	 * Deletes all given Seccaos.
+	 */
+	public void deleteSeccaos(final List<Seccao> entities) {
+		seccaoDAO.delete(getEntityManager(), entities);
+	}
+	
+	/**
+	 * Counts the number of Seccao entities.
+	 */
+	public int countSeccaos() {
+		return seccaoDAO.count(getEntityManager());
+	}
+	
+	public Seccao merge(Seccao entity) {
+		return getEntityManager().merge(entity);
 	}
 	
 	/**
@@ -174,8 +325,17 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	 * entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Livro createLivro(final String nome, final Processo processo, final IAction<Livro> prePersistAction) {
-		return livroDAO.create(getEntityManager(), nome, processo, prePersistAction);
+	public Livro createLivro(final String nome, final long numero) {
+		return livroDAO.create(getEntityManager(), nome, numero);
+	}
+	
+	/**
+	 * Creates a new Livro using all read-only and all non-null properties. If the new
+	 * entity violates uniqueness constraints and a Cache is used, an
+	 * java.lang.IllegalArgumentException is thrown.
+	 */
+	public Livro createLivro(final String nome, final long numero, final IAction<Livro> prePersistAction) {
+		return livroDAO.create(getEntityManager(), nome, numero, prePersistAction);
 	}
 	
 	/**
@@ -199,10 +359,11 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	}
 	
 	/**
-	 * Returns the Livros with the given processo.
+	 * Returns all Livros where the given pagina is contained in the collection
+	 * 'pagina'.
 	 */
-	public List<Livro> getLivrosByProcesso(final Processo processo) {
-		List<Livro> entities = livroDAO.getByProcesso(getEntityManager(), processo);
+	public List<Livro> getLivrosByPagina(final Pagina pagina) {
+		List<Livro> entities = livroDAO.getByPagina(getEntityManager(), pagina);
 		return entities;
 	}
 	
@@ -251,8 +412,8 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Pagina createPagina(final String pag) {
-		return paginaDAO.create(getEntityManager(), pag);
+	public Pagina createPagina(final int pag, final Livro livro) {
+		return paginaDAO.create(getEntityManager(), pag, livro);
 	}
 	
 	/**
@@ -260,8 +421,8 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Pagina createPagina(final String pag, final IAction<Pagina> prePersistAction) {
-		return paginaDAO.create(getEntityManager(), pag, prePersistAction);
+	public Pagina createPagina(final int pag, final Livro livro, final IAction<Pagina> prePersistAction) {
+		return paginaDAO.create(getEntityManager(), pag, livro, prePersistAction);
 	}
 	
 	/**
@@ -270,6 +431,14 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	public Pagina getPagina(final int id) {
 		Pagina entity = paginaDAO.get(getEntityManager(), id);
 		return entity;
+	}
+	
+	/**
+	 * Returns the Paginas with the given livro.
+	 */
+	public List<Pagina> getPaginasByLivro(final Livro livro) {
+		List<Pagina> entities = paginaDAO.getByLivro(getEntityManager(), livro);
+		return entities;
 	}
 	
 	/**
@@ -317,8 +486,8 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Processo createProcesso(final String numero, final Date data, final Requerente requerente, final Requerido requerido, final String auto) {
-		return processoDAO.create(getEntityManager(), numero, data, requerente, requerido, auto);
+	public Processo createProcesso(final String identification, final PeticaoDistribuida peticao, final Auto auto, final Pagina pagina, final boolean archived) {
+		return processoDAO.create(getEntityManager(), identification, peticao, auto, pagina, archived);
 	}
 	
 	/**
@@ -326,55 +495,75 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Processo createProcesso(final String numero, final Date data, final Requerente requerente, final Requerido requerido, final String auto, final IAction<Processo> prePersistAction) {
-		return processoDAO.create(getEntityManager(), numero, data, requerente, requerido, auto, prePersistAction);
+	public Processo createProcesso(final String identification, final PeticaoDistribuida peticao, final Auto auto, final Pagina pagina, final boolean archived, final IAction<Processo> prePersistAction) {
+		return processoDAO.create(getEntityManager(), identification, peticao, auto, pagina, archived, prePersistAction);
 	}
 	
 	/**
 	 * Returns the Processo with the given id.
 	 */
+	// This method is deprecated because the entity Processo has uniqueness
+	// constraints. This indicates that there are properties that represent domain
+	// keys, which should be used to retrieve entities instead of the raw database IDs.
+	@java.lang.Deprecated
 	public Processo getProcesso(final int id) {
 		Processo entity = processoDAO.get(getEntityManager(), id);
 		return entity;
 	}
 	
 	/**
-	 * Returns the Processos with the given requerente.
+	 * Returns the Processo with the given identification.
 	 */
-	public List<Processo> getProcessosByRequerente(final Requerente requerente) {
-		List<Processo> entities = processoDAO.getByRequerente(getEntityManager(), requerente);
+	public Processo getProcessoByIdentification(final String identification, final boolean includedArchivedEntities) {
+		Processo entity = processoDAO.getByIdentification(getEntityManager(), identification, includedArchivedEntities);
+		return entity;
+	}
+	
+	/**
+	 * Returns the Processos with the given peticao.
+	 */
+	public List<Processo> getProcessosByPeticao(final PeticaoDistribuida peticao, final boolean includeArchivedEntities) {
+		List<Processo> entities = processoDAO.getByPeticao(getEntityManager(), peticao, includeArchivedEntities);
 		return entities;
 	}
 	
 	/**
-	 * Returns the Processos with the given requerido.
+	 * Returns the Processos with the given auto.
 	 */
-	public List<Processo> getProcessosByRequerido(final Requerido requerido) {
-		List<Processo> entities = processoDAO.getByRequerido(getEntityManager(), requerido);
+	public List<Processo> getProcessosByAuto(final Auto auto, final boolean includeArchivedEntities) {
+		List<Processo> entities = processoDAO.getByAuto(getEntityManager(), auto, includeArchivedEntities);
 		return entities;
 	}
 	
 	/**
-	 * Returns all Processos where data is set to a value before '_maxDate'.
+	 * Returns the Processos with the given pagina.
 	 */
-	public List<Processo> getProcessosWithDataBefore(final Date _maxDate) {
-		final List<Processo> entities = processoDAO.getDataBefore(getEntityManager(), _maxDate);
+	public List<Processo> getProcessosByPagina(final Pagina pagina, final boolean includeArchivedEntities) {
+		List<Processo> entities = processoDAO.getByPagina(getEntityManager(), pagina, includeArchivedEntities);
 		return entities;
 	}
 	
 	/**
-	 * Returns all Processos where data is set to a value after '_minDate'.
+	 * Returns all Processos where the boolean property 'archived' is set to
+	 * <code>true</code>.
 	 */
-	public List<Processo> getProcessosWithDataAfter(final Date _minDate) {
-		final List<Processo> entities = processoDAO.getDataAfter(getEntityManager(), _minDate);
+	public List<Processo> getArchivedProcessos() {
+		final List<Processo> entities = processoDAO.getArchived(getEntityManager());
 		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'archived' for all Processos to the given value.
+	 */
+	public void setProcessosArchived(final boolean value, final boolean includeArchivedEntities) {
+		processoDAO.setArchived(getEntityManager(), value, includeArchivedEntities);
 	}
 	
 	/**
 	 * Returns all entities of type Processo.
 	 */
-	public List<Processo> getAllProcessos() {
-		final List<Processo> entities = processoDAO.getAll(getEntityManager());
+	public List<Processo> getAllProcessos(final boolean includeArchivedEntities) {
+		final List<Processo> entities = processoDAO.getAll(getEntityManager(), includeArchivedEntities);
 		return entities;
 	}
 	
@@ -386,42 +575,28 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	}
 	
 	/**
-	 * Deletes the given Processo.
+	 * Deletes the given Processo. This method is deprecated, because Processo is an
+	 * archivable entity. Therefore, it should be archived instead of deleted.
 	 */
+	@java.lang.Deprecated
 	public void delete(final Processo entity) {
 		processoDAO.delete(getEntityManager(), entity);
 	}
 	
 	/**
-	 * Deletes all given Processos.
+	 * Deletes all given Processos. This method is deprecated, because Processo is an
+	 * archivable entity. Therefore, it should be archived instead of deleted.
 	 */
+	@java.lang.Deprecated
 	public void deleteProcessos(final List<Processo> entities) {
 		processoDAO.delete(getEntityManager(), entities);
 	}
 	
 	/**
-	 * Deletes all Processos where data is set to a value before '_maxDate'.
-	 */
-	public void deleteProcessosWithDataBefore(final Date _maxDate) {
-		Query query = getEntityManager().createQuery("DELETE FROM " + Processo.class.getName() + " " + "WHERE " + ProcessoDAO.FIELD__DATA + " < ?1");
-		query.setParameter(1, _maxDate);
-		query.executeUpdate();
-	}
-	
-	/**
-	 * Deletes all Processos where data is set to a value after '_minDate'.
-	 */
-	public void deleteProcessosWithDataAfter(final Date _minDate) {
-		Query query = getEntityManager().createQuery("DELETE FROM " + Processo.class.getName() + " " + "WHERE " + ProcessoDAO.FIELD__DATA + " > ?1");
-		query.setParameter(1, _minDate);
-		query.executeUpdate();
-	}
-	
-	/**
 	 * Counts the number of Processo entities.
 	 */
-	public int countProcessos() {
-		return processoDAO.count(getEntityManager());
+	public int countProcessos(final boolean includeArchivedEntities) {
+		return processoDAO.count(getEntityManager(), includeArchivedEntities);
 	}
 	
 	public Processo merge(Processo entity) {
@@ -429,134 +604,665 @@ public abstract class OperationProviderBase implements IDBOperationsBase {
 	}
 	
 	/**
-	 * Creates a new Requerente using all read-only and all non-null properties. If
-	 * the new entity violates uniqueness constraints and a Cache is used, an
+	 * Creates a new ProcessoAutuado using all read-only and all non-null properties.
+	 * If the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Requerente createRequerente(final String nome) {
-		return requerenteDAO.create(getEntityManager(), nome);
+	public ProcessoAutuado createProcessoAutuado(final String identification, final PeticaoDistribuida peticao, final Auto auto, final Pagina pagina, final boolean archived) {
+		return processoAutuadoDAO.create(getEntityManager(), identification, peticao, auto, pagina, archived);
 	}
 	
 	/**
-	 * Creates a new Requerente using all read-only and all non-null properties. If
-	 * the new entity violates uniqueness constraints and a Cache is used, an
+	 * Creates a new ProcessoAutuado using all read-only and all non-null properties.
+	 * If the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Requerente createRequerente(final String nome, final IAction<Requerente> prePersistAction) {
-		return requerenteDAO.create(getEntityManager(), nome, prePersistAction);
+	public ProcessoAutuado createProcessoAutuado(final String identification, final PeticaoDistribuida peticao, final Auto auto, final Pagina pagina, final boolean archived, final IAction<ProcessoAutuado> prePersistAction) {
+		return processoAutuadoDAO.create(getEntityManager(), identification, peticao, auto, pagina, archived, prePersistAction);
 	}
 	
 	/**
-	 * Returns the Requerente with the given id.
+	 * Returns the ProcessoAutuado with the given id.
 	 */
-	public Requerente getRequerente(final int id) {
-		Requerente entity = requerenteDAO.get(getEntityManager(), id);
+	// This method is deprecated because the entity ProcessoAutuado has uniqueness
+	// constraints. This indicates that there are properties that represent domain
+	// keys, which should be used to retrieve entities instead of the raw database IDs.
+	@java.lang.Deprecated
+	public ProcessoAutuado getProcessoAutuado(final int id) {
+		ProcessoAutuado entity = processoAutuadoDAO.get(getEntityManager(), id);
 		return entity;
 	}
 	
 	/**
-	 * Returns all entities of type Requerente.
+	 * Returns the ProcessoAutuado with the given identification.
 	 */
-	public List<Requerente> getAllRequerentes() {
-		final List<Requerente> entities = requerenteDAO.getAll(getEntityManager());
+	public ProcessoAutuado getProcessoAutuadoByIdentification(final String identification, final boolean includedArchivedEntities) {
+		ProcessoAutuado entity = processoAutuadoDAO.getByIdentification(getEntityManager(), identification, includedArchivedEntities);
+		return entity;
+	}
+	
+	/**
+	 * Returns the ProcessoAutuados with the given peticao.
+	 */
+	public List<ProcessoAutuado> getProcessoAutuadosByPeticao(final PeticaoDistribuida peticao, final boolean includeArchivedEntities) {
+		List<ProcessoAutuado> entities = processoAutuadoDAO.getByPeticao(getEntityManager(), peticao, includeArchivedEntities);
 		return entities;
 	}
 	
 	/**
-	 * Searches for entities of type Requerente.
+	 * Returns the ProcessoAutuados with the given auto.
 	 */
-	public List<Requerente> searchRequerentes(final java.lang.String _searchString, final int _maxResults) {
-		return requerenteDAO.search(getEntityManager(), _searchString, _maxResults);
+	public List<ProcessoAutuado> getProcessoAutuadosByAuto(final Auto auto, final boolean includeArchivedEntities) {
+		List<ProcessoAutuado> entities = processoAutuadoDAO.getByAuto(getEntityManager(), auto, includeArchivedEntities);
+		return entities;
 	}
 	
 	/**
-	 * Deletes the given Requerente.
+	 * Returns the ProcessoAutuados with the given pagina.
 	 */
-	public void delete(final Requerente entity) {
-		requerenteDAO.delete(getEntityManager(), entity);
+	public List<ProcessoAutuado> getProcessoAutuadosByPagina(final Pagina pagina, final boolean includeArchivedEntities) {
+		List<ProcessoAutuado> entities = processoAutuadoDAO.getByPagina(getEntityManager(), pagina, includeArchivedEntities);
+		return entities;
 	}
 	
 	/**
-	 * Deletes all given Requerentes.
+	 * Returns all ProcessoAutuados where the given registro is contained in the
+	 * collection 'registro'.
 	 */
-	public void deleteRequerentes(final List<Requerente> entities) {
-		requerenteDAO.delete(getEntityManager(), entities);
+	public List<ProcessoAutuado> getProcessoAutuadosByRegistro(final Registro registro) {
+		List<ProcessoAutuado> entities = processoAutuadoDAO.getByRegistro(getEntityManager(), registro);
+		return entities;
 	}
 	
 	/**
-	 * Counts the number of Requerente entities.
+	 * Returns all ProcessoAutuados where the boolean property 'archived' is set to
+	 * <code>true</code>.
 	 */
-	public int countRequerentes() {
-		return requerenteDAO.count(getEntityManager());
+	public List<ProcessoAutuado> getArchivedProcessoAutuados() {
+		final List<ProcessoAutuado> entities = processoAutuadoDAO.getArchived(getEntityManager());
+		return entities;
 	}
 	
-	public Requerente merge(Requerente entity) {
+	/**
+	 * Sets the boolean property 'archived' for all ProcessoAutuados to the given
+	 * value.
+	 */
+	public void setProcessoAutuadosArchived(final boolean value, final boolean includeArchivedEntities) {
+		processoAutuadoDAO.setArchived(getEntityManager(), value, includeArchivedEntities);
+	}
+	
+	/**
+	 * Returns all entities of type ProcessoAutuado.
+	 */
+	public List<ProcessoAutuado> getAllProcessoAutuados(final boolean includeArchivedEntities) {
+		final List<ProcessoAutuado> entities = processoAutuadoDAO.getAll(getEntityManager(), includeArchivedEntities);
+		return entities;
+	}
+	
+	/**
+	 * Searches for entities of type ProcessoAutuado.
+	 */
+	public List<ProcessoAutuado> searchProcessoAutuados(final java.lang.String _searchString, final int _maxResults) {
+		return processoAutuadoDAO.search(getEntityManager(), _searchString, _maxResults);
+	}
+	
+	/**
+	 * Deletes the given ProcessoAutuado. This method is deprecated, because
+	 * ProcessoAutuado is an archivable entity. Therefore, it should be archived
+	 * instead of deleted.
+	 */
+	@java.lang.Deprecated
+	public void delete(final ProcessoAutuado entity) {
+		processoAutuadoDAO.delete(getEntityManager(), entity);
+	}
+	
+	/**
+	 * Deletes all given ProcessoAutuados. This method is deprecated, because
+	 * ProcessoAutuado is an archivable entity. Therefore, it should be archived
+	 * instead of deleted.
+	 */
+	@java.lang.Deprecated
+	public void deleteProcessoAutuados(final List<ProcessoAutuado> entities) {
+		processoAutuadoDAO.delete(getEntityManager(), entities);
+	}
+	
+	/**
+	 * Counts the number of ProcessoAutuado entities.
+	 */
+	public int countProcessoAutuados(final boolean includeArchivedEntities) {
+		return processoAutuadoDAO.count(getEntityManager(), includeArchivedEntities);
+	}
+	
+	public ProcessoAutuado merge(ProcessoAutuado entity) {
 		return getEntityManager().merge(entity);
 	}
 	
 	/**
-	 * Creates a new Requerido using all read-only and all non-null properties. If the
+	 * Creates a new Registro using all read-only and all non-null properties. If the
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Requerido createRequerido(final String nome) {
-		return requeridoDAO.create(getEntityManager(), nome);
+	public Registro createRegistro(final Date data, final String infoRegisto, final ProcessoAutuado processoAutuado) {
+		return registroDAO.create(getEntityManager(), data, infoRegisto, processoAutuado);
 	}
 	
 	/**
-	 * Creates a new Requerido using all read-only and all non-null properties. If the
+	 * Creates a new Registro using all read-only and all non-null properties. If the
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Requerido createRequerido(final String nome, final IAction<Requerido> prePersistAction) {
-		return requeridoDAO.create(getEntityManager(), nome, prePersistAction);
+	public Registro createRegistro(final Date data, final String infoRegisto, final ProcessoAutuado processoAutuado, final IAction<Registro> prePersistAction) {
+		return registroDAO.create(getEntityManager(), data, infoRegisto, processoAutuado, prePersistAction);
 	}
 	
 	/**
-	 * Returns the Requerido with the given id.
+	 * Returns the Registro with the given id.
 	 */
-	public Requerido getRequerido(final int id) {
-		Requerido entity = requeridoDAO.get(getEntityManager(), id);
+	public Registro getRegistro(final int id) {
+		Registro entity = registroDAO.get(getEntityManager(), id);
 		return entity;
 	}
 	
 	/**
-	 * Returns all entities of type Requerido.
+	 * Returns the Registros with the given processoAutuado.
 	 */
-	public List<Requerido> getAllRequeridos() {
-		final List<Requerido> entities = requeridoDAO.getAll(getEntityManager());
+	public List<Registro> getRegistrosByProcessoAutuado(final ProcessoAutuado processoAutuado) {
+		List<Registro> entities = registroDAO.getByProcessoAutuado(getEntityManager(), processoAutuado);
 		return entities;
 	}
 	
 	/**
-	 * Searches for entities of type Requerido.
+	 * Returns all Registros where data is set to a value before '_maxDate'.
 	 */
-	public List<Requerido> searchRequeridos(final java.lang.String _searchString, final int _maxResults) {
-		return requeridoDAO.search(getEntityManager(), _searchString, _maxResults);
+	public List<Registro> getRegistrosWithDataBefore(final Date _maxDate) {
+		final List<Registro> entities = registroDAO.getDataBefore(getEntityManager(), _maxDate);
+		return entities;
 	}
 	
 	/**
-	 * Deletes the given Requerido.
+	 * Returns all Registros where data is set to a value after '_minDate'.
 	 */
-	public void delete(final Requerido entity) {
-		requeridoDAO.delete(getEntityManager(), entity);
+	public List<Registro> getRegistrosWithDataAfter(final Date _minDate) {
+		final List<Registro> entities = registroDAO.getDataAfter(getEntityManager(), _minDate);
+		return entities;
 	}
 	
 	/**
-	 * Deletes all given Requeridos.
+	 * Returns all entities of type Registro.
 	 */
-	public void deleteRequeridos(final List<Requerido> entities) {
-		requeridoDAO.delete(getEntityManager(), entities);
+	public List<Registro> getAllRegistros() {
+		final List<Registro> entities = registroDAO.getAll(getEntityManager());
+		return entities;
 	}
 	
 	/**
-	 * Counts the number of Requerido entities.
+	 * Searches for entities of type Registro.
 	 */
-	public int countRequeridos() {
-		return requeridoDAO.count(getEntityManager());
+	public List<Registro> searchRegistros(final java.lang.String _searchString, final int _maxResults) {
+		return registroDAO.search(getEntityManager(), _searchString, _maxResults);
 	}
 	
-	public Requerido merge(Requerido entity) {
+	/**
+	 * Deletes the given Registro.
+	 */
+	public void delete(final Registro entity) {
+		registroDAO.delete(getEntityManager(), entity);
+	}
+	
+	/**
+	 * Deletes all given Registros.
+	 */
+	public void deleteRegistros(final List<Registro> entities) {
+		registroDAO.delete(getEntityManager(), entities);
+	}
+	
+	/**
+	 * Deletes all Registros where data is set to a value before '_maxDate'.
+	 */
+	public void deleteRegistrosWithDataBefore(final Date _maxDate) {
+		Query query = getEntityManager().createQuery("DELETE FROM " + Registro.class.getName() + " " + "WHERE " + RegistroDAO.FIELD__DATA + " < ?1");
+		query.setParameter(1, _maxDate);
+		query.executeUpdate();
+	}
+	
+	/**
+	 * Deletes all Registros where data is set to a value after '_minDate'.
+	 */
+	public void deleteRegistrosWithDataAfter(final Date _minDate) {
+		Query query = getEntityManager().createQuery("DELETE FROM " + Registro.class.getName() + " " + "WHERE " + RegistroDAO.FIELD__DATA + " > ?1");
+		query.setParameter(1, _minDate);
+		query.executeUpdate();
+	}
+	
+	/**
+	 * Counts the number of Registro entities.
+	 */
+	public int countRegistros() {
+		return registroDAO.count(getEntityManager());
+	}
+	
+	public Registro merge(Registro entity) {
+		return getEntityManager().merge(entity);
+	}
+	
+	/**
+	 * Creates a new Peticao using all read-only and all non-null properties. If the
+	 * new entity violates uniqueness constraints and a Cache is used, an
+	 * java.lang.IllegalArgumentException is thrown.
+	 */
+	public Peticao createPeticao(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean archived) {
+		return peticaoDAO.create(getEntityManager(), numeroId, data, requerente, requerido, resumo, remetente, archived);
+	}
+	
+	/**
+	 * Creates a new Peticao using all read-only and all non-null properties. If the
+	 * new entity violates uniqueness constraints and a Cache is used, an
+	 * java.lang.IllegalArgumentException is thrown.
+	 */
+	public Peticao createPeticao(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean archived, final IAction<Peticao> prePersistAction) {
+		return peticaoDAO.create(getEntityManager(), numeroId, data, requerente, requerido, resumo, remetente, archived, prePersistAction);
+	}
+	
+	/**
+	 * Returns the Peticao with the given id.
+	 */
+	public Peticao getPeticao(final int id) {
+		Peticao entity = peticaoDAO.get(getEntityManager(), id);
+		return entity;
+	}
+	
+	/**
+	 * Returns all Peticaos where data is set to a value before '_maxDate'.
+	 */
+	public List<Peticao> getPeticaosWithDataBefore(final Date _maxDate) {
+		final List<Peticao> entities = peticaoDAO.getDataBefore(getEntityManager(), _maxDate);
+		return entities;
+	}
+	
+	/**
+	 * Returns all Peticaos where data is set to a value after '_minDate'.
+	 */
+	public List<Peticao> getPeticaosWithDataAfter(final Date _minDate) {
+		final List<Peticao> entities = peticaoDAO.getDataAfter(getEntityManager(), _minDate);
+		return entities;
+	}
+	
+	/**
+	 * Returns all Peticaos where the boolean property 'archived' is set to
+	 * <code>true</code>.
+	 */
+	public List<Peticao> getArchivedPeticaos() {
+		final List<Peticao> entities = peticaoDAO.getArchived(getEntityManager());
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'archived' for all Peticaos to the given value.
+	 */
+	public void setPeticaosArchived(final boolean value, final boolean includeArchivedEntities) {
+		peticaoDAO.setArchived(getEntityManager(), value, includeArchivedEntities);
+	}
+	
+	/**
+	 * Returns all entities of type Peticao.
+	 */
+	public List<Peticao> getAllPeticaos(final boolean includeArchivedEntities) {
+		final List<Peticao> entities = peticaoDAO.getAll(getEntityManager(), includeArchivedEntities);
+		return entities;
+	}
+	
+	/**
+	 * Searches for entities of type Peticao.
+	 */
+	public List<Peticao> searchPeticaos(final java.lang.String _searchString, final int _maxResults) {
+		return peticaoDAO.search(getEntityManager(), _searchString, _maxResults);
+	}
+	
+	/**
+	 * Deletes the given Peticao. This method is deprecated, because Peticao is an
+	 * archivable entity. Therefore, it should be archived instead of deleted.
+	 */
+	@java.lang.Deprecated
+	public void delete(final Peticao entity) {
+		peticaoDAO.delete(getEntityManager(), entity);
+	}
+	
+	/**
+	 * Deletes all given Peticaos. This method is deprecated, because Peticao is an
+	 * archivable entity. Therefore, it should be archived instead of deleted.
+	 */
+	@java.lang.Deprecated
+	public void deletePeticaos(final List<Peticao> entities) {
+		peticaoDAO.delete(getEntityManager(), entities);
+	}
+	
+	/**
+	 * Deletes all Peticaos where data is set to a value before '_maxDate'.
+	 */
+	public void deletePeticaosWithDataBefore(final Date _maxDate) {
+		Query query = getEntityManager().createQuery("DELETE FROM " + Peticao.class.getName() + " " + "WHERE " + PeticaoDAO.FIELD__DATA + " < ?1");
+		query.setParameter(1, _maxDate);
+		query.executeUpdate();
+	}
+	
+	/**
+	 * Deletes all Peticaos where data is set to a value after '_minDate'.
+	 */
+	public void deletePeticaosWithDataAfter(final Date _minDate) {
+		Query query = getEntityManager().createQuery("DELETE FROM " + Peticao.class.getName() + " " + "WHERE " + PeticaoDAO.FIELD__DATA + " > ?1");
+		query.setParameter(1, _minDate);
+		query.executeUpdate();
+	}
+	
+	/**
+	 * Counts the number of Peticao entities.
+	 */
+	public int countPeticaos(final boolean includeArchivedEntities) {
+		return peticaoDAO.count(getEntityManager(), includeArchivedEntities);
+	}
+	
+	public Peticao merge(Peticao entity) {
+		return getEntityManager().merge(entity);
+	}
+	
+	/**
+	 * Creates a new PeticaoDistribuida using all read-only and all non-null
+	 * properties. If the new entity violates uniqueness constraints and a Cache is
+	 * used, an java.lang.IllegalArgumentException is thrown.
+	 */
+	public PeticaoDistribuida createPeticaoDistribuida(final Peticao peticao, final Seccao seccao, final boolean archived) {
+		return peticaoDistribuidaDAO.create(getEntityManager(), peticao, seccao, archived);
+	}
+	
+	/**
+	 * Creates a new PeticaoDistribuida using all read-only and all non-null
+	 * properties. If the new entity violates uniqueness constraints and a Cache is
+	 * used, an java.lang.IllegalArgumentException is thrown.
+	 */
+	public PeticaoDistribuida createPeticaoDistribuida(final Peticao peticao, final Seccao seccao, final boolean archived, final IAction<PeticaoDistribuida> prePersistAction) {
+		return peticaoDistribuidaDAO.create(getEntityManager(), peticao, seccao, archived, prePersistAction);
+	}
+	
+	/**
+	 * Returns the PeticaoDistribuida with the given id.
+	 */
+	public PeticaoDistribuida getPeticaoDistribuida(final int id) {
+		PeticaoDistribuida entity = peticaoDistribuidaDAO.get(getEntityManager(), id);
+		return entity;
+	}
+	
+	/**
+	 * Returns the PeticaoDistribuidas with the given peticao.
+	 */
+	public List<PeticaoDistribuida> getPeticaoDistribuidasByPeticao(final Peticao peticao, final boolean includeArchivedEntities) {
+		List<PeticaoDistribuida> entities = peticaoDistribuidaDAO.getByPeticao(getEntityManager(), peticao, includeArchivedEntities);
+		return entities;
+	}
+	
+	/**
+	 * Returns the PeticaoDistribuidas with the given seccao.
+	 */
+	public List<PeticaoDistribuida> getPeticaoDistribuidasBySeccao(final Seccao seccao, final boolean includeArchivedEntities) {
+		List<PeticaoDistribuida> entities = peticaoDistribuidaDAO.getBySeccao(getEntityManager(), seccao, includeArchivedEntities);
+		return entities;
+	}
+	
+	/**
+	 * Returns all PeticaoDistribuidas where the boolean property 'archived' is set to
+	 * <code>true</code>.
+	 */
+	public List<PeticaoDistribuida> getArchivedPeticaoDistribuidas() {
+		final List<PeticaoDistribuida> entities = peticaoDistribuidaDAO.getArchived(getEntityManager());
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'archived' for all PeticaoDistribuidas to the given
+	 * value.
+	 */
+	public void setPeticaoDistribuidasArchived(final boolean value, final boolean includeArchivedEntities) {
+		peticaoDistribuidaDAO.setArchived(getEntityManager(), value, includeArchivedEntities);
+	}
+	
+	/**
+	 * Returns all entities of type PeticaoDistribuida.
+	 */
+	public List<PeticaoDistribuida> getAllPeticaoDistribuidas(final boolean includeArchivedEntities) {
+		final List<PeticaoDistribuida> entities = peticaoDistribuidaDAO.getAll(getEntityManager(), includeArchivedEntities);
+		return entities;
+	}
+	
+	/**
+	 * Searches for entities of type PeticaoDistribuida.
+	 */
+	public List<PeticaoDistribuida> searchPeticaoDistribuidas(final java.lang.String _searchString, final int _maxResults) {
+		return peticaoDistribuidaDAO.search(getEntityManager(), _searchString, _maxResults);
+	}
+	
+	/**
+	 * Deletes the given PeticaoDistribuida. This method is deprecated, because
+	 * PeticaoDistribuida is an archivable entity. Therefore, it should be archived
+	 * instead of deleted.
+	 */
+	@java.lang.Deprecated
+	public void delete(final PeticaoDistribuida entity) {
+		peticaoDistribuidaDAO.delete(getEntityManager(), entity);
+	}
+	
+	/**
+	 * Deletes all given PeticaoDistribuidas. This method is deprecated, because
+	 * PeticaoDistribuida is an archivable entity. Therefore, it should be archived
+	 * instead of deleted.
+	 */
+	@java.lang.Deprecated
+	public void deletePeticaoDistribuidas(final List<PeticaoDistribuida> entities) {
+		peticaoDistribuidaDAO.delete(getEntityManager(), entities);
+	}
+	
+	/**
+	 * Counts the number of PeticaoDistribuida entities.
+	 */
+	public int countPeticaoDistribuidas(final boolean includeArchivedEntities) {
+		return peticaoDistribuidaDAO.count(getEntityManager(), includeArchivedEntities);
+	}
+	
+	public PeticaoDistribuida merge(PeticaoDistribuida entity) {
+		return getEntityManager().merge(entity);
+	}
+	
+	/**
+	 * Creates a new PeticaoApenso using all read-only and all non-null properties. If
+	 * the new entity violates uniqueness constraints and a Cache is used, an
+	 * java.lang.IllegalArgumentException is thrown.
+	 */
+	public PeticaoApenso createPeticaoApenso(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean archived, final Processo processo) {
+		return peticaoApensoDAO.create(getEntityManager(), numeroId, data, requerente, requerido, resumo, remetente, archived, processo);
+	}
+	
+	/**
+	 * Creates a new PeticaoApenso using all read-only and all non-null properties. If
+	 * the new entity violates uniqueness constraints and a Cache is used, an
+	 * java.lang.IllegalArgumentException is thrown.
+	 */
+	public PeticaoApenso createPeticaoApenso(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean archived, final Processo processo, final IAction<PeticaoApenso> prePersistAction) {
+		return peticaoApensoDAO.create(getEntityManager(), numeroId, data, requerente, requerido, resumo, remetente, archived, processo, prePersistAction);
+	}
+	
+	/**
+	 * Returns the PeticaoApenso with the given id.
+	 */
+	public PeticaoApenso getPeticaoApenso(final int id) {
+		PeticaoApenso entity = peticaoApensoDAO.get(getEntityManager(), id);
+		return entity;
+	}
+	
+	/**
+	 * Returns the PeticaoApensos with the given processo.
+	 */
+	public List<PeticaoApenso> getPeticaoApensosByProcesso(final Processo processo, final boolean includeArchivedEntities) {
+		List<PeticaoApenso> entities = peticaoApensoDAO.getByProcesso(getEntityManager(), processo, includeArchivedEntities);
+		return entities;
+	}
+	
+	/**
+	 * Returns all PeticaoApensos where data is set to a value before '_maxDate'.
+	 */
+	public List<PeticaoApenso> getPeticaoApensosWithDataBefore(final Date _maxDate) {
+		final List<PeticaoApenso> entities = peticaoApensoDAO.getDataBefore(getEntityManager(), _maxDate);
+		return entities;
+	}
+	
+	/**
+	 * Returns all PeticaoApensos where data is set to a value after '_minDate'.
+	 */
+	public List<PeticaoApenso> getPeticaoApensosWithDataAfter(final Date _minDate) {
+		final List<PeticaoApenso> entities = peticaoApensoDAO.getDataAfter(getEntityManager(), _minDate);
+		return entities;
+	}
+	
+	/**
+	 * Returns all PeticaoApensos where the boolean property 'archived' is set to
+	 * <code>true</code>.
+	 */
+	public List<PeticaoApenso> getArchivedPeticaoApensos() {
+		final List<PeticaoApenso> entities = peticaoApensoDAO.getArchived(getEntityManager());
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'archived' for all PeticaoApensos to the given value.
+	 */
+	public void setPeticaoApensosArchived(final boolean value, final boolean includeArchivedEntities) {
+		peticaoApensoDAO.setArchived(getEntityManager(), value, includeArchivedEntities);
+	}
+	
+	/**
+	 * Returns all entities of type PeticaoApenso.
+	 */
+	public List<PeticaoApenso> getAllPeticaoApensos(final boolean includeArchivedEntities) {
+		final List<PeticaoApenso> entities = peticaoApensoDAO.getAll(getEntityManager(), includeArchivedEntities);
+		return entities;
+	}
+	
+	/**
+	 * Searches for entities of type PeticaoApenso.
+	 */
+	public List<PeticaoApenso> searchPeticaoApensos(final java.lang.String _searchString, final int _maxResults) {
+		return peticaoApensoDAO.search(getEntityManager(), _searchString, _maxResults);
+	}
+	
+	/**
+	 * Deletes the given PeticaoApenso. This method is deprecated, because
+	 * PeticaoApenso is an archivable entity. Therefore, it should be archived instead
+	 * of deleted.
+	 */
+	@java.lang.Deprecated
+	public void delete(final PeticaoApenso entity) {
+		peticaoApensoDAO.delete(getEntityManager(), entity);
+	}
+	
+	/**
+	 * Deletes all given PeticaoApensos. This method is deprecated, because
+	 * PeticaoApenso is an archivable entity. Therefore, it should be archived instead
+	 * of deleted.
+	 */
+	@java.lang.Deprecated
+	public void deletePeticaoApensos(final List<PeticaoApenso> entities) {
+		peticaoApensoDAO.delete(getEntityManager(), entities);
+	}
+	
+	/**
+	 * Deletes all PeticaoApensos where data is set to a value before '_maxDate'.
+	 */
+	public void deletePeticaoApensosWithDataBefore(final Date _maxDate) {
+		Query query = getEntityManager().createQuery("DELETE FROM " + PeticaoApenso.class.getName() + " " + "WHERE " + PeticaoDAO.FIELD__DATA + " < ?1");
+		query.setParameter(1, _maxDate);
+		query.executeUpdate();
+	}
+	
+	/**
+	 * Deletes all PeticaoApensos where data is set to a value after '_minDate'.
+	 */
+	public void deletePeticaoApensosWithDataAfter(final Date _minDate) {
+		Query query = getEntityManager().createQuery("DELETE FROM " + PeticaoApenso.class.getName() + " " + "WHERE " + PeticaoDAO.FIELD__DATA + " > ?1");
+		query.setParameter(1, _minDate);
+		query.executeUpdate();
+	}
+	
+	/**
+	 * Counts the number of PeticaoApenso entities.
+	 */
+	public int countPeticaoApensos(final boolean includeArchivedEntities) {
+		return peticaoApensoDAO.count(getEntityManager(), includeArchivedEntities);
+	}
+	
+	public PeticaoApenso merge(PeticaoApenso entity) {
+		return getEntityManager().merge(entity);
+	}
+	
+	/**
+	 * Creates a new Auto using all read-only and all non-null properties. If the new
+	 * entity violates uniqueness constraints and a Cache is used, an
+	 * java.lang.IllegalArgumentException is thrown.
+	 */
+	public Auto createAuto(final String auto) {
+		return autoDAO.create(getEntityManager(), auto);
+	}
+	
+	/**
+	 * Creates a new Auto using all read-only and all non-null properties. If the new
+	 * entity violates uniqueness constraints and a Cache is used, an
+	 * java.lang.IllegalArgumentException is thrown.
+	 */
+	public Auto createAuto(final String auto, final IAction<Auto> prePersistAction) {
+		return autoDAO.create(getEntityManager(), auto, prePersistAction);
+	}
+	
+	/**
+	 * Returns the Auto with the given id.
+	 */
+	public Auto getAuto(final int id) {
+		Auto entity = autoDAO.get(getEntityManager(), id);
+		return entity;
+	}
+	
+	/**
+	 * Returns all entities of type Auto.
+	 */
+	public List<Auto> getAllAutos() {
+		final List<Auto> entities = autoDAO.getAll(getEntityManager());
+		return entities;
+	}
+	
+	/**
+	 * Searches for entities of type Auto.
+	 */
+	public List<Auto> searchAutos(final java.lang.String _searchString, final int _maxResults) {
+		return autoDAO.search(getEntityManager(), _searchString, _maxResults);
+	}
+	
+	/**
+	 * Deletes the given Auto.
+	 */
+	public void delete(final Auto entity) {
+		autoDAO.delete(getEntityManager(), entity);
+	}
+	
+	/**
+	 * Deletes all given Autos.
+	 */
+	public void deleteAutos(final List<Auto> entities) {
+		autoDAO.delete(getEntityManager(), entities);
+	}
+	
+	/**
+	 * Counts the number of Auto entities.
+	 */
+	public int countAutos() {
+		return autoDAO.count(getEntityManager());
+	}
+	
+	public Auto merge(Auto entity) {
 		return getEntityManager().merge(entity);
 	}
 	

@@ -1,11 +1,14 @@
 package tribunal.entities;
 
 import java.util.Date;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -18,7 +21,7 @@ import tribunal.dao.TribunalListenerRegistry;
  * 
  * Note: Any change made to this class will be overridden.
  */
-public class Usuario implements IIntIdentifiable {
+public class Usuario implements java.io.Serializable, IIntIdentifiable {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -37,8 +40,13 @@ public class Usuario implements IIntIdentifiable {
 	@Column(name = "password", nullable = false)
 	private String password;
 	
-	@Column(name = "categoria", nullable = false)
-	private String categoria;
+	@OneToOne(cascade = {CascadeType.MERGE})
+	@JoinColumn(name = "categoria", nullable = false)
+	private Categoria categoria;
+	
+	@OneToOne(cascade = {CascadeType.MERGE})
+	@JoinColumn(name = "seccao", nullable = false)
+	private Seccao seccao;
 	
 	/**
 	 * <p>
@@ -63,7 +71,7 @@ public class Usuario implements IIntIdentifiable {
 	 * </p>
 	 */
 	@java.lang.Deprecated
-	public Usuario(String nome, Date dataDeNascimento, String username, String password, String categoria) {
+	public Usuario(String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao) {
 		super();
 		if (nome == null) {
 			throw new java.lang.IllegalArgumentException("'nome' must not be null.");
@@ -80,11 +88,15 @@ public class Usuario implements IIntIdentifiable {
 		if (categoria == null) {
 			throw new java.lang.IllegalArgumentException("'categoria' must not be null.");
 		}
+		if (seccao == null) {
+			throw new java.lang.IllegalArgumentException("'seccao' must not be null.");
+		}
 		this.nome = nome;
 		this.dataDeNascimento = dataDeNascimento;
 		this.username = username;
 		this.password = password;
 		this.categoria = categoria;
+		this.seccao = seccao;
 	}
 	
 	/**
@@ -185,18 +197,35 @@ public class Usuario implements IIntIdentifiable {
 	/**
 	 * Returns the value of property {@link #categoria}.
 	 */
-	public String getCategoria() {
+	public Categoria getCategoria() {
 		return categoria;
 	}
 	
 	/**
 	 * Sets the value of property {@link #categoria}.
 	 */
-	public void setCategoria(String newValue) {
+	public void setCategoria(Categoria newValue) {
 		if (newValue == null) {
 			throw new java.lang.IllegalArgumentException("'categoria' must not be null.");
 		}
 		this.categoria = newValue;
+	}
+	
+	/**
+	 * Returns the value of property {@link #seccao}.
+	 */
+	public Seccao getSeccao() {
+		return seccao;
+	}
+	
+	/**
+	 * Sets the value of property {@link #seccao}.
+	 */
+	public void setSeccao(Seccao newValue) {
+		if (newValue == null) {
+			throw new java.lang.IllegalArgumentException("'seccao' must not be null.");
+		}
+		this.seccao = newValue;
 	}
 	
 	@java.lang.Override
@@ -248,9 +277,6 @@ public class Usuario implements IIntIdentifiable {
 		result.append(", ");
 		result.append("password = ");
 		result.append(getPassword());
-		result.append(", ");
-		result.append("categoria = ");
-		result.append(getCategoria());
 		result.append("]");
 		return result.toString();
 	}

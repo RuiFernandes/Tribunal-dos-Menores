@@ -1,8 +1,8 @@
 package tribunal.entities;
 
-import java.util.Date;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,11 +10,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import tribunal.dao.TribunalListenerRegistry;
 
 @Entity
 @Table(name = "processo")
+@DiscriminatorColumn(length = 255)
 /*
  * This class is generated from the entity 'Processo' defined in the HEDL model.
  * 
@@ -26,23 +26,23 @@ public class Processo implements IIntIdentifiable {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
 	
-	@Column(name = "numero", nullable = false)
-	private String numero;
+	@Column(name = "identification", unique = true, nullable = false)
+	private String identification;
 	
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "data", nullable = false)
-	private Date data;
+	@OneToOne(cascade = {CascadeType.MERGE})
+	@JoinColumn(name = "peticao", nullable = false)
+	private PeticaoDistribuida peticao;
 	
-	@OneToOne(cascade = {CascadeType.ALL})
-	@JoinColumn(name = "requerente", nullable = false)
-	private Requerente requerente;
+	@OneToOne(cascade = {CascadeType.MERGE})
+	@JoinColumn(name = "auto", nullable = false)
+	private Auto auto;
 	
-	@OneToOne(cascade = {CascadeType.ALL})
-	@JoinColumn(name = "requerido", nullable = false)
-	private Requerido requerido;
+	@OneToOne(cascade = {CascadeType.MERGE})
+	@JoinColumn(name = "pagina", nullable = false)
+	private Pagina pagina;
 	
-	@Column(name = "auto", nullable = false)
-	private String auto;
+	@Column(name = "archived", nullable = false)
+	private boolean archived;
 	
 	/**
 	 * <p>
@@ -67,28 +67,25 @@ public class Processo implements IIntIdentifiable {
 	 * </p>
 	 */
 	@java.lang.Deprecated
-	public Processo(String numero, Date data, Requerente requerente, Requerido requerido, String auto) {
+	public Processo(String identification, PeticaoDistribuida peticao, Auto auto, Pagina pagina, boolean archived) {
 		super();
-		if (numero == null) {
-			throw new java.lang.IllegalArgumentException("'numero' must not be null.");
+		if (identification == null) {
+			throw new java.lang.IllegalArgumentException("'identification' must not be null.");
 		}
-		if (data == null) {
-			throw new java.lang.IllegalArgumentException("'data' must not be null.");
-		}
-		if (requerente == null) {
-			throw new java.lang.IllegalArgumentException("'requerente' must not be null.");
-		}
-		if (requerido == null) {
-			throw new java.lang.IllegalArgumentException("'requerido' must not be null.");
+		if (peticao == null) {
+			throw new java.lang.IllegalArgumentException("'peticao' must not be null.");
 		}
 		if (auto == null) {
 			throw new java.lang.IllegalArgumentException("'auto' must not be null.");
 		}
-		this.numero = numero;
-		this.data = data;
-		this.requerente = requerente;
-		this.requerido = requerido;
+		if (pagina == null) {
+			throw new java.lang.IllegalArgumentException("'pagina' must not be null.");
+		}
+		this.identification = identification;
+		this.peticao = peticao;
 		this.auto = auto;
+		this.pagina = pagina;
+		this.archived = archived;
 	}
 	
 	/**
@@ -116,88 +113,126 @@ public class Processo implements IIntIdentifiable {
 	}
 	
 	/**
-	 * Returns the value of property {@link #numero}.
+	 * Returns the value of property {@link #identification}.
 	 */
-	public String getNumero() {
-		return numero;
+	public String getIdentification() {
+		return identification;
 	}
 	
 	/**
-	 * Sets the value of property {@link #numero}.
+	 * Sets the value of property {@link #identification}.
 	 */
-	public void setNumero(String newValue) {
+	public void setIdentification(String newValue) {
 		if (newValue == null) {
-			throw new java.lang.IllegalArgumentException("'numero' must not be null.");
+			throw new java.lang.IllegalArgumentException("'identification' must not be null.");
 		}
-		this.numero = newValue;
+		this.identification = newValue;
+		
+		// Notify uniqueness listener
+		TribunalListenerRegistry.notifyUniquenessAccess(this);
 	}
 	
 	/**
-	 * Returns the value of property {@link #data}.
+	 * Returns the value of property {@link #peticao}. This method does not return
+	 * archived entities. This method is marked as deprecated, because it does not
+	 * return archived entities. Please use {@link #getPeticao(boolean)} instead.
 	 */
-	public Date getData() {
-		return data == null ? null : new Date(data.getTime());
+	@java.lang.Deprecated
+	public PeticaoDistribuida getPeticao() {
+		return getPeticao(false);
 	}
 	
 	/**
-	 * Sets the value of property {@link #data}.
+	 * Returns the value of property {@link #peticao}. This method is marked as
+	 * deprecated, because it does not return archived entities. Please use {@link
+	 * #getPeticao(boolean)} instead.
 	 */
-	public void setData(Date newValue) {
+	public PeticaoDistribuida getPeticao(boolean includeArchivedEntities) {
+		if (includeArchivedEntities) {
+			return peticao;
+		} else {
+			if (peticao == null) {
+				return peticao;
+			}
+			if (!peticao.isArchived() || includeArchivedEntities) {
+				return peticao;
+			}
+			return null;
+		}
+	}
+	
+	/**
+	 * Sets the value of property {@link #peticao}.
+	 */
+	public void setPeticao(PeticaoDistribuida newValue) {
 		if (newValue == null) {
-			throw new java.lang.IllegalArgumentException("'data' must not be null.");
+			throw new java.lang.IllegalArgumentException("'peticao' must not be null.");
 		}
-		this.data = new Date(newValue.getTime());
-	}
-	
-	/**
-	 * Returns the value of property {@link #requerente}.
-	 */
-	public Requerente getRequerente() {
-		return requerente;
-	}
-	
-	/**
-	 * Sets the value of property {@link #requerente}.
-	 */
-	public void setRequerente(Requerente newValue) {
-		if (newValue == null) {
-			throw new java.lang.IllegalArgumentException("'requerente' must not be null.");
-		}
-		this.requerente = newValue;
-	}
-	
-	/**
-	 * Returns the value of property {@link #requerido}.
-	 */
-	public Requerido getRequerido() {
-		return requerido;
-	}
-	
-	/**
-	 * Sets the value of property {@link #requerido}.
-	 */
-	public void setRequerido(Requerido newValue) {
-		if (newValue == null) {
-			throw new java.lang.IllegalArgumentException("'requerido' must not be null.");
-		}
-		this.requerido = newValue;
+		this.peticao = newValue;
 	}
 	
 	/**
 	 * Returns the value of property {@link #auto}.
 	 */
-	public String getAuto() {
+	public Auto getAuto() {
 		return auto;
 	}
 	
 	/**
 	 * Sets the value of property {@link #auto}.
 	 */
-	public void setAuto(String newValue) {
+	public void setAuto(Auto newValue) {
 		if (newValue == null) {
 			throw new java.lang.IllegalArgumentException("'auto' must not be null.");
 		}
 		this.auto = newValue;
+	}
+	
+	/**
+	 * Returns the value of property {@link #pagina}.
+	 */
+	public Pagina getPagina() {
+		return pagina;
+	}
+	
+	/**
+	 * Sets the value of property {@link #pagina}.
+	 */
+	public void setPagina(Pagina newValue) {
+		if (newValue == null) {
+			throw new java.lang.IllegalArgumentException("'pagina' must not be null.");
+		}
+		this.pagina = newValue;
+	}
+	
+	/**
+	 * Returns the value of property {@link #archived}. Use {@link #isArchived()}
+	 * instead.
+	 */
+	@java.lang.Deprecated
+	public boolean getArchived() {
+		return archived;
+	}
+	
+	/**
+	 * Returns the value of property {@link #archived}.
+	 */
+	public boolean isArchived() {
+		return archived;
+	}
+	
+	/**
+	 * <p>
+	 * Sets the value of property {@link #archived}.
+	 * </p>
+	 * <p>
+	 * Setting this property to <code>true</code> logically deletes the entity. The
+	 * entity remains in the database physically, but is only returned if explicitly
+	 * requested.
+	 * </p>
+	 */
+	public void setArchived(boolean newValue) {
+		this.archived = newValue;
 	}
 	
 	@java.lang.Override
@@ -238,14 +273,11 @@ public class Processo implements IIntIdentifiable {
 		result.append("Processo-");
 		result.append(getId());
 		result.append(" [");
-		result.append("numero = ");
-		result.append(getNumero());
+		result.append("identification = ");
+		result.append(getIdentification());
 		result.append(", ");
-		result.append("data = ");
-		result.append(getData());
-		result.append(", ");
-		result.append("auto = ");
-		result.append(getAuto());
+		result.append("archived = ");
+		result.append(isArchived());
 		result.append("]");
 		return result.toString();
 	}
