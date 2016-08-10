@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk>
+    <vlayout apply="org.zkoss.bind.BindComposer" viewModel="@id('user') @init('tribunal.controler.user')">
+        <hbox hflex="true">
+            <label value="Tribunal" style="font-size:30px"/>
+            <label value="dos Menores" style="font-size:30px"/>
+        </hbox>
+        <groupbox id="properties" open="false" closable="true" zclass="input-group">
+            <caption zclass="well" label="Registar Usuario" style="color: #428bca;" iconSclass="z-icon-hand-o-down" vflex="true"> </caption>
+            <div>
+                <grid hflex="true" vflex="true" zclass="table-hover">
+                    <columns>
+                        <column label="" width="25%" align="right"/>
+                        <column label=""/>
+                    </columns>
+                    <rows>
+                        <row>
+                            <label value="Numero :"/>
+                            <textbox disabled="true" value="@load(user.numero)"/>
+                        </row>
+                        <row>
+                            <label value="Data de Nascimento"/>
+                            <datebox value="@bind(user.data)" onCreate="self.value = new Date()"/>
+                        </row>
+                        <row>
+                            <label value="Nome Completo"/>
+                            <textbox width="75%" value="@bind(user.nomeCompleto)"/>
+                        </row>
+                        <row>
+                            <label value="Username :"/>
+                            <textbox width="75%" constraint="no empty" value="@bind(user.username)"/>
+                        </row>
+                        <row>
+                            <label value="Password :"/>
+                            <textbox width="75%" type="password" value="@bind(user.pass)" constraint="no empty"/>
+                        </row>
+                        <row>
+                            <label value="Confirma-Password :"/>
+                            <textbox multiline="true" mold="rounded" width="100%" value="@bind(user.confPass)" constraint="no empty"/>
+                        </row>
+                        <row>
+                            <label value="Categoria"/>
+                            <combobox model="@load(user.categorias)"  selectedItem="@bind(user.categoria)" constraint="no empty">
+                            <template name="model" var="cat">
+                            <comboitem label="@load(cat.nome)" />
+                            </template> </combobox>
+                        </row>
+                        <row>
+                            <label value="Seccao"/>
+                            <combobox model="@load(user.seccoes)" selectedItem="@bind(user.seccao)" constraint="no empty">
+                            <template name="model" var="secc">
+                            <comboitem label="@load(secc.nome)" />
+                            </template></combobox>
+                        </row>
+                    </rows>
+                </grid>
+            </div>
+            <hbox hflex="true" vflex="true">
+                <button label="Registrar Usuario" onClick="@command('save')"  id="salvar"/><space width="20px" />
+                <button label="Limpar" sclass="btn-danger"/>
+            </hbox>
+        </groupbox>
+        <vbox vflex="true" hflex="true">
+            <groupbox >
+                <listbox id="box" mold="paging" pagingPosition="bottom"  multiple="false" checkmark="false" model="@bind(user.users)" vflex="true" onSelect="@command('view')" zclass="table-hover">
+                    <listhead>
+                        <listheader label="numero"/>
+                        <listheader label="Nome Completo"/>
+                        <listheader label="Username"/>
+                        <listheader label="Categoria"/>
+                        <listheader label="seccao"/>
+                        <listheader label="DOB(data nasc.)"/>
+                    </listhead>
+                    <template  name="model" var="userlist">
+                    	<listitem popup="detail_${userlist.id}" >
+                    	
+                    		<listcell label="@load(userlist.id)"> <popup id="detail_${userlist.id}" height="200px" width="200px"><include src="/tribunal/test.zul"></include> </popup> </listcell>
+                    		<listcell label="@load(userlist.nome)"></listcell>
+                    		<listcell label="@load(userlist.username)"></listcell>
+                    		<listcell label="@load(userlist.categoria.nome)"></listcell>
+                    		<listcell label="@load(userlist.seccao.nome)"></listcell>
+                    		<listcell label="@load(userlist.dataDeNascimento)"></listcell>
+                    		
+                    </listitem>
+                    </template>
+                </listbox>
+            </groupbox>
+        </vbox>
+    </vlayout>
+</zk>

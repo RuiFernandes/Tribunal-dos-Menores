@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk>
+    <vlayout zclass="container" viewModel="@id('autuar') @init('tribunal.controler.livroPorta.livroPorta')" apply="org.zkoss.bind.BindComposer">
+       <!-- <hbox hflex="true"> 
+            <label value="Autuação de Processos" style="font-size:30px" />
+           
+        </hbox>-->
+        <groupbox open="false" closable="true" zclass="input-group">
+            <caption zclass="well" label="Autuar Petição" style="color: #428bca;font-size:30px" iconSclass="z-icon-hand-o-down" vflex="true"> </caption>
+            <div>
+                <grid hflex="true" vflex="true" zclass="table-hover">
+                    <columns>
+                        <column label="Livro numero: " width="25%" align="right"/>
+                        <column label="@load(autuar.livro.numero)"/>
+                    </columns>
+                    <rows>
+                        <row>
+                            <label value="Nr do Processo :" />
+                            <textbox value="@bind(autuar.numeroProcesso)" disabled="true"/>
+                        </row>
+                        <row>
+                            <label value="Data de Entrada :"/>
+                            <datebox value="@load(autuar.data)" disabled="true"/>
+                        </row>
+                      
+                        <row>
+                            <label value="Requerente :"/>
+                            <textbox  value="@load(autuar.peticao.peticao.requerente)" disabled="true" width="75%"/>
+                        </row>
+                        <row>
+                            <label value="Requerido :"/>
+                            <textbox value="@load(autuar.peticao.peticao.requerido)" disabled="true" width="75%"/>
+                        </row>
+                        <row>
+                            <label value="Auto :"/>
+                            <combobox  model="@bind(autuar.autos)" readonly="true" id="comboAuto" selectedItem="@bind(autuar.auto)" onSelect="@command('adicionarAuto')">
+                            <template name="model" var="aut">
+                            <comboitem label="@load(aut.auto)"/>
+                            </template>
+                            </combobox>
+                        </row>
+                        <row>
+                            <label value="Auto de :"/>
+                            <textbox value="@bind(autuar.outro)" id="outros" width="75%" disabled="true"/>
+                        </row>
+                        <row>
+                            <label value="Processo Apenso :"/>
+                            <textbox value="@load(autuar.apenso.processo.identification)" disabled="true"/>
+                        </row>
+                    </rows>
+                </grid>
+            </div>
+            <hbox hflex="true" vflex="true">
+                <button label="Autuar Processo" zclass="btn btn-Default" id="salvar" onClick="@command('actuar')"/>
+                <button label="limpar" zclass="btn btn-danger pull-right"/>
+            </hbox>
+        </groupbox>
+        <vbox vflex="true" hflex="true">
+            <groupbox>
+                <listbox model="@bind(autuar.peticoes)" id="box" mold="paging" pagingPosition="bottom" rows="5" multiple="false" selectedItem="@bind(autuar.peticao)" checkmark="false">
+                    <listhead>
+                        <listheader label="numero"/>
+                        <listheader label="Resumo" width="35%"/>
+                        <listheader label="Requerente"/>
+                        <listheader label="Requerido"/>
+                        <listheader label="Data"/>
+                      </listhead>
+                    <template name="model" var="pet">
+                    <listitem>
+                    <listcell label="@load(pet.id)"></listcell>
+                    <listcell label="@load(pet.peticao.resumo)"></listcell>
+                    <listcell label="@load(pet.peticao.requerente)"></listcell>
+                    <listcell label="@load(pet.peticao.requerido)"></listcell>
+                    </listitem>
+                    </template>
+                </listbox>
+            </groupbox>
+        </vbox>
+    </vlayout>
+</zk>

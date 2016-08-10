@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk>
+
+    <vlayout zclass="container">
+        <hbox hflex="true">
+            <label value="Entrada de" style="font-size:30px" />
+            <label value="Correspondencias" style="font-size:30px"/>
+        </hbox>
+        <groupbox open="false" closable="true" zclass="input-group">
+            <caption zclass="well" label="Entrada de Correspondencia" style="color: #428bca;" iconSclass="z-icon-hand-o-down" vflex="true"> </caption>
+            <div>
+                <grid hflex="true" vflex="true" zclass="table-hover">
+                    <columns>
+                        <column label="" width="25%" align="right"/>
+                        <column label=""/>
+                    </columns>
+                    <rows>
+                        <row>
+                            <label value="Identificacao Nr :" />
+                            <textbox />
+                        </row>
+                        <row>
+                            <label value="Data de Entrada :"/>
+                            <datebox/>
+                        </row>
+                        <row>
+                            <label value="Nome do remetente :"/>
+                            <textbox width="75%"/>
+                        </row>
+                        <row>
+                            <label value="Requerent :"/>
+                            <textbox width="75%"/>
+                        </row>
+                        <row>
+                            <label value="Requerido :"/>
+                            <textbox width="75%"/>
+                        </row>
+                        <row>
+                            <label value="Resumo :"/>
+                            <textbox multiline="true" mold="rounded" width="100%" rows="2"/>
+                        </row>
+                        <row>
+                            <checkbox   value="(self.checked)" name="apenso" label=" Nao apenso" onClick="processoApenso.setDisabled(self.checked)"  />
+                            <bandbox  placeholder="Processo" autodrop="true" disabled="true" id="processoApenso"/>
+                        </row>
+                    </rows>
+                </grid>
+            </div>
+            <hbox hflex="true" vflex="true">
+                <button label="Entrada" zclass="btn btn-Default" id="salvar"/>
+                <button label="limpar" zclass="btn btn-danger pull-right"/>
+            </hbox>
+        </groupbox>
+        <vbox vflex="true" hflex="true">
+            <groupbox>
+                <listbox id="box" mold="paging" pagingPosition="bottom" rows="5" multiple="true" checkmark="true">
+                    <listhead>
+                        <listheader label="numero"/>
+                        <listheader label="Auto de"/>
+                        <listheader label="Requerente"/>
+                        <listheader label="Requerido"/>
+                        <listheader label="Data"/>
+                        <listheader label="OBS"/>
+                    </listhead>
+                    <template/>
+                </listbox>
+            </groupbox>
+        </vbox>
+    </vlayout>
+</zk>
