@@ -32,13 +32,15 @@ public class PeticaoDAO {
 	public final static String FIELD__REQUERIDO = getField(Peticao.class, "requerido");
 	public final static String FIELD__RESUMO = getField(Peticao.class, "resumo");
 	public final static String FIELD__REMETENTE = getField(Peticao.class, "remetente");
+	public final static String FIELD__DIST = getField(Peticao.class, "dist");
+	public final static String FIELD__APENSO = getField(Peticao.class, "apenso");
 	public final static String FIELD__ARCHIVED = getField(Peticao.class, "archived");
 	
 	/**
 	 * Creates a Peticao using all read-only and all non-null properties.
 	 */
-	public Peticao create(EntityManager em, String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean archived) {
-		return create(em, numeroId, data, requerente, requerido, resumo, remetente, archived, null);
+	public Peticao create(EntityManager em, String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived) {
+		return create(em, numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, null);
 	}
 	
 	/**
@@ -46,9 +48,9 @@ public class PeticaoDAO {
 	 * per-persist action is executed before the entity is persisted and allows to set
 	 * properties which are not read-only or nullable.
 	 */
-	public Peticao create(EntityManager em, String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean archived, IAction<Peticao> prePersistAction) {
+	public Peticao create(EntityManager em, String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived, IAction<Peticao> prePersistAction) {
 		@java.lang.SuppressWarnings("deprecation")
-		Peticao newEntity = new Peticao(numeroId, data, requerente, requerido, resumo, remetente, archived);
+		Peticao newEntity = new Peticao(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived);
 		// Call prePersistAction
 		if (prePersistAction != null) {
 			prePersistAction.execute(newEntity);
@@ -92,6 +94,36 @@ public class PeticaoDAO {
 		_query.where(expression);
 		List<Peticao> entities = em.createQuery(_query).getResultList();
 		return entities;
+	}
+	
+	/**
+	 * Returns all Peticaos where the boolean property 'dist' is set to 'true'.
+	 */
+	public List<Peticao> getDist(EntityManager em, final boolean includeArchivedEntities) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<Peticao> _query = _builder.createQuery(Peticao.class);
+		Root<Peticao> _root = _query.from(Peticao.class);
+		_query.select(_root);
+		Expression<Boolean> _expression1 = _builder.equal(_root.get(PeticaoDAO.FIELD__DIST), true);
+		if (includeArchivedEntities) {
+			_query.where(_expression1);
+		} else {
+			Expression<Boolean> _expression2 = _builder.equal(_root.get(PeticaoDAO.FIELD__ARCHIVED), false);
+			_query.where(_builder.and(_expression1, _expression2));
+		}
+		List<Peticao> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'dist' for all Peticaos.
+	 */
+	public void setDist(EntityManager em, boolean value, boolean includeArchivedEntities) {
+		List<Peticao> entities = getAll(em, includeArchivedEntities);
+		for (Peticao entity : entities) {
+			entity.setDist(value);
+			em.merge(entity);
+		}
 	}
 	
 	/**
@@ -156,12 +188,13 @@ public class PeticaoDAO {
 		// Create disjunction of all string properties.
 		java.lang.String _trimmedSearchString = "%" + _searchString.trim() + "%";
 		Root<Peticao> _root = _query.from(Peticao.class);
-		Predicate[] _predicates = new Predicate[5];
+		Predicate[] _predicates = new Predicate[6];
 		_predicates[0] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__NUMEROID), _builder.literal(_trimmedSearchString));
 		_predicates[1] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__REQUERENTE), _builder.literal(_trimmedSearchString));
 		_predicates[2] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__REQUERIDO), _builder.literal(_trimmedSearchString));
 		_predicates[3] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__RESUMO), _builder.literal(_trimmedSearchString));
 		_predicates[4] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__REMETENTE), _builder.literal(_trimmedSearchString));
+		_predicates[5] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__APENSO), _builder.literal(_trimmedSearchString));
 		_query.where(_builder.or(_predicates));
 		
 		List<Peticao> entities = _em.createQuery(_query).setMaxResults(_maxResults).getResultList();

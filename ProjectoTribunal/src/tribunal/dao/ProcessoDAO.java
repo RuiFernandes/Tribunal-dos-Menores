@@ -1,5 +1,6 @@
 package tribunal.dao;
 
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +13,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import tribunal.entities.Auto;
 import tribunal.entities.Pagina;
-import tribunal.entities.PeticaoDistribuida;
+import tribunal.entities.Peticao;
 import tribunal.entities.Processo;
 
 /**
@@ -28,6 +29,7 @@ import tribunal.entities.Processo;
 public class ProcessoDAO {
 	
 	public final static String FIELD__ID = getField(Processo.class, "id");
+	public final static String FIELD__DATA = getField(Processo.class, "data");
 	public final static String FIELD__IDENTIFICATION = getField(Processo.class, "identification");
 	public final static String FIELD__PETICAO = getField(Processo.class, "peticao");
 	public final static String FIELD__AUTO = getField(Processo.class, "auto");
@@ -37,8 +39,8 @@ public class ProcessoDAO {
 	/**
 	 * Creates a Processo using all read-only and all non-null properties.
 	 */
-	public Processo create(EntityManager em, String identification, PeticaoDistribuida peticao, Auto auto, Pagina pagina, boolean archived) {
-		return create(em, identification, peticao, auto, pagina, archived, null);
+	public Processo create(EntityManager em, Date data, String identification, Peticao peticao, Auto auto, Pagina pagina, boolean archived) {
+		return create(em, data, identification, peticao, auto, pagina, archived, null);
 	}
 	
 	/**
@@ -46,9 +48,9 @@ public class ProcessoDAO {
 	 * per-persist action is executed before the entity is persisted and allows to set
 	 * properties which are not read-only or nullable.
 	 */
-	public Processo create(EntityManager em, String identification, PeticaoDistribuida peticao, Auto auto, Pagina pagina, boolean archived, IAction<Processo> prePersistAction) {
+	public Processo create(EntityManager em, Date data, String identification, Peticao peticao, Auto auto, Pagina pagina, boolean archived, IAction<Processo> prePersistAction) {
 		@java.lang.SuppressWarnings("deprecation")
-		Processo newEntity = new Processo(identification, peticao, auto, pagina, archived);
+		Processo newEntity = new Processo(data, identification, peticao, auto, pagina, archived);
 		// Call prePersistAction
 		if (prePersistAction != null) {
 			prePersistAction.execute(newEntity);
@@ -99,7 +101,7 @@ public class ProcessoDAO {
 	/**
 	 * Returns the Processos with the given peticao.
 	 */
-	public List<Processo> getByPeticao(EntityManager em, PeticaoDistribuida peticao, boolean includeArchivedEntities) {
+	public List<Processo> getByPeticao(EntityManager em, Peticao peticao, boolean includeArchivedEntities) {
 		CriteriaBuilder _builder = em.getCriteriaBuilder();
 		CriteriaQuery<Processo> _query = _builder.createQuery(Processo.class);
 		Root<Processo> _root = _query.from(Processo.class);
@@ -164,6 +166,34 @@ public class ProcessoDAO {
 			Expression<Boolean> _expression2 = _builder.equal(_root.get(ProcessoDAO.FIELD__ARCHIVED), false);
 			_query.where(_builder.and(_expression1, _expression2));
 		}
+		List<Processo> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
+	 * Returns all Processos where data is set to a value before '_maxDate'.
+	 */
+	public List<Processo> getDataBefore(EntityManager em, Date _maxDate) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<Processo> _query = _builder.createQuery(Processo.class);
+		Root<Processo> _root = _query.from(Processo.class);
+		_query.select(_root);
+		Expression<Boolean> expression = _builder.lessThan(_root.<Date>get(ProcessoDAO.FIELD__DATA), _maxDate);
+		_query.where(expression);
+		List<Processo> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
+	 * Returns all Processos where data is set to a value after '_minDate'.
+	 */
+	public List<Processo> getDataAfter(EntityManager em, Date _minDate) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<Processo> _query = _builder.createQuery(Processo.class);
+		Root<Processo> _root = _query.from(Processo.class);
+		_query.select(_root);
+		Expression<Boolean> expression = _builder.greaterThan(_root.<Date>get(ProcessoDAO.FIELD__DATA), _minDate);
+		_query.where(expression);
 		List<Processo> entities = em.createQuery(_query).getResultList();
 		return entities;
 	}

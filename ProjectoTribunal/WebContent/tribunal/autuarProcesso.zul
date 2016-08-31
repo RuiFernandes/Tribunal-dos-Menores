@@ -25,11 +25,11 @@
                       
                         <row>
                             <label value="Requerente :"/>
-                            <textbox  value="@load(autuar.peticao.peticao.requerente)" disabled="true" width="75%"/>
+                            <textbox  value="@load(autuar.peticao.requerente)" disabled="true" width="75%"/>
                         </row>
                         <row>
                             <label value="Requerido :"/>
-                            <textbox value="@load(autuar.peticao.peticao.requerido)" disabled="true" width="75%"/>
+                            <textbox value="@load(autuar.peticao.requerido)" disabled="true" width="75%"/>
                         </row>
                         <row>
                             <label value="Auto :"/>
@@ -45,7 +45,7 @@
                         </row>
                         <row>
                             <label value="Processo Apenso :"/>
-                            <textbox value="@load(autuar.apenso.processo.identification)" disabled="true"/>
+                            <textbox value="@load(autuar.peticao.apenso)" disabled="true"/>
                         </row>
                     </rows>
                 </grid>
@@ -68,9 +68,10 @@
                     <template name="model" var="pet">
                     <listitem>
                     <listcell label="@load(pet.id)"></listcell>
-                    <listcell label="@load(pet.peticao.resumo)"></listcell>
-                    <listcell label="@load(pet.peticao.requerente)"></listcell>
-                    <listcell label="@load(pet.peticao.requerido)"></listcell>
+                    <listcell label="@load(pet.resumo)"></listcell>
+                    <listcell label="@load(pet.requerente)"></listcell>
+                    <listcell label="@load(pet.requerido)"></listcell>
+                     <listcell label="@load(pet.data)"></listcell>
                     </listitem>
                     </template>
                 </listbox>

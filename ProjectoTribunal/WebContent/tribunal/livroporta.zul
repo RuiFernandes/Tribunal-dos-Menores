@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zk>
-    <vlayout>
+    <vlayout viewModel="@id('p') @init('tribunal.controler.livroPorta.listaProcessos')" apply="org.zkoss.bind.BindComposer">
         <hbox hflex="true">
             <label value="Tribunal"/>
             <label value="dos Menores"/>
         </hbox>
-        <bandbox>
-            <bandpopup>
+        <bandbox onChanging="@comman('search')">
+            <!--  <bandpopup>
                 <grid hflex="true" vflex="true">
                     <columns>
                         <column label="Nr.Processo"/>
@@ -21,12 +21,12 @@
                         </row>
                     </rows>
                 </grid>
-            </bandpopup>
+            </bandpopup>-->
         </bandbox> Pesquisa por: 
         <radiogroup id="pesquisa">
-            <radio value="processo" label="Nr. Processo" selected="true" radiogroup="pesquisa"/>
-            <radio label="Requerente" value="requerente" radiogroup="pesquisa"/>
-            <radio label="Requerido" radiogroup="pesquisa"/>
+             <radio label="Nr.Processo" radiogroup="pesquisa" selected="true" value="1"/>
+             <radio label="Requerente" value="2" radiogroup="pesquisa"  />
+            <radio label="Requerido" value="3" radiogroup="pesquisa"/>
         </radiogroup>
         <groupbox open="false" closable="true">
             <caption label="Detalhes do processo" style="color: #428bca;" iconSclass="z-icon-hand-o-down" vflex="true"> </caption>
@@ -69,15 +69,25 @@
                 <button label="limpar" sclass="btn-danger"/>
             </hbox>
         </groupbox>
-        <vbox vflex="true" hflex="true">
+        <vbox vflex="true" hflex="true" viewModel="@id('p') @init('tribunal.controler.livroPorta.listaProcessos')">
             <groupbox>
-                <listbox id="box" mold="paging" pagingPosition="bottom" rows="5" multiple="true" checkmark="true">
+                <listbox model="@load(p.processos)"  id="box" mold="paging" pagingPosition="bottom" rows="10" selectedItem="@bind(p.processo)" onSelect="@command('detailProcess')">
                     <listhead>
-                        <listheader label="Data"/>
-                        <listheader label="Andamento"/>
-                        <listheader label="OBS"/>
+                    	<listheader label="Nr.Proc." width="7%"/>                        
+                        <listheader label="Auto" width="32%"/>
+                        <listheader label="Requerente"/>
+                        <listheader label="Requerido(a)"/>
+                        <listheader label="Data" width="16%"/>
                     </listhead>
-                    <template/>
+                    <template name="model" var="process">
+                    <listitem >
+                    		<listcell label="@load(process.identification)"></listcell>
+                    		<listcell label="@load(process.auto.auto)"></listcell>
+                    		<listcell label="@load(process.peticao.requerente)"></listcell>
+                    		<listcell label="@load(process.peticao.requerido)"></listcell>
+                    		<listcell label="@load(process.data)"></listcell>
+                    </listitem>
+                    </template>
                 </listbox>
             </groupbox>
         </vbox>

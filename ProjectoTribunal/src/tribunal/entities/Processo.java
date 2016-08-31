@@ -1,15 +1,19 @@
 package tribunal.entities;
 
+import java.util.Date;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import tribunal.dao.TribunalListenerRegistry;
 
 @Entity
@@ -26,18 +30,22 @@ public class Processo implements IIntIdentifiable {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "data", nullable = false)
+	private Date data;
+	
 	@Column(name = "identification", unique = true, nullable = false)
 	private String identification;
 	
-	@OneToOne(cascade = {CascadeType.MERGE})
+	@OneToOne(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
 	@JoinColumn(name = "peticao", nullable = false)
-	private PeticaoDistribuida peticao;
+	private Peticao peticao;
 	
-	@OneToOne(cascade = {CascadeType.MERGE})
+	@OneToOne(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
 	@JoinColumn(name = "auto", nullable = false)
 	private Auto auto;
 	
-	@OneToOne(cascade = {CascadeType.MERGE})
+	@OneToOne(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
 	@JoinColumn(name = "pagina", nullable = false)
 	private Pagina pagina;
 	
@@ -67,8 +75,11 @@ public class Processo implements IIntIdentifiable {
 	 * </p>
 	 */
 	@java.lang.Deprecated
-	public Processo(String identification, PeticaoDistribuida peticao, Auto auto, Pagina pagina, boolean archived) {
+	public Processo(Date data, String identification, Peticao peticao, Auto auto, Pagina pagina, boolean archived) {
 		super();
+		if (data == null) {
+			throw new java.lang.IllegalArgumentException("'data' must not be null.");
+		}
 		if (identification == null) {
 			throw new java.lang.IllegalArgumentException("'identification' must not be null.");
 		}
@@ -81,6 +92,7 @@ public class Processo implements IIntIdentifiable {
 		if (pagina == null) {
 			throw new java.lang.IllegalArgumentException("'pagina' must not be null.");
 		}
+		this.data = data;
 		this.identification = identification;
 		this.peticao = peticao;
 		this.auto = auto;
@@ -113,6 +125,23 @@ public class Processo implements IIntIdentifiable {
 	}
 	
 	/**
+	 * Returns the value of property {@link #data}.
+	 */
+	public Date getData() {
+		return data == null ? null : new Date(data.getTime());
+	}
+	
+	/**
+	 * Sets the value of property {@link #data}.
+	 */
+	public void setData(Date newValue) {
+		if (newValue == null) {
+			throw new java.lang.IllegalArgumentException("'data' must not be null.");
+		}
+		this.data = new Date(newValue.getTime());
+	}
+	
+	/**
 	 * Returns the value of property {@link #identification}.
 	 */
 	public String getIdentification() {
@@ -138,7 +167,7 @@ public class Processo implements IIntIdentifiable {
 	 * return archived entities. Please use {@link #getPeticao(boolean)} instead.
 	 */
 	@java.lang.Deprecated
-	public PeticaoDistribuida getPeticao() {
+	public Peticao getPeticao() {
 		return getPeticao(false);
 	}
 	
@@ -147,7 +176,7 @@ public class Processo implements IIntIdentifiable {
 	 * deprecated, because it does not return archived entities. Please use {@link
 	 * #getPeticao(boolean)} instead.
 	 */
-	public PeticaoDistribuida getPeticao(boolean includeArchivedEntities) {
+	public Peticao getPeticao(boolean includeArchivedEntities) {
 		if (includeArchivedEntities) {
 			return peticao;
 		} else {
@@ -164,7 +193,7 @@ public class Processo implements IIntIdentifiable {
 	/**
 	 * Sets the value of property {@link #peticao}.
 	 */
-	public void setPeticao(PeticaoDistribuida newValue) {
+	public void setPeticao(Peticao newValue) {
 		if (newValue == null) {
 			throw new java.lang.IllegalArgumentException("'peticao' must not be null.");
 		}
@@ -273,6 +302,9 @@ public class Processo implements IIntIdentifiable {
 		result.append("Processo-");
 		result.append(getId());
 		result.append(" [");
+		result.append("data = ");
+		result.append(getData());
+		result.append(", ");
 		result.append("identification = ");
 		result.append(getIdentification());
 		result.append(", ");

@@ -1,5 +1,6 @@
 package tribunal.controler.livroPorta;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,10 +32,11 @@ import tribunal.entities.Usuario;
 
 public class livroPorta {
 	TribunalDAO dao= new TribunalDAO(TribunalDAO.class);
+	List<PeticaoDistribuida> distribuicao;
 	private List<Auto> autos=dao.getAllAutos();
 	private Seccao seccao;
-	private List<PeticaoDistribuida> peticoes=dao.getPeticaoDistribuidasBySeccao(seccao, false);
-	private PeticaoDistribuida peticao;
+	private List<PeticaoDistribuida> peticoes ;
+	private Peticao peticao;
 	private List<Livro> livros=dao.getAllLivros();
 	private Livro livro;
 	private List<Pagina> paginas;
@@ -43,9 +45,11 @@ public class livroPorta {
 	private String outro;
 	private Auto auto;
 	private Usuario user;
-	private  Date data= new Date();
+	private Date data= new Date();
 	private Processo apenso;
 	private ProcessoAutuado processoAutuado;
+	
+	
 	
 	public Processo getApenso() {
 		return apenso;
@@ -95,10 +99,10 @@ public class livroPorta {
 	public void setPeticoes(List<PeticaoDistribuida> peticoes) {
 		this.peticoes = peticoes;
 	}
-	public PeticaoDistribuida getPeticao() {
+	public Peticao getPeticao() {
 		return peticao;
 	}
-	public void setPeticao(PeticaoDistribuida peticao) {
+	public void setPeticao(Peticao peticao) {
 		this.peticao = peticao;
 	}
 	public List<Livro> getLivros() {
@@ -136,10 +140,22 @@ public class livroPorta {
 	public void init(){
 	user=(Usuario) Sessions.getCurrent().getAttribute("user");
 	seccao=user.getSeccao();
+	data=new Date();
+	peticoes = new ArrayList<PeticaoDistribuida>() ;
 	if (user.getSeccao().getNome().equals("Gestao do sistema") ) {
-		peticoes=dao.getAllPeticaoDistribuidas(false);
+		distribuicao=dao.getAllPeticaoDistribuidas(true);
+		for (PeticaoDistribuida pet : distribuicao) {
+			if (pet.getDist()) {
+				peticoes.add(pet);
+			}
+		}
 	} else {
-		peticoes=dao.getPeticaoDistribuidasBySeccao(seccao, false);
+		distribuicao=dao.getPeticaoDistribuidasBySeccao(seccao, false);
+		for (PeticaoDistribuida pet : distribuicao) {
+			if (pet.getDist()) {
+				peticoes.add(pet);
+			}
+		}
 	}
 	
 	
@@ -200,6 +216,7 @@ public void limpar(){
 	peticao=null;
 	auto=null;
 	outro=null;
+	
 }
 
 
@@ -218,20 +235,22 @@ public void actuar(){
 			Clients.showNotification("Campo Auto tem que ser completo"); 
 		}else{
 			
-			
-			processoAutuado=dao.createProcessoAutuado(numeroProcesso, peticao, dao.createAuto(outro), pagina, false);
-			peticao.setArchived(true);
+			peticao.setDist(false);
+			//refreshList();
+			peticao.setArchived(false);
 			dao.executeInTransaction(new ICommand() {
 				
 				@Override
 				public void execute(IDBOperations operations) {
 					// TODO Auto-generated method stub
 					operations.merge(peticao);
+					operations.flush();
 				}
 			});
-			peticoes=dao.getAllPeticaoDistribuidas(false);
+			processoAutuado=dao.createProcessoAutuado(data,numeroProcesso, peticao, dao.createAuto(outro), pagina, false,true);
+
 			dao.createPagina(pagina.getPag()+1, livro);
-			dao.createRegistro(data, "Processo Autuado: "+auto.getAuto(), processoAutuado);
+			dao.createRegistro(data, "Processo Autuado: "+outro, processoAutuado,user);
 			limpar();
 			init();
 			
@@ -239,21 +258,41 @@ public void actuar(){
 		
 	}
 	else{
-	processoAutuado=dao.createProcessoAutuado(numeroProcesso, peticao, auto, pagina, false);
-		peticao.setArchived(true);
+	
+		peticao.setDist(false);
+		peticao.setArchived(false);
 		dao.executeInTransaction(new ICommand() {
 			
 			@Override
 			public void execute(IDBOperations operations) {
 				operations.merge(peticao);}
 		});
-		peticoes=dao.getAllPeticaoDistribuidas(false);
+		processoAutuado=dao.createProcessoAutuado(data,numeroProcesso, peticao, auto, pagina, false,true);
+		//peticoes=dao.getAllPeticaoDistribuidas(false);
 		dao.createPagina((pagina.getPag()+1), livro);
-		dao.createRegistro(data, "Processo Autuado: "+auto.getAuto(), processoAutuado);
+		dao.createRegistro(data, "Processo Autuado: "+auto.getAuto(), processoAutuado,user);
 		limpar();
 		init();
 	}}
 	
 }
 	
+
+
+public void refreshList(){
+	List<PeticaoDistribuida> lista= dao.getArchivedPeticaoDistribuidas();
+	for (PeticaoDistribuida peticaoDistribuida : lista) {
+		
+peticaoDistribuida.setArchived(false);
+	
+	dao.executeInTransaction(new ICommand() {
+		
+		@Override
+		public void execute(IDBOperations operations) {
+			operations.merge(peticaoDistribuida);
+			
+		}
+	});
+}
+}
 }

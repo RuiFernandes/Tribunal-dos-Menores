@@ -48,6 +48,9 @@ public class Usuario implements java.io.Serializable, IIntIdentifiable {
 	@JoinColumn(name = "seccao", nullable = false)
 	private Seccao seccao;
 	
+	@Column(name = "archived", nullable = false)
+	private boolean archived;
+	
 	/**
 	 * <p>
 	 * Default constructor. Only used by JPA.
@@ -71,7 +74,7 @@ public class Usuario implements java.io.Serializable, IIntIdentifiable {
 	 * </p>
 	 */
 	@java.lang.Deprecated
-	public Usuario(String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao) {
+	public Usuario(String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao, boolean archived) {
 		super();
 		if (nome == null) {
 			throw new java.lang.IllegalArgumentException("'nome' must not be null.");
@@ -97,6 +100,7 @@ public class Usuario implements java.io.Serializable, IIntIdentifiable {
 		this.password = password;
 		this.categoria = categoria;
 		this.seccao = seccao;
+		this.archived = archived;
 	}
 	
 	/**
@@ -228,6 +232,36 @@ public class Usuario implements java.io.Serializable, IIntIdentifiable {
 		this.seccao = newValue;
 	}
 	
+	/**
+	 * Returns the value of property {@link #archived}. Use {@link #isArchived()}
+	 * instead.
+	 */
+	@java.lang.Deprecated
+	public boolean getArchived() {
+		return archived;
+	}
+	
+	/**
+	 * Returns the value of property {@link #archived}.
+	 */
+	public boolean isArchived() {
+		return archived;
+	}
+	
+	/**
+	 * <p>
+	 * Sets the value of property {@link #archived}.
+	 * </p>
+	 * <p>
+	 * Setting this property to <code>true</code> logically deletes the entity. The
+	 * entity remains in the database physically, but is only returned if explicitly
+	 * requested.
+	 * </p>
+	 */
+	public void setArchived(boolean newValue) {
+		this.archived = newValue;
+	}
+	
 	@java.lang.Override
 	public int hashCode() {
 		final int prime = 31;
@@ -277,6 +311,9 @@ public class Usuario implements java.io.Serializable, IIntIdentifiable {
 		result.append(", ");
 		result.append("password = ");
 		result.append(getPassword());
+		result.append(", ");
+		result.append("archived = ");
+		result.append(isArchived());
 		result.append("]");
 		return result.toString();
 	}

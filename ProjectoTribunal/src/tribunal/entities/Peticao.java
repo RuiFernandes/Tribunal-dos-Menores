@@ -44,6 +44,12 @@ public class Peticao implements IIntIdentifiable {
 	@Column(name = "remetente", nullable = false)
 	private String remetente;
 	
+	@Column(name = "dist", nullable = false)
+	private boolean dist;
+	
+	@Column(name = "apenso", nullable = false)
+	private String apenso;
+	
 	@Column(name = "archived", nullable = false)
 	private boolean archived;
 	
@@ -70,7 +76,7 @@ public class Peticao implements IIntIdentifiable {
 	 * </p>
 	 */
 	@java.lang.Deprecated
-	public Peticao(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean archived) {
+	public Peticao(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived) {
 		super();
 		if (numeroId == null) {
 			throw new java.lang.IllegalArgumentException("'numeroId' must not be null.");
@@ -90,12 +96,17 @@ public class Peticao implements IIntIdentifiable {
 		if (remetente == null) {
 			throw new java.lang.IllegalArgumentException("'remetente' must not be null.");
 		}
+		if (apenso == null) {
+			throw new java.lang.IllegalArgumentException("'apenso' must not be null.");
+		}
 		this.numeroId = numeroId;
 		this.data = data;
 		this.requerente = requerente;
 		this.requerido = requerido;
 		this.resumo = resumo;
 		this.remetente = remetente;
+		this.dist = dist;
+		this.apenso = apenso;
 		this.archived = archived;
 	}
 	
@@ -226,6 +237,45 @@ public class Peticao implements IIntIdentifiable {
 	}
 	
 	/**
+	 * Returns the value of property {@link #dist}. Use {@link #isDist()} instead.
+	 */
+	@java.lang.Deprecated
+	public boolean getDist() {
+		return dist;
+	}
+	
+	/**
+	 * Returns the value of property {@link #dist}.
+	 */
+	public boolean isDist() {
+		return dist;
+	}
+	
+	/**
+	 * Sets the value of property {@link #dist}.
+	 */
+	public void setDist(boolean newValue) {
+		this.dist = newValue;
+	}
+	
+	/**
+	 * Returns the value of property {@link #apenso}.
+	 */
+	public String getApenso() {
+		return apenso;
+	}
+	
+	/**
+	 * Sets the value of property {@link #apenso}.
+	 */
+	public void setApenso(String newValue) {
+		if (newValue == null) {
+			throw new java.lang.IllegalArgumentException("'apenso' must not be null.");
+		}
+		this.apenso = newValue;
+	}
+	
+	/**
 	 * Returns the value of property {@link #archived}. Use {@link #isArchived()}
 	 * instead.
 	 */
@@ -310,6 +360,12 @@ public class Peticao implements IIntIdentifiable {
 		result.append(", ");
 		result.append("remetente = ");
 		result.append(getRemetente());
+		result.append(", ");
+		result.append("dist = ");
+		result.append(isDist());
+		result.append(", ");
+		result.append("apenso = ");
+		result.append(getApenso());
 		result.append(", ");
 		result.append("archived = ");
 		result.append(isArchived());

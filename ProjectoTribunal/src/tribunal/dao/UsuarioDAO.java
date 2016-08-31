@@ -34,12 +34,13 @@ public class UsuarioDAO {
 	public final static String FIELD__PASSWORD = getField(Usuario.class, "password");
 	public final static String FIELD__CATEGORIA = getField(Usuario.class, "categoria");
 	public final static String FIELD__SECCAO = getField(Usuario.class, "seccao");
+	public final static String FIELD__ARCHIVED = getField(Usuario.class, "archived");
 	
 	/**
 	 * Creates a Usuario using all read-only and all non-null properties.
 	 */
-	public Usuario create(EntityManager em, String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao) {
-		return create(em, nome, dataDeNascimento, username, password, categoria, seccao, null);
+	public Usuario create(EntityManager em, String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao, boolean archived) {
+		return create(em, nome, dataDeNascimento, username, password, categoria, seccao, archived, null);
 	}
 	
 	/**
@@ -47,9 +48,9 @@ public class UsuarioDAO {
 	 * per-persist action is executed before the entity is persisted and allows to set
 	 * properties which are not read-only or nullable.
 	 */
-	public Usuario create(EntityManager em, String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao, IAction<Usuario> prePersistAction) {
+	public Usuario create(EntityManager em, String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao, boolean archived, IAction<Usuario> prePersistAction) {
 		@java.lang.SuppressWarnings("deprecation")
-		Usuario newEntity = new Usuario(nome, dataDeNascimento, username, password, categoria, seccao);
+		Usuario newEntity = new Usuario(nome, dataDeNascimento, username, password, categoria, seccao, archived);
 		// Call prePersistAction
 		if (prePersistAction != null) {
 			prePersistAction.execute(newEntity);
@@ -73,7 +74,7 @@ public class UsuarioDAO {
 	/**
 	 * Returns the Usuario with the given username.
 	 */
-	public Usuario getByUsername(EntityManager _em, String username) {
+	public Usuario getByUsername(EntityManager _em, String username, boolean includedArchivedEntities) {
 		CriteriaBuilder _builder = _em.getCriteriaBuilder();
 		CriteriaQuery<Usuario> _query = _builder.createQuery(Usuario.class);
 		Root<Usuario> _root = _query.from(Usuario.class);
@@ -84,7 +85,12 @@ public class UsuarioDAO {
 		} else {
 			_expression1 = _builder.equal(_root.get(UsuarioDAO.FIELD__USERNAME), username);
 		}
-		_query.where(_expression1);
+		if (includedArchivedEntities) {
+			_query.where(_expression1);
+		} else {
+			Expression<Boolean> _expression2 = _builder.equal(_root.get(UsuarioDAO.FIELD__ARCHIVED), false);
+			_query.where(_builder.and(_expression1, _expression2));
+		}
 		List<Usuario> _entities = _em.createQuery(_query).getResultList();
 		if (_entities != null && !_entities.isEmpty()) {
 			return _entities.get(0);
@@ -95,7 +101,7 @@ public class UsuarioDAO {
 	/**
 	 * Returns the Usuarios with the given categoria.
 	 */
-	public List<Usuario> getByCategoria(EntityManager em, Categoria categoria) {
+	public List<Usuario> getByCategoria(EntityManager em, Categoria categoria, boolean includeArchivedEntities) {
 		CriteriaBuilder _builder = em.getCriteriaBuilder();
 		CriteriaQuery<Usuario> _query = _builder.createQuery(Usuario.class);
 		Root<Usuario> _root = _query.from(Usuario.class);
@@ -106,7 +112,12 @@ public class UsuarioDAO {
 		} else {
 			_expression1 = _builder.equal(_root.get(UsuarioDAO.FIELD__CATEGORIA), categoria);
 		}
-		_query.where(_expression1);
+		if (includeArchivedEntities) {
+			_query.where(_expression1);
+		} else {
+			Expression<Boolean> _expression2 = _builder.equal(_root.get(UsuarioDAO.FIELD__ARCHIVED), false);
+			_query.where(_builder.and(_expression1, _expression2));
+		}
 		List<Usuario> entities = em.createQuery(_query).getResultList();
 		return entities;
 	}
@@ -114,7 +125,7 @@ public class UsuarioDAO {
 	/**
 	 * Returns the Usuarios with the given seccao.
 	 */
-	public List<Usuario> getBySeccao(EntityManager em, Seccao seccao) {
+	public List<Usuario> getBySeccao(EntityManager em, Seccao seccao, boolean includeArchivedEntities) {
 		CriteriaBuilder _builder = em.getCriteriaBuilder();
 		CriteriaQuery<Usuario> _query = _builder.createQuery(Usuario.class);
 		Root<Usuario> _root = _query.from(Usuario.class);
@@ -125,7 +136,12 @@ public class UsuarioDAO {
 		} else {
 			_expression1 = _builder.equal(_root.get(UsuarioDAO.FIELD__SECCAO), seccao);
 		}
-		_query.where(_expression1);
+		if (includeArchivedEntities) {
+			_query.where(_expression1);
+		} else {
+			Expression<Boolean> _expression2 = _builder.equal(_root.get(UsuarioDAO.FIELD__ARCHIVED), false);
+			_query.where(_builder.and(_expression1, _expression2));
+		}
 		List<Usuario> entities = em.createQuery(_query).getResultList();
 		return entities;
 	}
@@ -159,10 +175,35 @@ public class UsuarioDAO {
 	}
 	
 	/**
+	 * Returns all Usuarios where the boolean property 'archived' is set to 'true'.
+	 */
+	public List<Usuario> getArchived(EntityManager em) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<Usuario> _query = _builder.createQuery(Usuario.class);
+		Root<Usuario> _root = _query.from(Usuario.class);
+		_query.select(_root);
+		Expression<Boolean> _expression1 = _builder.equal(_root.get(UsuarioDAO.FIELD__ARCHIVED), true);
+		_query.where(_expression1);
+		List<Usuario> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'archived' for all Usuarios.
+	 */
+	public void setArchived(EntityManager em, boolean value, boolean includeArchivedEntities) {
+		List<Usuario> entities = getAll(em, includeArchivedEntities);
+		for (Usuario entity : entities) {
+			entity.setArchived(value);
+			em.merge(entity);
+		}
+	}
+	
+	/**
 	 * Returns all entities of type Usuario.
 	 */
-	public List<Usuario> getAll(EntityManager em) {
-		CriteriaQuery<Usuario> _query = buildGetAllQuery(em);
+	public List<Usuario> getAll(EntityManager em, boolean includeArchivedEntities) {
+		CriteriaQuery<Usuario> _query = buildGetAllQuery(em, includeArchivedEntities);
 		List<Usuario> entities = em.createQuery(_query).getResultList();
 		return entities;
 	}
@@ -170,11 +211,14 @@ public class UsuarioDAO {
 	/**
 	 * Builds a query that fetches all entities of type Usuario.
 	 */
-	public CriteriaQuery<Usuario> buildGetAllQuery(EntityManager em) {
+	public CriteriaQuery<Usuario> buildGetAllQuery(EntityManager em, boolean includeArchivedEntities) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<Usuario> _query = builder.createQuery(Usuario.class);
 		Root<Usuario> root = _query.from(Usuario.class);
 		_query.select(root);
+		if (!includeArchivedEntities) {
+			_query.where(builder.equal(root.get(UsuarioDAO.FIELD__ARCHIVED), false));
+		}
 		return _query;
 	}
 	
@@ -232,8 +276,11 @@ public class UsuarioDAO {
 	/**
 	 * Counts the number of Usuario entities.
 	 */
-	public int count(EntityManager em) {
+	public int count(EntityManager em, boolean includeArchivedEntities) {
 		String query = "select count(u) from Usuario as u";
+		if (!includeArchivedEntities) {
+			query += " where archived = 0";
+		}
 		Object first = em.createQuery(query).getResultList().get(0);
 		if (first instanceof Long) {
 			return ((Long) first).intValue();

@@ -17,7 +17,7 @@ import tribunal.entities.Usuario;
 public class usersload {
 private int index;	
 private Usuario selected;
-private List<Usuario> userList=new TribunalDAO(TribunalDAO.class).getAllUsuarios();;
+private List<Usuario> userList=new TribunalDAO(TribunalDAO.class).getAllUsuarios(false);;
 
 private String pass;
 //public String password=selected.getPassword();

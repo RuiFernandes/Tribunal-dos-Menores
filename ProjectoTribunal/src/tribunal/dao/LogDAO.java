@@ -12,6 +12,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import tribunal.entities.Log;
+import tribunal.entities.Usuario;
 
 /**
  * <p>
@@ -28,12 +29,13 @@ public class LogDAO {
 	public final static String FIELD__ID = getField(Log.class, "id");
 	public final static String FIELD__DATA = getField(Log.class, "data");
 	public final static String FIELD__LOG = getField(Log.class, "log");
+	public final static String FIELD__USER = getField(Log.class, "user");
 	
 	/**
 	 * Creates a Log using all read-only and all non-null properties.
 	 */
-	public Log create(EntityManager em, Date data, String log) {
-		return create(em, data, log, null);
+	public Log create(EntityManager em, Date data, String log, Usuario user) {
+		return create(em, data, log, user, null);
 	}
 	
 	/**
@@ -41,9 +43,9 @@ public class LogDAO {
 	 * action is executed before the entity is persisted and allows to set properties
 	 * which are not read-only or nullable.
 	 */
-	public Log create(EntityManager em, Date data, String log, IAction<Log> prePersistAction) {
+	public Log create(EntityManager em, Date data, String log, Usuario user, IAction<Log> prePersistAction) {
 		@java.lang.SuppressWarnings("deprecation")
-		Log newEntity = new Log(data, log);
+		Log newEntity = new Log(data, log, user);
 		// Call prePersistAction
 		if (prePersistAction != null) {
 			prePersistAction.execute(newEntity);
@@ -59,6 +61,25 @@ public class LogDAO {
 	public Log get(EntityManager em, int id) {
 		Log entity = (Log) em.find(Log.class, id);
 		return entity;
+	}
+	
+	/**
+	 * Returns the Logs with the given user.
+	 */
+	public List<Log> getByUser(EntityManager em, Usuario user) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<Log> _query = _builder.createQuery(Log.class);
+		Root<Log> _root = _query.from(Log.class);
+		_query.select(_root);
+		Expression<Boolean> _expression1;
+		if (user == null) {
+			_expression1 = _builder.isNull(_root.get(LogDAO.FIELD__USER));
+		} else {
+			_expression1 = _builder.equal(_root.get(LogDAO.FIELD__USER), user);
+		}
+		_query.where(_expression1);
+		List<Log> entities = em.createQuery(_query).getResultList();
+		return entities;
 	}
 	
 	/**

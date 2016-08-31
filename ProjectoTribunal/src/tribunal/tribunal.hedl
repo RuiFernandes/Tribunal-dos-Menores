@@ -1,11 +1,13 @@
+@Archivable
 Usuario implements java.io.Serializable{
 	String nome;
 	Date dataDeNascimento;
 	unique String username;
 	String password;
-merge	Categoria categoria;
-merge	Seccao seccao;
+merge	Categoria categoria  ;
+merge Seccao seccao;
 	}
+
 
 Categoria{
 		String nome;
@@ -28,21 +30,24 @@ Pagina{
 	
 @Archivable	
 Processo{
+	Date data;
 unique	String identification;
-merge	PeticaoDistribuida peticao;
-merge	Auto auto;
-merge	Pagina pagina;
+merge eager	Peticao peticao;
+merge eager 	Auto auto;
+merge eager	Pagina pagina;
 	}
 
 ProcessoAutuado extends Processo{
 	
 merge	Registro registro* <= processoAutuado;
+Bool conclusao;
 	}
 	
 Registro{
 	Date data;
 	String infoRegisto;
 merge	ProcessoAutuado *processoAutuado;
+merge eager Usuario user;
 	}
 	
 @Archivable	
@@ -53,15 +58,18 @@ String numeroId;
 	String requerido;
 	String resumo;
 String remetente;
+Bool dist;
+String apenso;
 
 		} 
-@Archivable	
-PeticaoDistribuida {
-merge Peticao peticao;
-merge Seccao seccao;
-	}			
+
+PeticaoDistribuida extends Peticao{
+merge eager  Seccao seccao;
+
+	}	
+			
 PeticaoApenso extends Peticao{
-merge Processo processo;
+merge eager Processo processo;
 	}	
 		
 Auto{
@@ -69,12 +77,13 @@ Auto{
 	}
 
 InqueritoSocial{
-merge	Processo processo;
+eager	Processo processo;
 	String assistenteSocial;
 	}
 	
 Log{
 Date data;
-String log;		
+String log;
+merge eager Usuario user;		
 		}
 		

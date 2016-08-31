@@ -74,11 +74,11 @@ public class PeticaoApensoTest {
 		final PeticaoApenso[] entities = new PeticaoApenso[3];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				entities[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[0].setNumeroId("a");
-				entities[1] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[1] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[1].setNumeroId("ab");
-				entities[2] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[2] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[2].setNumeroId("abc");
 			}
 		});
@@ -103,11 +103,11 @@ public class PeticaoApensoTest {
 		final PeticaoApenso[] entities = new PeticaoApenso[3];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				entities[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[0].setRequerente("a");
-				entities[1] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[1] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[1].setRequerente("ab");
-				entities[2] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[2] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[2].setRequerente("abc");
 			}
 		});
@@ -132,11 +132,11 @@ public class PeticaoApensoTest {
 		final PeticaoApenso[] entities = new PeticaoApenso[3];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				entities[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[0].setRequerido("a");
-				entities[1] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[1] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[1].setRequerido("ab");
-				entities[2] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[2] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[2].setRequerido("abc");
 			}
 		});
@@ -161,11 +161,11 @@ public class PeticaoApensoTest {
 		final PeticaoApenso[] entities = new PeticaoApenso[3];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				entities[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[0].setResumo("a");
-				entities[1] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[1] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[1].setResumo("ab");
-				entities[2] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[2] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[2].setResumo("abc");
 			}
 		});
@@ -190,12 +190,41 @@ public class PeticaoApensoTest {
 		final PeticaoApenso[] entities = new PeticaoApenso[3];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				entities[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[0].setRemetente("a");
-				entities[1] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[1] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[1].setRemetente("ab");
-				entities[2] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				entities[2] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 				entities[2].setRemetente("abc");
+			}
+		});
+		assertNotNull("Entity must be created.", entities[0]);
+		assertNotNull("Entity must be created.", entities[1]);
+		assertNotNull("Entity must be created.", entities[2]);
+		
+		List<PeticaoApenso> result = dao.searchPeticaoApensos("a", Integer.MAX_VALUE);
+		assertEquals("Expected three found entities.", 3, result.size());
+		result = dao.searchPeticaoApensos("ab", Integer.MAX_VALUE);
+		assertEquals("Expected two found entities.", 2, result.size());
+		result = dao.searchPeticaoApensos("abc", Integer.MAX_VALUE);
+		assertEquals("Expected one found entity.", 1, result.size());
+		result = dao.searchPeticaoApensos("bc", Integer.MAX_VALUE);
+		assertEquals("Expected one found entity.", 1, result.size());
+		result = dao.searchPeticaoApensos("ac", Integer.MAX_VALUE);
+		assertEquals("Expected no found entities.", 0, result.size());
+	}
+	
+	@Test
+	public void testStringPropertyApenso() {
+		final PeticaoApenso[] entities = new PeticaoApenso[3];
+		dao.executeInTransaction(new ICommand() {
+			public void execute(IDBOperations operations) {
+				entities[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
+				entities[0].setApenso("a");
+				entities[1] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
+				entities[1].setApenso("ab");
+				entities[2] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
+				entities[2].setApenso("abc");
 			}
 		});
 		assertNotNull("Entity must be created.", entities[0]);
@@ -276,6 +305,55 @@ public class PeticaoApensoTest {
 	}
 	
 	@Test
+	public void testBooleanPropertyDist() {
+		// create test objects
+		assertEquals(0, dao.countPeticaoApensos(true));
+		
+		PeticaoApenso newEntity1 = createInstance(dao);
+		assertNotNull(newEntity1);
+		
+		PeticaoApenso newEntity2 = createInstance(dao);
+		assertNotNull(newEntity2);
+		assertEquals(2, dao.countPeticaoApensos(true));
+		
+		final int id1 = newEntity1.getId();
+		final int id2 = newEntity2.getId();
+		
+		// change boolean property
+		setDist(dao, id1, true);
+		
+		// fetch again from database
+		newEntity1 = dao.getPeticaoApenso(id1);
+		assertTrue(newEntity1.isDist());
+		
+		// change boolean property
+		setDist(dao, id1, false);
+		
+		// fetch again from database
+		newEntity1 = dao.getPeticaoApenso(id1);
+		assertFalse(newEntity1.isDist());
+		
+		// change boolean property of all entries
+		dao.setPeticaoApensosDist(true, true);
+		newEntity1 = dao.getPeticaoApenso(id1);
+		assertTrue(newEntity1.isDist());
+		newEntity2 = dao.getPeticaoApenso(id2);
+		assertTrue(newEntity2.isDist());
+	}
+	
+	private void setDist(TribunalDAO dao, final int id, final boolean newValue) {
+		dao.executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				
+				PeticaoApenso entity = operations.getPeticaoApenso(id);
+				assertNotNull(entity);
+				entity.setDist(newValue);
+			}
+		});
+	}
+	
+	@Test
 	public void testBooleanPropertyArchived() {
 		// create test objects
 		assertEquals(0, dao.countPeticaoApensos(true));
@@ -328,7 +406,7 @@ public class PeticaoApensoTest {
 		final PeticaoApenso[] result = new PeticaoApenso[1];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				result[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false, null);
+				result[0] = operations.createPeticaoApenso("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false, null);
 			}
 		});
 		return result[0];

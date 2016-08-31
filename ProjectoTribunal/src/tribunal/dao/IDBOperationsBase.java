@@ -27,14 +27,14 @@ public interface IDBOperationsBase {
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Usuario createUsuario(String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao);
+	public Usuario createUsuario(String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao, boolean archived);
 	
 	/**
 	 * Creates a new Usuario using all read-only and all non-null properties. If the
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Usuario createUsuario(String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao, IAction<Usuario> prePersistAction);
+	public Usuario createUsuario(String nome, Date dataDeNascimento, String username, String password, Categoria categoria, Seccao seccao, boolean archived, IAction<Usuario> prePersistAction);
 	
 	/**
 	 * Returns the Usuario with the given id.
@@ -48,17 +48,17 @@ public interface IDBOperationsBase {
 	/**
 	 * Returns the Usuario with the given username.
 	 */
-	public Usuario getUsuarioByUsername(final String username);
+	public Usuario getUsuarioByUsername(final String username, final boolean includedArchivedEntities);
 	
 	/**
 	 * Returns the Usuarios with the given categoria.
 	 */
-	public List<Usuario> getUsuariosByCategoria(final Categoria categoria);
+	public List<Usuario> getUsuariosByCategoria(final Categoria categoria, final boolean includeArchivedEntities);
 	
 	/**
 	 * Returns the Usuarios with the given seccao.
 	 */
-	public List<Usuario> getUsuariosBySeccao(final Seccao seccao);
+	public List<Usuario> getUsuariosBySeccao(final Seccao seccao, final boolean includeArchivedEntities);
 	
 	/**
 	 * Returns all Usuarios where dataDeNascimento is set to a value before '_maxDate'.
@@ -73,7 +73,7 @@ public interface IDBOperationsBase {
 	/**
 	 * Returns all entities of type Usuario.
 	 */
-	public List<Usuario> getAllUsuarios();
+	public List<Usuario> getAllUsuarios(final boolean includeArchivedEntities);
 	
 	/**
 	 * Searches for entities of type Usuario.
@@ -81,13 +81,17 @@ public interface IDBOperationsBase {
 	public List<Usuario> searchUsuarios(final java.lang.String _searchString, final int _maxResults);
 	
 	/**
-	 * Deletes the given Usuario.
+	 * Deletes the given Usuario. This method is deprecated, because Usuario is an
+	 * archivable entity. Therefore, it should be archived instead of deleted.
 	 */
+	@java.lang.Deprecated
 	public void delete(final Usuario entity);
 	
 	/**
-	 * Deletes all given Usuarios.
+	 * Deletes all given Usuarios. This method is deprecated, because Usuario is an
+	 * archivable entity. Therefore, it should be archived instead of deleted.
 	 */
+	@java.lang.Deprecated
 	public void deleteUsuarios(final List<Usuario> entities);
 	
 	/**
@@ -101,9 +105,20 @@ public interface IDBOperationsBase {
 	public void deleteUsuariosWithDataDeNascimentoAfter(final Date _minDate);
 	
 	/**
+	 * Returns all Usuarios where the boolean property 'archived' is set to
+	 * <code>true</code>.
+	 */
+	public List<Usuario> getArchivedUsuarios();
+	
+	/**
+	 * Sets the boolean property 'archived' for all Usuarios to the given value.
+	 */
+	public void setUsuariosArchived(final boolean value, final boolean includeArchivedEntities);
+	
+	/**
 	 * Counts the number of Usuario entities.
 	 */
-	public int countUsuarios();
+	public int countUsuarios(final boolean includeArchivedEntities);
 	
 	/**
 	 * Merges the given entity with the current transaction context and returns an
@@ -330,14 +345,14 @@ public interface IDBOperationsBase {
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Processo createProcesso(String identification, PeticaoDistribuida peticao, Auto auto, Pagina pagina, boolean archived);
+	public Processo createProcesso(Date data, String identification, Peticao peticao, Auto auto, Pagina pagina, boolean archived);
 	
 	/**
 	 * Creates a new Processo using all read-only and all non-null properties. If the
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Processo createProcesso(String identification, PeticaoDistribuida peticao, Auto auto, Pagina pagina, boolean archived, IAction<Processo> prePersistAction);
+	public Processo createProcesso(Date data, String identification, Peticao peticao, Auto auto, Pagina pagina, boolean archived, IAction<Processo> prePersistAction);
 	
 	/**
 	 * Returns the Processo with the given id.
@@ -356,7 +371,7 @@ public interface IDBOperationsBase {
 	/**
 	 * Returns the Processos with the given peticao.
 	 */
-	public List<Processo> getProcessosByPeticao(final PeticaoDistribuida peticao, final boolean includeArchivedEntities);
+	public List<Processo> getProcessosByPeticao(final Peticao peticao, final boolean includeArchivedEntities);
 	
 	/**
 	 * Returns the Processos with the given auto.
@@ -367,6 +382,16 @@ public interface IDBOperationsBase {
 	 * Returns the Processos with the given pagina.
 	 */
 	public List<Processo> getProcessosByPagina(final Pagina pagina, final boolean includeArchivedEntities);
+	
+	/**
+	 * Returns all Processos where data is set to a value before '_maxDate'.
+	 */
+	public List<Processo> getProcessosWithDataBefore(final Date _maxDate);
+	
+	/**
+	 * Returns all Processos where data is set to a value after '_minDate'.
+	 */
+	public List<Processo> getProcessosWithDataAfter(final Date _minDate);
 	
 	/**
 	 * Returns all entities of type Processo.
@@ -391,6 +416,16 @@ public interface IDBOperationsBase {
 	 */
 	@java.lang.Deprecated
 	public void deleteProcessos(final List<Processo> entities);
+	
+	/**
+	 * Deletes all Processos where data is set to a value before '_maxDate'.
+	 */
+	public void deleteProcessosWithDataBefore(final Date _maxDate);
+	
+	/**
+	 * Deletes all Processos where data is set to a value after '_minDate'.
+	 */
+	public void deleteProcessosWithDataAfter(final Date _minDate);
 	
 	/**
 	 * Returns all Processos where the boolean property 'archived' is set to
@@ -419,14 +454,14 @@ public interface IDBOperationsBase {
 	 * If the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public ProcessoAutuado createProcessoAutuado(String identification, PeticaoDistribuida peticao, Auto auto, Pagina pagina, boolean archived);
+	public ProcessoAutuado createProcessoAutuado(Date data, String identification, Peticao peticao, Auto auto, Pagina pagina, boolean archived, Boolean conclusao);
 	
 	/**
 	 * Creates a new ProcessoAutuado using all read-only and all non-null properties.
 	 * If the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public ProcessoAutuado createProcessoAutuado(String identification, PeticaoDistribuida peticao, Auto auto, Pagina pagina, boolean archived, IAction<ProcessoAutuado> prePersistAction);
+	public ProcessoAutuado createProcessoAutuado(Date data, String identification, Peticao peticao, Auto auto, Pagina pagina, boolean archived, Boolean conclusao, IAction<ProcessoAutuado> prePersistAction);
 	
 	/**
 	 * Returns the ProcessoAutuado with the given id.
@@ -445,7 +480,7 @@ public interface IDBOperationsBase {
 	/**
 	 * Returns the ProcessoAutuados with the given peticao.
 	 */
-	public List<ProcessoAutuado> getProcessoAutuadosByPeticao(final PeticaoDistribuida peticao, final boolean includeArchivedEntities);
+	public List<ProcessoAutuado> getProcessoAutuadosByPeticao(final Peticao peticao, final boolean includeArchivedEntities);
 	
 	/**
 	 * Returns the ProcessoAutuados with the given auto.
@@ -456,6 +491,16 @@ public interface IDBOperationsBase {
 	 * Returns the ProcessoAutuados with the given pagina.
 	 */
 	public List<ProcessoAutuado> getProcessoAutuadosByPagina(final Pagina pagina, final boolean includeArchivedEntities);
+	
+	/**
+	 * Returns all ProcessoAutuados where data is set to a value before '_maxDate'.
+	 */
+	public List<ProcessoAutuado> getProcessoAutuadosWithDataBefore(final Date _maxDate);
+	
+	/**
+	 * Returns all ProcessoAutuados where data is set to a value after '_minDate'.
+	 */
+	public List<ProcessoAutuado> getProcessoAutuadosWithDataAfter(final Date _minDate);
 	
 	/**
 	 * Returns all entities of type ProcessoAutuado.
@@ -484,6 +529,16 @@ public interface IDBOperationsBase {
 	public void deleteProcessoAutuados(final List<ProcessoAutuado> entities);
 	
 	/**
+	 * Deletes all ProcessoAutuados where data is set to a value before '_maxDate'.
+	 */
+	public void deleteProcessoAutuadosWithDataBefore(final Date _maxDate);
+	
+	/**
+	 * Deletes all ProcessoAutuados where data is set to a value after '_minDate'.
+	 */
+	public void deleteProcessoAutuadosWithDataAfter(final Date _minDate);
+	
+	/**
 	 * Returns all ProcessoAutuados where the boolean property 'archived' is set to
 	 * <code>true</code>.
 	 */
@@ -494,6 +549,18 @@ public interface IDBOperationsBase {
 	 * value.
 	 */
 	public void setProcessoAutuadosArchived(final boolean value, final boolean includeArchivedEntities);
+	
+	/**
+	 * Returns all ProcessoAutuados where the boolean property 'conclusao' is set to
+	 * <code>true</code>.
+	 */
+	public List<ProcessoAutuado> getConclusaoProcessoAutuados(final boolean includeArchivedEntities);
+	
+	/**
+	 * Sets the boolean property 'conclusao' for all ProcessoAutuados to the given
+	 * value.
+	 */
+	public void setProcessoAutuadosConclusao(final boolean value, final boolean includeArchivedEntities);
 	
 	/**
 	 * Counts the number of ProcessoAutuado entities.
@@ -511,14 +578,14 @@ public interface IDBOperationsBase {
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Registro createRegistro(Date data, String infoRegisto, ProcessoAutuado processoAutuado);
+	public Registro createRegistro(Date data, String infoRegisto, ProcessoAutuado processoAutuado, Usuario user);
 	
 	/**
 	 * Creates a new Registro using all read-only and all non-null properties. If the
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Registro createRegistro(Date data, String infoRegisto, ProcessoAutuado processoAutuado, IAction<Registro> prePersistAction);
+	public Registro createRegistro(Date data, String infoRegisto, ProcessoAutuado processoAutuado, Usuario user, IAction<Registro> prePersistAction);
 	
 	/**
 	 * Returns the Registro with the given id.
@@ -529,6 +596,11 @@ public interface IDBOperationsBase {
 	 * Returns the Registros with the given processoAutuado.
 	 */
 	public List<Registro> getRegistrosByProcessoAutuado(final ProcessoAutuado processoAutuado);
+	
+	/**
+	 * Returns the Registros with the given user.
+	 */
+	public List<Registro> getRegistrosByUser(final Usuario user);
 	
 	/**
 	 * Returns all Registros where data is set to a value before '_maxDate'.
@@ -586,14 +658,14 @@ public interface IDBOperationsBase {
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Peticao createPeticao(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean archived);
+	public Peticao createPeticao(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived);
 	
 	/**
 	 * Creates a new Peticao using all read-only and all non-null properties. If the
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Peticao createPeticao(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean archived, IAction<Peticao> prePersistAction);
+	public Peticao createPeticao(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived, IAction<Peticao> prePersistAction);
 	
 	/**
 	 * Returns the Peticao with the given id.
@@ -645,6 +717,17 @@ public interface IDBOperationsBase {
 	public void deletePeticaosWithDataAfter(final Date _minDate);
 	
 	/**
+	 * Returns all Peticaos where the boolean property 'dist' is set to
+	 * <code>true</code>.
+	 */
+	public List<Peticao> getDistPeticaos(final boolean includeArchivedEntities);
+	
+	/**
+	 * Sets the boolean property 'dist' for all Peticaos to the given value.
+	 */
+	public void setPeticaosDist(final boolean value, final boolean includeArchivedEntities);
+	
+	/**
 	 * Returns all Peticaos where the boolean property 'archived' is set to
 	 * <code>true</code>.
 	 */
@@ -671,14 +754,14 @@ public interface IDBOperationsBase {
 	 * properties. If the new entity violates uniqueness constraints and a Cache is
 	 * used, an java.lang.IllegalArgumentException is thrown.
 	 */
-	public PeticaoDistribuida createPeticaoDistribuida(Peticao peticao, Seccao seccao, boolean archived);
+	public PeticaoDistribuida createPeticaoDistribuida(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived, Seccao seccao);
 	
 	/**
 	 * Creates a new PeticaoDistribuida using all read-only and all non-null
 	 * properties. If the new entity violates uniqueness constraints and a Cache is
 	 * used, an java.lang.IllegalArgumentException is thrown.
 	 */
-	public PeticaoDistribuida createPeticaoDistribuida(Peticao peticao, Seccao seccao, boolean archived, IAction<PeticaoDistribuida> prePersistAction);
+	public PeticaoDistribuida createPeticaoDistribuida(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived, Seccao seccao, IAction<PeticaoDistribuida> prePersistAction);
 	
 	/**
 	 * Returns the PeticaoDistribuida with the given id.
@@ -686,14 +769,19 @@ public interface IDBOperationsBase {
 	public PeticaoDistribuida getPeticaoDistribuida(final int id);
 	
 	/**
-	 * Returns the PeticaoDistribuidas with the given peticao.
-	 */
-	public List<PeticaoDistribuida> getPeticaoDistribuidasByPeticao(final Peticao peticao, final boolean includeArchivedEntities);
-	
-	/**
 	 * Returns the PeticaoDistribuidas with the given seccao.
 	 */
 	public List<PeticaoDistribuida> getPeticaoDistribuidasBySeccao(final Seccao seccao, final boolean includeArchivedEntities);
+	
+	/**
+	 * Returns all PeticaoDistribuidas where data is set to a value before '_maxDate'.
+	 */
+	public List<PeticaoDistribuida> getPeticaoDistribuidasWithDataBefore(final Date _maxDate);
+	
+	/**
+	 * Returns all PeticaoDistribuidas where data is set to a value after '_minDate'.
+	 */
+	public List<PeticaoDistribuida> getPeticaoDistribuidasWithDataAfter(final Date _minDate);
 	
 	/**
 	 * Returns all entities of type PeticaoDistribuida.
@@ -720,6 +808,27 @@ public interface IDBOperationsBase {
 	 */
 	@java.lang.Deprecated
 	public void deletePeticaoDistribuidas(final List<PeticaoDistribuida> entities);
+	
+	/**
+	 * Deletes all PeticaoDistribuidas where data is set to a value before '_maxDate'.
+	 */
+	public void deletePeticaoDistribuidasWithDataBefore(final Date _maxDate);
+	
+	/**
+	 * Deletes all PeticaoDistribuidas where data is set to a value after '_minDate'.
+	 */
+	public void deletePeticaoDistribuidasWithDataAfter(final Date _minDate);
+	
+	/**
+	 * Returns all PeticaoDistribuidas where the boolean property 'dist' is set to
+	 * <code>true</code>.
+	 */
+	public List<PeticaoDistribuida> getDistPeticaoDistribuidas(final boolean includeArchivedEntities);
+	
+	/**
+	 * Sets the boolean property 'dist' for all PeticaoDistribuidas to the given value.
+	 */
+	public void setPeticaoDistribuidasDist(final boolean value, final boolean includeArchivedEntities);
 	
 	/**
 	 * Returns all PeticaoDistribuidas where the boolean property 'archived' is set to
@@ -749,14 +858,14 @@ public interface IDBOperationsBase {
 	 * the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public PeticaoApenso createPeticaoApenso(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean archived, Processo processo);
+	public PeticaoApenso createPeticaoApenso(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived, Processo processo);
 	
 	/**
 	 * Creates a new PeticaoApenso using all read-only and all non-null properties. If
 	 * the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public PeticaoApenso createPeticaoApenso(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean archived, Processo processo, IAction<PeticaoApenso> prePersistAction);
+	public PeticaoApenso createPeticaoApenso(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived, Processo processo, IAction<PeticaoApenso> prePersistAction);
 	
 	/**
 	 * Returns the PeticaoApenso with the given id.
@@ -813,6 +922,17 @@ public interface IDBOperationsBase {
 	 * Deletes all PeticaoApensos where data is set to a value after '_minDate'.
 	 */
 	public void deletePeticaoApensosWithDataAfter(final Date _minDate);
+	
+	/**
+	 * Returns all PeticaoApensos where the boolean property 'dist' is set to
+	 * <code>true</code>.
+	 */
+	public List<PeticaoApenso> getDistPeticaoApensos(final boolean includeArchivedEntities);
+	
+	/**
+	 * Sets the boolean property 'dist' for all PeticaoApensos to the given value.
+	 */
+	public void setPeticaoApensosDist(final boolean value, final boolean includeArchivedEntities);
 	
 	/**
 	 * Returns all PeticaoApensos where the boolean property 'archived' is set to
@@ -946,19 +1066,24 @@ public interface IDBOperationsBase {
 	 * entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Log createLog(Date data, String log);
+	public Log createLog(Date data, String log, Usuario user);
 	
 	/**
 	 * Creates a new Log using all read-only and all non-null properties. If the new
 	 * entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Log createLog(Date data, String log, IAction<Log> prePersistAction);
+	public Log createLog(Date data, String log, Usuario user, IAction<Log> prePersistAction);
 	
 	/**
 	 * Returns the Log with the given id.
 	 */
 	public Log getLog(final int id);
+	
+	/**
+	 * Returns the Logs with the given user.
+	 */
+	public List<Log> getLogsByUser(final Usuario user);
 	
 	/**
 	 * Returns all Logs where data is set to a value before '_maxDate'.

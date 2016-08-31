@@ -1,5 +1,6 @@
 package tribunal.dao;
 
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,8 +9,8 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import tribunal.entities.Peticao;
 import tribunal.entities.PeticaoDistribuida;
 import tribunal.entities.Seccao;
 
@@ -25,16 +26,13 @@ import tribunal.entities.Seccao;
  */
 public class PeticaoDistribuidaDAO {
 	
-	public final static String FIELD__ID = getField(PeticaoDistribuida.class, "id");
-	public final static String FIELD__PETICAO = getField(PeticaoDistribuida.class, "peticao");
 	public final static String FIELD__SECCAO = getField(PeticaoDistribuida.class, "seccao");
-	public final static String FIELD__ARCHIVED = getField(PeticaoDistribuida.class, "archived");
 	
 	/**
 	 * Creates a PeticaoDistribuida using all read-only and all non-null properties.
 	 */
-	public PeticaoDistribuida create(EntityManager em, Peticao peticao, Seccao seccao, boolean archived) {
-		return create(em, peticao, seccao, archived, null);
+	public PeticaoDistribuida create(EntityManager em, String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived, Seccao seccao) {
+		return create(em, numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, seccao, null);
 	}
 	
 	/**
@@ -42,9 +40,9 @@ public class PeticaoDistribuidaDAO {
 	 * The per-persist action is executed before the entity is persisted and allows to
 	 * set properties which are not read-only or nullable.
 	 */
-	public PeticaoDistribuida create(EntityManager em, Peticao peticao, Seccao seccao, boolean archived, IAction<PeticaoDistribuida> prePersistAction) {
+	public PeticaoDistribuida create(EntityManager em, String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived, Seccao seccao, IAction<PeticaoDistribuida> prePersistAction) {
 		@java.lang.SuppressWarnings("deprecation")
-		PeticaoDistribuida newEntity = new PeticaoDistribuida(peticao, seccao, archived);
+		PeticaoDistribuida newEntity = new PeticaoDistribuida(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, seccao);
 		// Call prePersistAction
 		if (prePersistAction != null) {
 			prePersistAction.execute(newEntity);
@@ -60,30 +58,6 @@ public class PeticaoDistribuidaDAO {
 	public PeticaoDistribuida get(EntityManager em, int id) {
 		PeticaoDistribuida entity = (PeticaoDistribuida) em.find(PeticaoDistribuida.class, id);
 		return entity;
-	}
-	
-	/**
-	 * Returns the PeticaoDistribuidas with the given peticao.
-	 */
-	public List<PeticaoDistribuida> getByPeticao(EntityManager em, Peticao peticao, boolean includeArchivedEntities) {
-		CriteriaBuilder _builder = em.getCriteriaBuilder();
-		CriteriaQuery<PeticaoDistribuida> _query = _builder.createQuery(PeticaoDistribuida.class);
-		Root<PeticaoDistribuida> _root = _query.from(PeticaoDistribuida.class);
-		_query.select(_root);
-		Expression<Boolean> _expression1;
-		if (peticao == null) {
-			_expression1 = _builder.isNull(_root.get(PeticaoDistribuidaDAO.FIELD__PETICAO));
-		} else {
-			_expression1 = _builder.equal(_root.get(PeticaoDistribuidaDAO.FIELD__PETICAO), peticao);
-		}
-		if (includeArchivedEntities) {
-			_query.where(_expression1);
-		} else {
-			Expression<Boolean> _expression2 = _builder.equal(_root.get(PeticaoDistribuidaDAO.FIELD__ARCHIVED), false);
-			_query.where(_builder.and(_expression1, _expression2));
-		}
-		List<PeticaoDistribuida> entities = em.createQuery(_query).getResultList();
-		return entities;
 	}
 	
 	/**
@@ -103,11 +77,70 @@ public class PeticaoDistribuidaDAO {
 		if (includeArchivedEntities) {
 			_query.where(_expression1);
 		} else {
-			Expression<Boolean> _expression2 = _builder.equal(_root.get(PeticaoDistribuidaDAO.FIELD__ARCHIVED), false);
+			Expression<Boolean> _expression2 = _builder.equal(_root.get(PeticaoDAO.FIELD__ARCHIVED), false);
 			_query.where(_builder.and(_expression1, _expression2));
 		}
 		List<PeticaoDistribuida> entities = em.createQuery(_query).getResultList();
 		return entities;
+	}
+	
+	/**
+	 * Returns all PeticaoDistribuidas where data is set to a value before '_maxDate'.
+	 */
+	public List<PeticaoDistribuida> getDataBefore(EntityManager em, Date _maxDate) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<PeticaoDistribuida> _query = _builder.createQuery(PeticaoDistribuida.class);
+		Root<PeticaoDistribuida> _root = _query.from(PeticaoDistribuida.class);
+		_query.select(_root);
+		Expression<Boolean> expression = _builder.lessThan(_root.<Date>get(PeticaoDAO.FIELD__DATA), _maxDate);
+		_query.where(expression);
+		List<PeticaoDistribuida> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
+	 * Returns all PeticaoDistribuidas where data is set to a value after '_minDate'.
+	 */
+	public List<PeticaoDistribuida> getDataAfter(EntityManager em, Date _minDate) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<PeticaoDistribuida> _query = _builder.createQuery(PeticaoDistribuida.class);
+		Root<PeticaoDistribuida> _root = _query.from(PeticaoDistribuida.class);
+		_query.select(_root);
+		Expression<Boolean> expression = _builder.greaterThan(_root.<Date>get(PeticaoDAO.FIELD__DATA), _minDate);
+		_query.where(expression);
+		List<PeticaoDistribuida> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
+	 * Returns all PeticaoDistribuidas where the boolean property 'dist' is set to
+	 * 'true'.
+	 */
+	public List<PeticaoDistribuida> getDist(EntityManager em, final boolean includeArchivedEntities) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<PeticaoDistribuida> _query = _builder.createQuery(PeticaoDistribuida.class);
+		Root<PeticaoDistribuida> _root = _query.from(PeticaoDistribuida.class);
+		_query.select(_root);
+		Expression<Boolean> _expression1 = _builder.equal(_root.get(PeticaoDAO.FIELD__DIST), true);
+		if (includeArchivedEntities) {
+			_query.where(_expression1);
+		} else {
+			Expression<Boolean> _expression2 = _builder.equal(_root.get(PeticaoDAO.FIELD__ARCHIVED), false);
+			_query.where(_builder.and(_expression1, _expression2));
+		}
+		List<PeticaoDistribuida> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'dist' for all PeticaoDistribuidas.
+	 */
+	public void setDist(EntityManager em, boolean value, boolean includeArchivedEntities) {
+		List<PeticaoDistribuida> entities = getAll(em, includeArchivedEntities);
+		for (PeticaoDistribuida entity : entities) {
+			entity.setDist(value);
+			em.merge(entity);
+		}
 	}
 	
 	/**
@@ -119,7 +152,7 @@ public class PeticaoDistribuidaDAO {
 		CriteriaQuery<PeticaoDistribuida> _query = _builder.createQuery(PeticaoDistribuida.class);
 		Root<PeticaoDistribuida> _root = _query.from(PeticaoDistribuida.class);
 		_query.select(_root);
-		Expression<Boolean> _expression1 = _builder.equal(_root.get(PeticaoDistribuidaDAO.FIELD__ARCHIVED), true);
+		Expression<Boolean> _expression1 = _builder.equal(_root.get(PeticaoDAO.FIELD__ARCHIVED), true);
 		_query.where(_expression1);
 		List<PeticaoDistribuida> entities = em.createQuery(_query).getResultList();
 		return entities;
@@ -154,7 +187,7 @@ public class PeticaoDistribuidaDAO {
 		Root<PeticaoDistribuida> root = _query.from(PeticaoDistribuida.class);
 		_query.select(root);
 		if (!includeArchivedEntities) {
-			_query.where(builder.equal(root.get(PeticaoDistribuidaDAO.FIELD__ARCHIVED), false));
+			_query.where(builder.equal(root.get(PeticaoDAO.FIELD__ARCHIVED), false));
 		}
 		return _query;
 	}
@@ -169,7 +202,19 @@ public class PeticaoDistribuidaDAO {
 		
 		CriteriaBuilder _builder = _em.getCriteriaBuilder();
 		CriteriaQuery<PeticaoDistribuida> _query = _builder.createQuery(PeticaoDistribuida.class);
-		// Return all entities as there are no string properties we could search in.
+		
+		// Create disjunction of all string properties.
+		java.lang.String _trimmedSearchString = "%" + _searchString.trim() + "%";
+		Root<PeticaoDistribuida> _root = _query.from(PeticaoDistribuida.class);
+		Predicate[] _predicates = new Predicate[6];
+		_predicates[0] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__NUMEROID), _builder.literal(_trimmedSearchString));
+		_predicates[1] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__REQUERENTE), _builder.literal(_trimmedSearchString));
+		_predicates[2] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__REQUERIDO), _builder.literal(_trimmedSearchString));
+		_predicates[3] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__RESUMO), _builder.literal(_trimmedSearchString));
+		_predicates[4] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__REMETENTE), _builder.literal(_trimmedSearchString));
+		_predicates[5] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__APENSO), _builder.literal(_trimmedSearchString));
+		_query.where(_builder.or(_predicates));
+		
 		List<PeticaoDistribuida> entities = _em.createQuery(_query).setMaxResults(_maxResults).getResultList();
 		return entities;
 	}
@@ -195,7 +240,7 @@ public class PeticaoDistribuidaDAO {
 		for (PeticaoDistribuida entity : entities) {
 			ids.add(entity.getId());
 		}
-		String queryString = "DELETE FROM " + PeticaoDistribuida.class.getName() + " WHERE " + PeticaoDistribuidaDAO.FIELD__ID + " IN (:" + ID_LIST + ")";
+		String queryString = "DELETE FROM " + PeticaoDistribuida.class.getName() + " WHERE " + PeticaoDAO.FIELD__ID + " IN (:" + ID_LIST + ")";
 		Query _query = em.createQuery(queryString);
 		_query.setParameter(ID_LIST, ids);
 		_query.executeUpdate();

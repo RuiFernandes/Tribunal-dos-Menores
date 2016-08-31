@@ -1,0 +1,54 @@
+<?page title="new page title" contentType="text/html;charset=UTF-8"?>
+<window mode="highlighted" title="@load(processDetail.processo.identification)" closable="true" width="55%" height="90%" viewModel="@id('processDetail') @init('tribunal.controler.livroPorta.detailProcess')">
+<vlayout > <grid hflex="true" vflex="false" zclass="table-hover">
+                    <columns>
+                        <column label="" align="right" width="35%"/>
+                        <column label=""/>
+                    </columns>
+                      <rows>
+                        <row>
+                            <label value="Nr do Processo :" />
+                            <textbox value="@bind(processDetail.processo.identification)" disabled="true"/>
+                        </row>
+                        <row>
+                            <label value="Data de Entrada :"/>
+                            <datebox value="@load(processDetail.processo.data)" disabled="true"/>
+                        </row>
+                      
+                        <row>
+                            <label value="Requerente :"/>
+                            <textbox  value="@load(processDetail.processo.peticao.requerente)" disabled="true" width="75%"/>
+                        </row>
+                        <row>
+                            <label value="Requerido :"/>
+                            <textbox value="@load(processDetail.processo.peticao.requerido)" disabled="true" width="75%"/>
+                        </row>
+                        <row>
+                            <label value="Auto :"/>
+                            <textbox value="@load(processDetail.processo.auto.auto)" disabled="true" width="75%"/>
+                        </row>
+                       
+                        <row>
+                            <label value="Processo Apenso :"/>
+                            <textbox value="@load(processDetail.processo.peticao.apenso)" disabled="true"/>
+                        </row>
+                    </rows>
+                </grid>
+       <listbox model="@load(processDetail.registros)" vflex="true" rows="8" > 
+       <listhead>
+      <listheader label="Data" width="20%"/>
+      <listheader label="Andamento do Processo"/>
+      <listheader label="Responsavel" width="30%"/>
+       </listhead>
+       <template name="model" var="registro">
+       <listitem>
+       <listcell label="@load(registro.data)"></listcell>
+        <listcell label="@load(registro.infoRegisto)"></listcell>
+         <listcell label="@load(registro.user.nome)"></listcell>
+       </listitem>
+       </template>
+       
+       
+       </listbox>
+                </vlayout>
+</window>

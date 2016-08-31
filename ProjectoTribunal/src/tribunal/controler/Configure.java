@@ -21,6 +21,8 @@ import tribunal.entities.Livro;
 import tribunal.entities.Pagina;
 import tribunal.entities.Peticao;
 import tribunal.entities.PeticaoDistribuida;
+import tribunal.entities.Processo;
+import tribunal.entities.ProcessoAutuado;
 import tribunal.entities.Seccao;
 import tribunal.entities.Usuario;
 
@@ -37,29 +39,29 @@ public class Configure {
 //		System.out.println(name);
 		
 		TribunalDAO dao= new TribunalDAO(TribunalDAO.class);
-		dao.createCategoria("Administrador");
-		dao.createCategoria("Juiz");
-		dao.createCategoria("Escrivao");
-		dao.createCategoria("Ajudante Escrivao");
-		dao.createCategoria("Oficial de Deligencias");
-		dao.createCategoria("Assistente Social");
-		dao.createCategoria("Secretaria Geral");
-		dao.flush();
+//		dao.createCategoria("Administrador");
+//		dao.createCategoria("Juiz");
+//		dao.createCategoria("Escrivao");
+//		dao.createCategoria("Ajudante Escrivao");
+//		dao.createCategoria("Oficial de Deligencias");
+//		dao.createCategoria("Assistente Social");
+//		dao.createCategoria("Secretaria Geral");
+//		dao.flush();
+////		dao.createSeccao("Seccao 1");
+//		dao.createSeccao("Gestao do sistema");
 //		dao.createSeccao("Seccao 1");
-		dao.createSeccao("Gestao do sistema");
-		dao.createSeccao("Seccao 1");
-		dao.createSeccao("Seccao 2");
-		dao.createSeccao("Seccao 3");
-		dao.flush();
-		Categoria categoria= dao.getAllCategorias().get(0);
-		Seccao seccao=dao.getAllSeccaos().get(0);
-
-//		//System.out.println(	categoria.toString());
-//		
-		Usuario user= new Usuario("Rui Fernandes", new Date("1991/07/07"), "admin", "admin", categoria, seccao);
-		dao.createUsuario("other user", new Date("1991/07/07"), "admin1", "admin1", categoria,seccao);
-		dao.createUsuario(user.getNome(),user.getDataDeNascimento(),user.getUsername(),user.getPassword(),user.getCategoria(),user.getSeccao());
-		dao.createAuto("outro");
+//		dao.createSeccao("Seccao 2");
+//		dao.createSeccao("Seccao 3");
+//		dao.flush();
+//		Categoria categoria= dao.getAllCategorias().get(0);
+//		Seccao seccao=dao.getAllSeccaos().get(0);
+//
+////		//System.out.println(	categoria.toString());
+////		
+//		Usuario user= new Usuario("Rui Fernandes", new Date("1991/07/07"), "admin", "admin", categoria, seccao,false);
+//		dao.createUsuario("other user", new Date("1991/07/07"), "admin1", "admin1", categoria,seccao,false);
+//		dao.createUsuario(user.getNome(),user.getDataDeNascimento(),user.getUsername(),user.getPassword(),user.getCategoria(),user.getSeccao(),false);
+//		dao.createAuto("outro");
 ////		//System.out.println(dao.getAllCategorias().get(0).toString());
 //		dao.createAuto("auto1");
 //		dao.createAuto("auto2");
@@ -110,7 +112,28 @@ public class Configure {
 //	Peticao entity= dao.getPeticao(19);
 	//dao2.delete(, entity);	
 	
-	
-	}
+//		List<PeticaoDistribuida> dist= dao.getAllPeticaoDistribuidas(false);
+//		System.out.println(dist.isEmpty());
+//		
+//		System.out.println();
+	//System.out.println(dao.getAllPeticaoDistribuidas(false).get(0).getPeticao().toString());
+//		ProcessoAutuado proc= dao.getProcessoAutuado(27);
+//		Peticao pet= proc.getPeticao();
+//		System.out.println(pet.toString());
+//		List<PeticaoDistribuida> lista= dao.getArchivedPeticaoDistribuidas();
+//		for (PeticaoDistribuida peticaoDistribuida : lista) {
+//			
+//	peticaoDistribuida.setArchived(false);
+//		
+//		dao.executeInTransaction(new ICommand() {
+//			
+//			@Override
+//			public void execute(IDBOperations operations) {
+//				operations.merge(peticaoDistribuida);
+//				
+//			}
+//		});
+//	}	
+		}
 
 }

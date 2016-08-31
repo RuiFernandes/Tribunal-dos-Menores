@@ -1,6 +1,7 @@
 package tribunal.dao;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +14,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import tribunal.entities.Auto;
 import tribunal.entities.Pagina;
-import tribunal.entities.PeticaoDistribuida;
+import tribunal.entities.Peticao;
 import tribunal.entities.ProcessoAutuado;
 import tribunal.entities.Registro;
 
@@ -30,12 +31,13 @@ import tribunal.entities.Registro;
 public class ProcessoAutuadoDAO {
 	
 	public final static String FIELD__REGISTRO = getField(ProcessoAutuado.class, "registro");
+	public final static String FIELD__CONCLUSAO = getField(ProcessoAutuado.class, "conclusao");
 	
 	/**
 	 * Creates a ProcessoAutuado using all read-only and all non-null properties.
 	 */
-	public ProcessoAutuado create(EntityManager em, String identification, PeticaoDistribuida peticao, Auto auto, Pagina pagina, boolean archived) {
-		return create(em, identification, peticao, auto, pagina, archived, null);
+	public ProcessoAutuado create(EntityManager em, Date data, String identification, Peticao peticao, Auto auto, Pagina pagina, boolean archived, Boolean conclusao) {
+		return create(em, data, identification, peticao, auto, pagina, archived, conclusao, null);
 	}
 	
 	/**
@@ -43,9 +45,9 @@ public class ProcessoAutuadoDAO {
 	 * per-persist action is executed before the entity is persisted and allows to set
 	 * properties which are not read-only or nullable.
 	 */
-	public ProcessoAutuado create(EntityManager em, String identification, PeticaoDistribuida peticao, Auto auto, Pagina pagina, boolean archived, IAction<ProcessoAutuado> prePersistAction) {
+	public ProcessoAutuado create(EntityManager em, Date data, String identification, Peticao peticao, Auto auto, Pagina pagina, boolean archived, Boolean conclusao, IAction<ProcessoAutuado> prePersistAction) {
 		@java.lang.SuppressWarnings("deprecation")
-		ProcessoAutuado newEntity = new ProcessoAutuado(identification, peticao, auto, pagina, archived);
+		ProcessoAutuado newEntity = new ProcessoAutuado(data, identification, peticao, auto, pagina, archived, conclusao);
 		// Call prePersistAction
 		if (prePersistAction != null) {
 			prePersistAction.execute(newEntity);
@@ -96,7 +98,7 @@ public class ProcessoAutuadoDAO {
 	/**
 	 * Returns the ProcessoAutuados with the given peticao.
 	 */
-	public List<ProcessoAutuado> getByPeticao(EntityManager em, PeticaoDistribuida peticao, boolean includeArchivedEntities) {
+	public List<ProcessoAutuado> getByPeticao(EntityManager em, Peticao peticao, boolean includeArchivedEntities) {
 		CriteriaBuilder _builder = em.getCriteriaBuilder();
 		CriteriaQuery<ProcessoAutuado> _query = _builder.createQuery(ProcessoAutuado.class);
 		Root<ProcessoAutuado> _root = _query.from(ProcessoAutuado.class);
@@ -182,6 +184,34 @@ public class ProcessoAutuadoDAO {
 	}
 	
 	/**
+	 * Returns all ProcessoAutuados where data is set to a value before '_maxDate'.
+	 */
+	public List<ProcessoAutuado> getDataBefore(EntityManager em, Date _maxDate) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<ProcessoAutuado> _query = _builder.createQuery(ProcessoAutuado.class);
+		Root<ProcessoAutuado> _root = _query.from(ProcessoAutuado.class);
+		_query.select(_root);
+		Expression<Boolean> expression = _builder.lessThan(_root.<Date>get(ProcessoDAO.FIELD__DATA), _maxDate);
+		_query.where(expression);
+		List<ProcessoAutuado> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
+	 * Returns all ProcessoAutuados where data is set to a value after '_minDate'.
+	 */
+	public List<ProcessoAutuado> getDataAfter(EntityManager em, Date _minDate) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<ProcessoAutuado> _query = _builder.createQuery(ProcessoAutuado.class);
+		Root<ProcessoAutuado> _root = _query.from(ProcessoAutuado.class);
+		_query.select(_root);
+		Expression<Boolean> expression = _builder.greaterThan(_root.<Date>get(ProcessoDAO.FIELD__DATA), _minDate);
+		_query.where(expression);
+		List<ProcessoAutuado> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
 	 * Returns all ProcessoAutuados where the boolean property 'archived' is set to
 	 * 'true'.
 	 */
@@ -203,6 +233,37 @@ public class ProcessoAutuadoDAO {
 		List<ProcessoAutuado> entities = getAll(em, includeArchivedEntities);
 		for (ProcessoAutuado entity : entities) {
 			entity.setArchived(value);
+			em.merge(entity);
+		}
+	}
+	
+	/**
+	 * Returns all ProcessoAutuados where the boolean property 'conclusao' is set to
+	 * 'true'.
+	 */
+	public List<ProcessoAutuado> getConclusao(EntityManager em, final boolean includeArchivedEntities) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<ProcessoAutuado> _query = _builder.createQuery(ProcessoAutuado.class);
+		Root<ProcessoAutuado> _root = _query.from(ProcessoAutuado.class);
+		_query.select(_root);
+		Expression<Boolean> _expression1 = _builder.equal(_root.get(ProcessoAutuadoDAO.FIELD__CONCLUSAO), true);
+		if (includeArchivedEntities) {
+			_query.where(_expression1);
+		} else {
+			Expression<Boolean> _expression2 = _builder.equal(_root.get(ProcessoDAO.FIELD__ARCHIVED), false);
+			_query.where(_builder.and(_expression1, _expression2));
+		}
+		List<ProcessoAutuado> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'conclusao' for all ProcessoAutuados.
+	 */
+	public void setConclusao(EntityManager em, boolean value, boolean includeArchivedEntities) {
+		List<ProcessoAutuado> entities = getAll(em, includeArchivedEntities);
+		for (ProcessoAutuado entity : entities) {
+			entity.setConclusao(value);
 			em.merge(entity);
 		}
 	}

@@ -1,5 +1,6 @@
 package tribunal.controler;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
 import org.zkoss.bind.annotation.ContextType;
+import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.select.Selectors;
@@ -29,7 +31,8 @@ private String requerente;
 private String requerido;
 private String Resumo;
 //private boolean apenso;
-private List<Peticao> peticoes= dao.getAllPeticaos(false);
+private List<Peticao> listapet;
+private List<Peticao> peticoes;
 private ProcessoAutuado processo;
 private List<ProcessoAutuado> processos=dao.getAllProcessoAutuados(true);
 private String processoSearch;
@@ -43,6 +46,17 @@ public void afterCompose(@ContextParam(ContextType.VIEW) Component view){
 	
 @Wire("#apenso")
 Checkbox apenso;
+
+@Init
+public void init(){
+	peticoes= new ArrayList<Peticao>();
+	listapet= dao.getAllPeticaos(false);
+	for (Peticao peticao : listapet) {
+	if (peticao.getDist()) {
+		peticoes.add(peticao);
+	}	
+	}
+}
 
 
 @Command
@@ -65,12 +79,12 @@ public void registarEntrada(){
 		Clients.showNotification("Complete os campos vazios");
 	}else{
 	if (apenso.isChecked()) {
-		peticoes.add(dao.createPeticao(numero, data, requerente, requerido, Resumo, nomeDoRemetente, false));
+		peticoes.add(dao.createPeticao(numero, data, requerente, requerido, Resumo, nomeDoRemetente, true,"",false));
 		//Clients.showNotification(""+apenso.isChecked());
 		//peticoes= dao.getAllPeticaos();
 		limpar();		
 	}else{
-		peticoes.add(dao.createPeticaoApenso(numero, data, requerente, requerido, Resumo, nomeDoRemetente, false, processo));
+		peticoes.add(dao.createPeticaoApenso(numero, data, requerente, requerido, Resumo, nomeDoRemetente, true,processo.getIdentification(),false, processo));
 		//Clients.showNotification(""+apenso.isChecked());
 		limpar();
 		apenso.setChecked(true);

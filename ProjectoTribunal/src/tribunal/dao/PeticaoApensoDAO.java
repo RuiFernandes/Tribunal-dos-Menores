@@ -31,8 +31,8 @@ public class PeticaoApensoDAO {
 	/**
 	 * Creates a PeticaoApenso using all read-only and all non-null properties.
 	 */
-	public PeticaoApenso create(EntityManager em, String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean archived, Processo processo) {
-		return create(em, numeroId, data, requerente, requerido, resumo, remetente, archived, processo, null);
+	public PeticaoApenso create(EntityManager em, String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived, Processo processo) {
+		return create(em, numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, processo, null);
 	}
 	
 	/**
@@ -40,9 +40,9 @@ public class PeticaoApensoDAO {
 	 * per-persist action is executed before the entity is persisted and allows to set
 	 * properties which are not read-only or nullable.
 	 */
-	public PeticaoApenso create(EntityManager em, String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean archived, Processo processo, IAction<PeticaoApenso> prePersistAction) {
+	public PeticaoApenso create(EntityManager em, String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived, Processo processo, IAction<PeticaoApenso> prePersistAction) {
 		@java.lang.SuppressWarnings("deprecation")
-		PeticaoApenso newEntity = new PeticaoApenso(numeroId, data, requerente, requerido, resumo, remetente, archived, processo);
+		PeticaoApenso newEntity = new PeticaoApenso(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, processo);
 		// Call prePersistAction
 		if (prePersistAction != null) {
 			prePersistAction.execute(newEntity);
@@ -113,6 +113,36 @@ public class PeticaoApensoDAO {
 	}
 	
 	/**
+	 * Returns all PeticaoApensos where the boolean property 'dist' is set to 'true'.
+	 */
+	public List<PeticaoApenso> getDist(EntityManager em, final boolean includeArchivedEntities) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<PeticaoApenso> _query = _builder.createQuery(PeticaoApenso.class);
+		Root<PeticaoApenso> _root = _query.from(PeticaoApenso.class);
+		_query.select(_root);
+		Expression<Boolean> _expression1 = _builder.equal(_root.get(PeticaoDAO.FIELD__DIST), true);
+		if (includeArchivedEntities) {
+			_query.where(_expression1);
+		} else {
+			Expression<Boolean> _expression2 = _builder.equal(_root.get(PeticaoDAO.FIELD__ARCHIVED), false);
+			_query.where(_builder.and(_expression1, _expression2));
+		}
+		List<PeticaoApenso> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'dist' for all PeticaoApensos.
+	 */
+	public void setDist(EntityManager em, boolean value, boolean includeArchivedEntities) {
+		List<PeticaoApenso> entities = getAll(em, includeArchivedEntities);
+		for (PeticaoApenso entity : entities) {
+			entity.setDist(value);
+			em.merge(entity);
+		}
+	}
+	
+	/**
 	 * Returns all PeticaoApensos where the boolean property 'archived' is set to
 	 * 'true'.
 	 */
@@ -175,12 +205,13 @@ public class PeticaoApensoDAO {
 		// Create disjunction of all string properties.
 		java.lang.String _trimmedSearchString = "%" + _searchString.trim() + "%";
 		Root<PeticaoApenso> _root = _query.from(PeticaoApenso.class);
-		Predicate[] _predicates = new Predicate[5];
+		Predicate[] _predicates = new Predicate[6];
 		_predicates[0] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__NUMEROID), _builder.literal(_trimmedSearchString));
 		_predicates[1] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__REQUERENTE), _builder.literal(_trimmedSearchString));
 		_predicates[2] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__REQUERIDO), _builder.literal(_trimmedSearchString));
 		_predicates[3] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__RESUMO), _builder.literal(_trimmedSearchString));
 		_predicates[4] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__REMETENTE), _builder.literal(_trimmedSearchString));
+		_predicates[5] = _builder.like(_root.<java.lang.String>get(PeticaoDAO.FIELD__APENSO), _builder.literal(_trimmedSearchString));
 		_query.where(_builder.or(_predicates));
 		
 		List<PeticaoApenso> entities = _em.createQuery(_query).setMaxResults(_maxResults).getResultList();

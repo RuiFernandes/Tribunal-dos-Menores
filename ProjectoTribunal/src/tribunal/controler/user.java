@@ -26,8 +26,8 @@ private String username;
 private String pass;
 private String confPass;
 private Date data= new Date();
-private Long numero=(long)dao.countUsuarios()+1;
-private List<Usuario> users=dao.getAllUsuarios();
+private Long numero=(long)dao.countUsuarios(true)+1;
+private List<Usuario> users=dao.getAllUsuarios(false);
 
 @Command
 public void view(){
@@ -48,7 +48,7 @@ public void save(){
 	System.out.println(data);
 	//dao.createUsuario(nomeCompleto, data, username, pass, categoria, seccao);
 	Clients.showNotification("user "+nomeCompleto+" Gravado com Sucesso");
-	users.add(dao.createUsuario(nomeCompleto, data, username, pass, categoria, seccao));
+	users.add(dao.createUsuario(nomeCompleto, data, username, pass, categoria, seccao,false));
 	//Clients.showNotification("user "+nomeCompleto+" Gravado com Sucesso");
 }
 public List<Usuario> getUsers() {

@@ -29,7 +29,7 @@
 			
 		</nav>
 		<nav label="Livro de conclusao">
-			<navitem label="-Despacho de Processo" onClick="@command('despachoProcesso')"></navitem>
+			<navitem label="-Despacho de Processo" onClick="@command('despacho')"></navitem>
 			<navitem label="-Lista de Despachos" onClick="@command('listaDespacho')"></navitem>
 			
 		</nav>
@@ -42,7 +42,11 @@
 			<nav label="Livro de Mandato">
 			
 		</nav>
-		<nav label="Propriedades do Sistema"><navitem label="-Users" onClick="@command('users')"></navitem></nav>
+		<nav label="Propriedades do Sistema">
+		<navitem label="-Users" onClick="@command('users')"/>
+		<navitem label="-Logs do Sistema" onClick=""/>
+		
+		</nav>
 		</navbar>
 	</div>
         </west>

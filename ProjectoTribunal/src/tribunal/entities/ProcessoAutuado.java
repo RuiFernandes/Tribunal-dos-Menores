@@ -1,8 +1,10 @@
 package tribunal.entities;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 
@@ -17,6 +19,9 @@ public class ProcessoAutuado extends Processo {
 	
 	@OneToMany(cascade = {CascadeType.MERGE}, mappedBy = "processoAutuado")
 	private List<Registro> registro;
+	
+	@Column(name = "conclusao", nullable = true)
+	private Boolean conclusao;
 	
 	/**
 	 * <p>
@@ -41,8 +46,9 @@ public class ProcessoAutuado extends Processo {
 	 * </p>
 	 */
 	@java.lang.Deprecated
-	public ProcessoAutuado(String identification, PeticaoDistribuida peticao, Auto auto, Pagina pagina, boolean archived) {
-		super(identification, peticao, auto, pagina, archived);
+	public ProcessoAutuado(Date data, String identification, Peticao peticao, Auto auto, Pagina pagina, boolean archived, Boolean conclusao) {
+		super(data, identification, peticao, auto, pagina, archived);
+		this.conclusao = conclusao;
 	}
 	
 	/**
@@ -68,17 +74,46 @@ public class ProcessoAutuado extends Processo {
 		}
 	}
 	
+	/**
+	 * Returns the value of property {@link #conclusao}. Use {@link #isConclusao()}
+	 * instead.
+	 */
+	@java.lang.Deprecated
+	public Boolean getConclusao() {
+		return conclusao;
+	}
+	
+	/**
+	 * Returns the value of property {@link #conclusao}.
+	 */
+	public Boolean isConclusao() {
+		return conclusao;
+	}
+	
+	/**
+	 * Sets the value of property {@link #conclusao}.
+	 */
+	public void setConclusao(Boolean newValue) {
+		this.conclusao = newValue;
+	}
+	
 	@java.lang.Override
 	public java.lang.String toString() {
 		java.lang.StringBuilder result = new java.lang.StringBuilder();
 		result.append("ProcessoAutuado-");
 		result.append(getId());
 		result.append(" [");
+		result.append("data = ");
+		result.append(getData());
+		result.append(", ");
 		result.append("identification = ");
 		result.append(getIdentification());
 		result.append(", ");
 		result.append("archived = ");
 		result.append(isArchived());
+		result.append(", ");
+		result.append("conclusao = ");
+		result.append(isConclusao());
 		result.append("]");
 		return result.toString();
 	}

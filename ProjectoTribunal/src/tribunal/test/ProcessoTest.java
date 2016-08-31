@@ -1,6 +1,7 @@
 package tribunal.test;
 
 import java.util.Date;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +75,7 @@ public class ProcessoTest {
 		final Processo[] entities = new Processo[1];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				entities[0] = operations.createProcesso("stringValue" + (dummyValueCounter++), operations.createPeticaoDistribuida(operations.createPeticao("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false), operations.createSeccao("stringValue" + (dummyValueCounter++)), false), operations.createAuto("stringValue" + (dummyValueCounter++)), operations.createPagina((dummyValueCounter++), operations.createLivro("stringValue" + (dummyValueCounter++), (dummyValueCounter++))), false);
+				entities[0] = operations.createProcesso(new Date(), "stringValue" + (dummyValueCounter++), operations.createPeticao("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false), operations.createAuto("stringValue" + (dummyValueCounter++)), operations.createPagina((dummyValueCounter++), operations.createLivro("stringValue" + (dummyValueCounter++), (dummyValueCounter++))), false);
 			}
 		});
 		final Processo entity = entities[0];
@@ -84,7 +85,7 @@ public class ProcessoTest {
 		// test creation of a second object having the same (unique) value
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				Processo secondEntity = operations.createProcesso("stringValue" + (dummyValueCounter++), operations.createPeticaoDistribuida(operations.createPeticao("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false), operations.createSeccao("stringValue" + (dummyValueCounter++)), false), operations.createAuto("stringValue" + (dummyValueCounter++)), operations.createPagina((dummyValueCounter++), operations.createLivro("stringValue" + (dummyValueCounter++), (dummyValueCounter++))), false);
+				Processo secondEntity = operations.createProcesso(new Date(), "stringValue" + (dummyValueCounter++), operations.createPeticao("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false), operations.createAuto("stringValue" + (dummyValueCounter++)), operations.createPagina((dummyValueCounter++), operations.createLivro("stringValue" + (dummyValueCounter++), (dummyValueCounter++))), false);
 				secondEntity.setIdentification(entities[0].getIdentification());
 			}
 		});
@@ -126,6 +127,69 @@ public class ProcessoTest {
 				assertNotNull(entity);
 				entity.setIdentification(newValue);
 				
+			}
+		});
+	}
+	
+	@Test
+	@java.lang.SuppressWarnings("deprecation")
+	public void testDatePropertyData() {
+		// create test object
+		assertEquals(0, dao.countProcessos(true));
+		Processo newEntity = createInstance(dao);
+		assertNotNull(newEntity);
+		assertEquals(1, dao.countProcessos(true));
+		
+		final int id = newEntity.getId();
+		long oneHour = 60 * 1000;
+		final Date newDate = new Date(oneHour);
+		
+		// change date property
+		setData(dao, id, newDate);
+		
+		// fetch again from database
+		newEntity = dao.getProcesso(id);
+		assertEquals(newDate, newEntity.getData());
+		
+		List<Processo> before = dao.getProcessosWithDataBefore(newDate);
+		assertNotNull(before);
+		assertEquals(0, before.size());
+		
+		List<Processo> after = dao.getProcessosWithDataAfter(newDate);
+		assertNotNull(after);
+		assertEquals(0, after.size());
+		
+		// change date property again (add one hour)
+		setData(dao, id, new Date(2 * oneHour));
+		
+		before = dao.getProcessosWithDataBefore(newDate);
+		assertNotNull(before);
+		assertEquals(0, before.size());
+		
+		after = dao.getProcessosWithDataAfter(newDate);
+		assertNotNull(after);
+		assertEquals(1, after.size());
+		
+		// change date property again (subtract one hour)
+		setData(dao, id, new java.util.Date(0 * oneHour));
+		
+		before = dao.getProcessosWithDataBefore(newDate);
+		assertNotNull(before);
+		assertEquals(1, before.size());
+		
+		after = dao.getProcessosWithDataAfter(newDate);
+		assertNotNull(after);
+		assertEquals(0, after.size());
+	}
+	
+	private void setData(TribunalDAO dao, final int id, final Date newValue) {
+		dao.executeInTransaction(new ICommand() {
+			@java.lang.SuppressWarnings("deprecation")
+			public void execute(IDBOperations operations) {
+				
+				Processo entity = operations.getProcesso(id);
+				assertNotNull(entity);
+				entity.setData(newValue);
 			}
 		});
 	}
@@ -185,7 +249,7 @@ public class ProcessoTest {
 		final Processo[] result = new Processo[1];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				result[0] = operations.createProcesso("stringValue" + (dummyValueCounter++), operations.createPeticaoDistribuida(operations.createPeticao("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), false), operations.createSeccao("stringValue" + (dummyValueCounter++)), false), operations.createAuto("stringValue" + (dummyValueCounter++)), operations.createPagina((dummyValueCounter++), operations.createLivro("stringValue" + (dummyValueCounter++), (dummyValueCounter++))), false);
+				result[0] = operations.createProcesso(new Date(), "stringValue" + (dummyValueCounter++), operations.createPeticao("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), true, "stringValue" + (dummyValueCounter++), false), operations.createAuto("stringValue" + (dummyValueCounter++)), operations.createPagina((dummyValueCounter++), operations.createLivro("stringValue" + (dummyValueCounter++), (dummyValueCounter++))), false);
 			}
 		});
 		return result[0];

@@ -1,11 +1,15 @@
 package tribunal.entities;
 
 import java.util.Date;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -30,6 +34,10 @@ public class Log implements IIntIdentifiable {
 	@Column(name = "log", nullable = false)
 	private String log;
 	
+	@OneToOne(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
+	@JoinColumn(name = "user", nullable = false)
+	private Usuario user;
+	
 	/**
 	 * <p>
 	 * Default constructor. Only used by JPA.
@@ -53,7 +61,7 @@ public class Log implements IIntIdentifiable {
 	 * </p>
 	 */
 	@java.lang.Deprecated
-	public Log(Date data, String log) {
+	public Log(Date data, String log, Usuario user) {
 		super();
 		if (data == null) {
 			throw new java.lang.IllegalArgumentException("'data' must not be null.");
@@ -61,8 +69,12 @@ public class Log implements IIntIdentifiable {
 		if (log == null) {
 			throw new java.lang.IllegalArgumentException("'log' must not be null.");
 		}
+		if (user == null) {
+			throw new java.lang.IllegalArgumentException("'user' must not be null.");
+		}
 		this.data = data;
 		this.log = log;
+		this.user = user;
 	}
 	
 	/**
@@ -121,6 +133,45 @@ public class Log implements IIntIdentifiable {
 			throw new java.lang.IllegalArgumentException("'log' must not be null.");
 		}
 		this.log = newValue;
+	}
+	
+	/**
+	 * Returns the value of property {@link #user}. This method does not return
+	 * archived entities. This method is marked as deprecated, because it does not
+	 * return archived entities. Please use {@link #getUser(boolean)} instead.
+	 */
+	@java.lang.Deprecated
+	public Usuario getUser() {
+		return getUser(false);
+	}
+	
+	/**
+	 * Returns the value of property {@link #user}. This method is marked as
+	 * deprecated, because it does not return archived entities. Please use {@link
+	 * #getUser(boolean)} instead.
+	 */
+	public Usuario getUser(boolean includeArchivedEntities) {
+		if (includeArchivedEntities) {
+			return user;
+		} else {
+			if (user == null) {
+				return user;
+			}
+			if (!user.isArchived() || includeArchivedEntities) {
+				return user;
+			}
+			return null;
+		}
+	}
+	
+	/**
+	 * Sets the value of property {@link #user}.
+	 */
+	public void setUser(Usuario newValue) {
+		if (newValue == null) {
+			throw new java.lang.IllegalArgumentException("'user' must not be null.");
+		}
+		this.user = newValue;
 	}
 	
 	@java.lang.Override

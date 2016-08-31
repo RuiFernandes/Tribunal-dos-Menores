@@ -532,7 +532,7 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entities.addAll(operations.getAllUsuarios());
+				entities.addAll(operations.getAllUsuarios(true));
 				entities.addAll(operations.getAllCategorias());
 				entities.addAll(operations.getAllSeccaos());
 				entities.addAll(operations.getAllLivros());
@@ -561,7 +561,7 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				operations.getAllUsuarios();
+				operations.getAllUsuarios(true);
 			}
 		});
 		executeInTransaction(new ICommand() {
@@ -649,12 +649,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Usuario createUsuario(final String nome, final Date dataDeNascimento, final String username, final String password, final Categoria categoria, final Seccao seccao) {
+	public Usuario createUsuario(final String nome, final Date dataDeNascimento, final String username, final String password, final Categoria categoria, final Seccao seccao, final boolean archived) {
 		final Usuario[] entity = new Usuario[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createUsuario(nome, dataDeNascimento, username, password, categoria, seccao);
+				entity[0] = operations.createUsuario(nome, dataDeNascimento, username, password, categoria, seccao, archived);
 			}
 		});
 		return entity[0];
@@ -665,12 +665,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Usuario createUsuario(final String nome, final Date dataDeNascimento, final String username, final String password, final Categoria categoria, final Seccao seccao, final IAction<Usuario> prePersistAction) {
+	public Usuario createUsuario(final String nome, final Date dataDeNascimento, final String username, final String password, final Categoria categoria, final Seccao seccao, final boolean archived, final IAction<Usuario> prePersistAction) {
 		final Usuario[] entity = new Usuario[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createUsuario(nome, dataDeNascimento, username, password, categoria, seccao, prePersistAction);
+				entity[0] = operations.createUsuario(nome, dataDeNascimento, username, password, categoria, seccao, archived, prePersistAction);
 			}
 		});
 		return entity[0];
@@ -697,12 +697,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	/**
 	 * Returns the Usuario with the given username.
 	 */
-	public Usuario getUsuarioByUsername(final String username) {
+	public Usuario getUsuarioByUsername(final String username, final boolean includedArchivedEntities) {
 		final Usuario[] entity = new Usuario[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.getUsuarioByUsername(username);
+				entity[0] = operations.getUsuarioByUsername(username, includedArchivedEntities);
 			}
 		});
 		return entity[0];
@@ -711,12 +711,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	/**
 	 * Returns the Usuarios with the given categoria.
 	 */
-	public List<Usuario> getUsuariosByCategoria(final Categoria categoria) {
+	public List<Usuario> getUsuariosByCategoria(final Categoria categoria, final boolean includeArchivedEntities) {
 		final List<Usuario> entities = new ArrayList<Usuario>();
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entities.addAll(operations.getUsuariosByCategoria(categoria));
+				entities.addAll(operations.getUsuariosByCategoria(categoria, includeArchivedEntities));
 			}
 		});
 		return entities;
@@ -725,12 +725,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	/**
 	 * Returns the Usuarios with the given seccao.
 	 */
-	public List<Usuario> getUsuariosBySeccao(final Seccao seccao) {
+	public List<Usuario> getUsuariosBySeccao(final Seccao seccao, final boolean includeArchivedEntities) {
 		final List<Usuario> entities = new ArrayList<Usuario>();
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entities.addAll(operations.getUsuariosBySeccao(seccao));
+				entities.addAll(operations.getUsuariosBySeccao(seccao, includeArchivedEntities));
 			}
 		});
 		return entities;
@@ -764,14 +764,41 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 		return entities;
 	}
 	/**
-	 * Returns all entities of type Usuario.
+	 * Returns all Usuarios where the boolean property 'archived' is set to
+	 * <code>true</code>.
 	 */
-	public List<Usuario> getAllUsuarios() {
+	public List<Usuario> getArchivedUsuarios() {
 		final List<Usuario> entities = new ArrayList<Usuario>();
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entities.addAll(operations.getAllUsuarios());
+				entities.addAll(operations.getArchivedUsuarios());
+			}
+		});
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'archived' for all Usuarios to the given value.
+	 */
+	public void setUsuariosArchived(final boolean value, final boolean includeArchivedEntities) {
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				operations.setUsuariosArchived(value, includeArchivedEntities);
+			}
+		});
+	}
+	
+	/**
+	 * Returns all entities of type Usuario.
+	 */
+	public List<Usuario> getAllUsuarios(final boolean includeArchivedEntities) {
+		final List<Usuario> entities = new ArrayList<Usuario>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getAllUsuarios(includeArchivedEntities));
 			}
 		});
 		return entities;
@@ -792,8 +819,10 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	}
 	
 	/**
-	 * Deletes the given Usuario.
+	 * Deletes the given Usuario. This method is deprecated, because Usuario is an
+	 * archivable entity. Therefore, it should be archived instead of deleted.
 	 */
+	@java.lang.Deprecated
 	public void delete(final Usuario entity) {
 		executeInTransaction(new ICommand() {
 			
@@ -804,8 +833,10 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	}
 	
 	/**
-	 * Deletes all given Usuarios.
+	 * Deletes all given Usuarios. This method is deprecated, because Usuario is an
+	 * archivable entity. Therefore, it should be archived instead of deleted.
 	 */
+	@java.lang.Deprecated
 	public void deleteUsuarios(final List<Usuario> entities) {
 		executeInTransaction(new ICommand() {
 			
@@ -842,12 +873,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	/**
 	 * Counts the number of Usuario entities.
 	 */
-	public int countUsuarios() {
+	public int countUsuarios(final boolean includeArchivedEntities) {
 		final int[] count = new int[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				count[0] = operations.countUsuarios();
+				count[0] = operations.countUsuarios(true);
 			}
 		});
 		return count[0];
@@ -1338,12 +1369,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Processo createProcesso(final String identification, final PeticaoDistribuida peticao, final Auto auto, final Pagina pagina, final boolean archived) {
+	public Processo createProcesso(final Date data, final String identification, final Peticao peticao, final Auto auto, final Pagina pagina, final boolean archived) {
 		final Processo[] entity = new Processo[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createProcesso(identification, peticao, auto, pagina, archived);
+				entity[0] = operations.createProcesso(data, identification, peticao, auto, pagina, archived);
 			}
 		});
 		return entity[0];
@@ -1354,12 +1385,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Processo createProcesso(final String identification, final PeticaoDistribuida peticao, final Auto auto, final Pagina pagina, final boolean archived, final IAction<Processo> prePersistAction) {
+	public Processo createProcesso(final Date data, final String identification, final Peticao peticao, final Auto auto, final Pagina pagina, final boolean archived, final IAction<Processo> prePersistAction) {
 		final Processo[] entity = new Processo[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createProcesso(identification, peticao, auto, pagina, archived, prePersistAction);
+				entity[0] = operations.createProcesso(data, identification, peticao, auto, pagina, archived, prePersistAction);
 			}
 		});
 		return entity[0];
@@ -1400,7 +1431,7 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	/**
 	 * Returns the Processos with the given peticao.
 	 */
-	public List<Processo> getProcessosByPeticao(final PeticaoDistribuida peticao, final boolean includeArchivedEntities) {
+	public List<Processo> getProcessosByPeticao(final Peticao peticao, final boolean includeArchivedEntities) {
 		final List<Processo> entities = new ArrayList<Processo>();
 		executeInTransaction(new ICommand() {
 			
@@ -1439,6 +1470,33 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 		return entities;
 	}
 	
+	/**
+	 * Returns all Processos where data is set to a value before '_maxDate'.
+	 */
+	public List<Processo> getProcessosWithDataBefore(final Date _maxDate) {
+		final List<Processo> entities = new ArrayList<Processo>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getProcessosWithDataBefore(_maxDate));
+			}
+		});
+		return entities;
+	}
+	
+	/**
+	 * Returns all Processos where data is set to a value after '_minDate'.
+	 */
+	public List<Processo> getProcessosWithDataAfter(final Date _minDate) {
+		final List<Processo> entities = new ArrayList<Processo>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getProcessosWithDataAfter(_minDate));
+			}
+		});
+		return entities;
+	}
 	/**
 	 * Returns all Processos where the boolean property 'archived' is set to
 	 * <code>true</code>.
@@ -1523,6 +1581,30 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	}
 	
 	/**
+	 * Deletes all Processos where data is set to a value before '_maxDate'.
+	 */
+	public void deleteProcessosWithDataBefore(final Date _maxDate) {
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				operations.deleteProcessosWithDataBefore(_maxDate);
+			}
+		});
+	}
+	
+	/**
+	 * Deletes all Processos where data is set to a value after '_minDate'.
+	 */
+	public void deleteProcessosWithDataAfter(final Date _minDate) {
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				operations.deleteProcessosWithDataAfter(_minDate);
+			}
+		});
+	}
+	
+	/**
 	 * Counts the number of Processo entities.
 	 */
 	public int countProcessos(final boolean includeArchivedEntities) {
@@ -1541,12 +1623,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * If the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public ProcessoAutuado createProcessoAutuado(final String identification, final PeticaoDistribuida peticao, final Auto auto, final Pagina pagina, final boolean archived) {
+	public ProcessoAutuado createProcessoAutuado(final Date data, final String identification, final Peticao peticao, final Auto auto, final Pagina pagina, final boolean archived, final Boolean conclusao) {
 		final ProcessoAutuado[] entity = new ProcessoAutuado[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createProcessoAutuado(identification, peticao, auto, pagina, archived);
+				entity[0] = operations.createProcessoAutuado(data, identification, peticao, auto, pagina, archived, conclusao);
 			}
 		});
 		return entity[0];
@@ -1557,12 +1639,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * If the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public ProcessoAutuado createProcessoAutuado(final String identification, final PeticaoDistribuida peticao, final Auto auto, final Pagina pagina, final boolean archived, final IAction<ProcessoAutuado> prePersistAction) {
+	public ProcessoAutuado createProcessoAutuado(final Date data, final String identification, final Peticao peticao, final Auto auto, final Pagina pagina, final boolean archived, final Boolean conclusao, final IAction<ProcessoAutuado> prePersistAction) {
 		final ProcessoAutuado[] entity = new ProcessoAutuado[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createProcessoAutuado(identification, peticao, auto, pagina, archived, prePersistAction);
+				entity[0] = operations.createProcessoAutuado(data, identification, peticao, auto, pagina, archived, conclusao, prePersistAction);
 			}
 		});
 		return entity[0];
@@ -1603,7 +1685,7 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	/**
 	 * Returns the ProcessoAutuados with the given peticao.
 	 */
-	public List<ProcessoAutuado> getProcessoAutuadosByPeticao(final PeticaoDistribuida peticao, final boolean includeArchivedEntities) {
+	public List<ProcessoAutuado> getProcessoAutuadosByPeticao(final Peticao peticao, final boolean includeArchivedEntities) {
 		final List<ProcessoAutuado> entities = new ArrayList<ProcessoAutuado>();
 		executeInTransaction(new ICommand() {
 			
@@ -1643,6 +1725,33 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	}
 	
 	/**
+	 * Returns all ProcessoAutuados where data is set to a value before '_maxDate'.
+	 */
+	public List<ProcessoAutuado> getProcessoAutuadosWithDataBefore(final Date _maxDate) {
+		final List<ProcessoAutuado> entities = new ArrayList<ProcessoAutuado>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getProcessoAutuadosWithDataBefore(_maxDate));
+			}
+		});
+		return entities;
+	}
+	
+	/**
+	 * Returns all ProcessoAutuados where data is set to a value after '_minDate'.
+	 */
+	public List<ProcessoAutuado> getProcessoAutuadosWithDataAfter(final Date _minDate) {
+		final List<ProcessoAutuado> entities = new ArrayList<ProcessoAutuado>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getProcessoAutuadosWithDataAfter(_minDate));
+			}
+		});
+		return entities;
+	}
+	/**
 	 * Returns all ProcessoAutuados where the boolean property 'archived' is set to
 	 * <code>true</code>.
 	 */
@@ -1666,6 +1775,34 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 			
 			public void execute(IDBOperations operations) {
 				operations.setProcessoAutuadosArchived(value, includeArchivedEntities);
+			}
+		});
+	}
+	
+	/**
+	 * Returns all ProcessoAutuados where the boolean property 'conclusao' is set to
+	 * <code>true</code>.
+	 */
+	public List<ProcessoAutuado> getConclusaoProcessoAutuados(final boolean includeArchivedEntities) {
+		final List<ProcessoAutuado> entities = new ArrayList<ProcessoAutuado>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getConclusaoProcessoAutuados(includeArchivedEntities));
+			}
+		});
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'conclusao' for all ProcessoAutuados to the given
+	 * value.
+	 */
+	public void setProcessoAutuadosConclusao(final boolean value, final boolean includeArchivedEntities) {
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				operations.setProcessoAutuadosConclusao(value, includeArchivedEntities);
 			}
 		});
 	}
@@ -1729,6 +1866,30 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	}
 	
 	/**
+	 * Deletes all ProcessoAutuados where data is set to a value before '_maxDate'.
+	 */
+	public void deleteProcessoAutuadosWithDataBefore(final Date _maxDate) {
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				operations.deleteProcessoAutuadosWithDataBefore(_maxDate);
+			}
+		});
+	}
+	
+	/**
+	 * Deletes all ProcessoAutuados where data is set to a value after '_minDate'.
+	 */
+	public void deleteProcessoAutuadosWithDataAfter(final Date _minDate) {
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				operations.deleteProcessoAutuadosWithDataAfter(_minDate);
+			}
+		});
+	}
+	
+	/**
 	 * Counts the number of ProcessoAutuado entities.
 	 */
 	public int countProcessoAutuados(final boolean includeArchivedEntities) {
@@ -1747,12 +1908,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Registro createRegistro(final Date data, final String infoRegisto, final ProcessoAutuado processoAutuado) {
+	public Registro createRegistro(final Date data, final String infoRegisto, final ProcessoAutuado processoAutuado, final Usuario user) {
 		final Registro[] entity = new Registro[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createRegistro(data, infoRegisto, processoAutuado);
+				entity[0] = operations.createRegistro(data, infoRegisto, processoAutuado, user);
 			}
 		});
 		return entity[0];
@@ -1763,12 +1924,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Registro createRegistro(final Date data, final String infoRegisto, final ProcessoAutuado processoAutuado, final IAction<Registro> prePersistAction) {
+	public Registro createRegistro(final Date data, final String infoRegisto, final ProcessoAutuado processoAutuado, final Usuario user, final IAction<Registro> prePersistAction) {
 		final Registro[] entity = new Registro[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createRegistro(data, infoRegisto, processoAutuado, prePersistAction);
+				entity[0] = operations.createRegistro(data, infoRegisto, processoAutuado, user, prePersistAction);
 			}
 		});
 		return entity[0];
@@ -1797,6 +1958,20 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 			
 			public void execute(IDBOperations operations) {
 				entities.addAll(operations.getRegistrosByProcessoAutuado(processoAutuado));
+			}
+		});
+		return entities;
+	}
+	
+	/**
+	 * Returns the Registros with the given user.
+	 */
+	public List<Registro> getRegistrosByUser(final Usuario user) {
+		final List<Registro> entities = new ArrayList<Registro>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getRegistrosByUser(user));
 			}
 		});
 		return entities;
@@ -1924,12 +2099,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Peticao createPeticao(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean archived) {
+	public Peticao createPeticao(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean dist, final String apenso, final boolean archived) {
 		final Peticao[] entity = new Peticao[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createPeticao(numeroId, data, requerente, requerido, resumo, remetente, archived);
+				entity[0] = operations.createPeticao(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived);
 			}
 		});
 		return entity[0];
@@ -1940,12 +2115,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Peticao createPeticao(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean archived, final IAction<Peticao> prePersistAction) {
+	public Peticao createPeticao(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean dist, final String apenso, final boolean archived, final IAction<Peticao> prePersistAction) {
 		final Peticao[] entity = new Peticao[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createPeticao(numeroId, data, requerente, requerido, resumo, remetente, archived, prePersistAction);
+				entity[0] = operations.createPeticao(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, prePersistAction);
 			}
 		});
 		return entity[0];
@@ -1992,6 +2167,33 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 		});
 		return entities;
 	}
+	/**
+	 * Returns all Peticaos where the boolean property 'dist' is set to
+	 * <code>true</code>.
+	 */
+	public List<Peticao> getDistPeticaos(final boolean includeArchivedEntities) {
+		final List<Peticao> entities = new ArrayList<Peticao>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getDistPeticaos(includeArchivedEntities));
+			}
+		});
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'dist' for all Peticaos to the given value.
+	 */
+	public void setPeticaosDist(final boolean value, final boolean includeArchivedEntities) {
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				operations.setPeticaosDist(value, includeArchivedEntities);
+			}
+		});
+	}
+	
 	/**
 	 * Returns all Peticaos where the boolean property 'archived' is set to
 	 * <code>true</code>.
@@ -2118,12 +2320,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * properties. If the new entity violates uniqueness constraints and a Cache is
 	 * used, an java.lang.IllegalArgumentException is thrown.
 	 */
-	public PeticaoDistribuida createPeticaoDistribuida(final Peticao peticao, final Seccao seccao, final boolean archived) {
+	public PeticaoDistribuida createPeticaoDistribuida(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean dist, final String apenso, final boolean archived, final Seccao seccao) {
 		final PeticaoDistribuida[] entity = new PeticaoDistribuida[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createPeticaoDistribuida(peticao, seccao, archived);
+				entity[0] = operations.createPeticaoDistribuida(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, seccao);
 			}
 		});
 		return entity[0];
@@ -2134,12 +2336,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * properties. If the new entity violates uniqueness constraints and a Cache is
 	 * used, an java.lang.IllegalArgumentException is thrown.
 	 */
-	public PeticaoDistribuida createPeticaoDistribuida(final Peticao peticao, final Seccao seccao, final boolean archived, final IAction<PeticaoDistribuida> prePersistAction) {
+	public PeticaoDistribuida createPeticaoDistribuida(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean dist, final String apenso, final boolean archived, final Seccao seccao, final IAction<PeticaoDistribuida> prePersistAction) {
 		final PeticaoDistribuida[] entity = new PeticaoDistribuida[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createPeticaoDistribuida(peticao, seccao, archived, prePersistAction);
+				entity[0] = operations.createPeticaoDistribuida(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, seccao, prePersistAction);
 			}
 		});
 		return entity[0];
@@ -2160,20 +2362,6 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	}
 	
 	/**
-	 * Returns the PeticaoDistribuidas with the given peticao.
-	 */
-	public List<PeticaoDistribuida> getPeticaoDistribuidasByPeticao(final Peticao peticao, final boolean includeArchivedEntities) {
-		final List<PeticaoDistribuida> entities = new ArrayList<PeticaoDistribuida>();
-		executeInTransaction(new ICommand() {
-			
-			public void execute(IDBOperations operations) {
-				entities.addAll(operations.getPeticaoDistribuidasByPeticao(peticao, includeArchivedEntities));
-			}
-		});
-		return entities;
-	}
-	
-	/**
 	 * Returns the PeticaoDistribuidas with the given seccao.
 	 */
 	public List<PeticaoDistribuida> getPeticaoDistribuidasBySeccao(final Seccao seccao, final boolean includeArchivedEntities) {
@@ -2185,6 +2373,60 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 			}
 		});
 		return entities;
+	}
+	
+	/**
+	 * Returns all PeticaoDistribuidas where data is set to a value before '_maxDate'.
+	 */
+	public List<PeticaoDistribuida> getPeticaoDistribuidasWithDataBefore(final Date _maxDate) {
+		final List<PeticaoDistribuida> entities = new ArrayList<PeticaoDistribuida>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getPeticaoDistribuidasWithDataBefore(_maxDate));
+			}
+		});
+		return entities;
+	}
+	
+	/**
+	 * Returns all PeticaoDistribuidas where data is set to a value after '_minDate'.
+	 */
+	public List<PeticaoDistribuida> getPeticaoDistribuidasWithDataAfter(final Date _minDate) {
+		final List<PeticaoDistribuida> entities = new ArrayList<PeticaoDistribuida>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getPeticaoDistribuidasWithDataAfter(_minDate));
+			}
+		});
+		return entities;
+	}
+	/**
+	 * Returns all PeticaoDistribuidas where the boolean property 'dist' is set to
+	 * <code>true</code>.
+	 */
+	public List<PeticaoDistribuida> getDistPeticaoDistribuidas(final boolean includeArchivedEntities) {
+		final List<PeticaoDistribuida> entities = new ArrayList<PeticaoDistribuida>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getDistPeticaoDistribuidas(includeArchivedEntities));
+			}
+		});
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'dist' for all PeticaoDistribuidas to the given value.
+	 */
+	public void setPeticaoDistribuidasDist(final boolean value, final boolean includeArchivedEntities) {
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				operations.setPeticaoDistribuidasDist(value, includeArchivedEntities);
+			}
+		});
 	}
 	
 	/**
@@ -2274,6 +2516,30 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	}
 	
 	/**
+	 * Deletes all PeticaoDistribuidas where data is set to a value before '_maxDate'.
+	 */
+	public void deletePeticaoDistribuidasWithDataBefore(final Date _maxDate) {
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				operations.deletePeticaoDistribuidasWithDataBefore(_maxDate);
+			}
+		});
+	}
+	
+	/**
+	 * Deletes all PeticaoDistribuidas where data is set to a value after '_minDate'.
+	 */
+	public void deletePeticaoDistribuidasWithDataAfter(final Date _minDate) {
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				operations.deletePeticaoDistribuidasWithDataAfter(_minDate);
+			}
+		});
+	}
+	
+	/**
 	 * Counts the number of PeticaoDistribuida entities.
 	 */
 	public int countPeticaoDistribuidas(final boolean includeArchivedEntities) {
@@ -2292,12 +2558,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public PeticaoApenso createPeticaoApenso(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean archived, final Processo processo) {
+	public PeticaoApenso createPeticaoApenso(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean dist, final String apenso, final boolean archived, final Processo processo) {
 		final PeticaoApenso[] entity = new PeticaoApenso[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createPeticaoApenso(numeroId, data, requerente, requerido, resumo, remetente, archived, processo);
+				entity[0] = operations.createPeticaoApenso(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, processo);
 			}
 		});
 		return entity[0];
@@ -2308,12 +2574,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public PeticaoApenso createPeticaoApenso(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean archived, final Processo processo, final IAction<PeticaoApenso> prePersistAction) {
+	public PeticaoApenso createPeticaoApenso(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean dist, final String apenso, final boolean archived, final Processo processo, final IAction<PeticaoApenso> prePersistAction) {
 		final PeticaoApenso[] entity = new PeticaoApenso[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createPeticaoApenso(numeroId, data, requerente, requerido, resumo, remetente, archived, processo, prePersistAction);
+				entity[0] = operations.createPeticaoApenso(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, processo, prePersistAction);
 			}
 		});
 		return entity[0];
@@ -2374,6 +2640,33 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 		});
 		return entities;
 	}
+	/**
+	 * Returns all PeticaoApensos where the boolean property 'dist' is set to
+	 * <code>true</code>.
+	 */
+	public List<PeticaoApenso> getDistPeticaoApensos(final boolean includeArchivedEntities) {
+		final List<PeticaoApenso> entities = new ArrayList<PeticaoApenso>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getDistPeticaoApensos(includeArchivedEntities));
+			}
+		});
+		return entities;
+	}
+	
+	/**
+	 * Sets the boolean property 'dist' for all PeticaoApensos to the given value.
+	 */
+	public void setPeticaoApensosDist(final boolean value, final boolean includeArchivedEntities) {
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				operations.setPeticaoApensosDist(value, includeArchivedEntities);
+			}
+		});
+	}
+	
 	/**
 	 * Returns all PeticaoApensos where the boolean property 'archived' is set to
 	 * <code>true</code>.
@@ -2740,12 +3033,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Log createLog(final Date data, final String log) {
+	public Log createLog(final Date data, final String log, final Usuario user) {
 		final Log[] entity = new Log[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createLog(data, log);
+				entity[0] = operations.createLog(data, log, user);
 			}
 		});
 		return entity[0];
@@ -2756,12 +3049,12 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 	 * entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Log createLog(final Date data, final String log, final IAction<Log> prePersistAction) {
+	public Log createLog(final Date data, final String log, final Usuario user, final IAction<Log> prePersistAction) {
 		final Log[] entity = new Log[1];
 		executeInTransaction(new ICommand() {
 			
 			public void execute(IDBOperations operations) {
-				entity[0] = operations.createLog(data, log, prePersistAction);
+				entity[0] = operations.createLog(data, log, user, prePersistAction);
 			}
 		});
 		return entity[0];
@@ -2779,6 +3072,20 @@ public abstract class TribunalDAOBase implements IDBOperationsBase, ITransaction
 			}
 		});
 		return entity[0];
+	}
+	
+	/**
+	 * Returns the Logs with the given user.
+	 */
+	public List<Log> getLogsByUser(final Usuario user) {
+		final List<Log> entities = new ArrayList<Log>();
+		executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				entities.addAll(operations.getLogsByUser(user));
+			}
+		});
+		return entities;
 	}
 	
 	/**

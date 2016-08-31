@@ -3,6 +3,7 @@ package tribunal.entities;
 import java.util.Date;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
@@ -15,7 +16,7 @@ import javax.persistence.OneToOne;
  */
 public class PeticaoApenso extends Peticao {
 	
-	@OneToOne(cascade = {CascadeType.MERGE})
+	@OneToOne(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
 	@JoinColumn(name = "processo", nullable = true)
 	private Processo processo;
 	
@@ -42,8 +43,8 @@ public class PeticaoApenso extends Peticao {
 	 * </p>
 	 */
 	@java.lang.Deprecated
-	public PeticaoApenso(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean archived, Processo processo) {
-		super(numeroId, data, requerente, requerido, resumo, remetente, archived);
+	public PeticaoApenso(String numeroId, Date data, String requerente, String requerido, String resumo, String remetente, boolean dist, String apenso, boolean archived, Processo processo) {
+		super(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived);
 		this.processo = processo;
 	}
 	
@@ -106,6 +107,12 @@ public class PeticaoApenso extends Peticao {
 		result.append(", ");
 		result.append("remetente = ");
 		result.append(getRemetente());
+		result.append(", ");
+		result.append("dist = ");
+		result.append(isDist());
+		result.append(", ");
+		result.append("apenso = ");
+		result.append(getApenso());
 		result.append(", ");
 		result.append("archived = ");
 		result.append(isArchived());

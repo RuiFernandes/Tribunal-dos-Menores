@@ -13,6 +13,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import tribunal.entities.ProcessoAutuado;
 import tribunal.entities.Registro;
+import tribunal.entities.Usuario;
 
 /**
  * <p>
@@ -30,12 +31,13 @@ public class RegistroDAO {
 	public final static String FIELD__DATA = getField(Registro.class, "data");
 	public final static String FIELD__INFOREGISTO = getField(Registro.class, "infoRegisto");
 	public final static String FIELD__PROCESSOAUTUADO = getField(Registro.class, "processoAutuado");
+	public final static String FIELD__USER = getField(Registro.class, "user");
 	
 	/**
 	 * Creates a Registro using all read-only and all non-null properties.
 	 */
-	public Registro create(EntityManager em, Date data, String infoRegisto, ProcessoAutuado processoAutuado) {
-		return create(em, data, infoRegisto, processoAutuado, null);
+	public Registro create(EntityManager em, Date data, String infoRegisto, ProcessoAutuado processoAutuado, Usuario user) {
+		return create(em, data, infoRegisto, processoAutuado, user, null);
 	}
 	
 	/**
@@ -43,9 +45,9 @@ public class RegistroDAO {
 	 * per-persist action is executed before the entity is persisted and allows to set
 	 * properties which are not read-only or nullable.
 	 */
-	public Registro create(EntityManager em, Date data, String infoRegisto, ProcessoAutuado processoAutuado, IAction<Registro> prePersistAction) {
+	public Registro create(EntityManager em, Date data, String infoRegisto, ProcessoAutuado processoAutuado, Usuario user, IAction<Registro> prePersistAction) {
 		@java.lang.SuppressWarnings("deprecation")
-		Registro newEntity = new Registro(data, infoRegisto, processoAutuado);
+		Registro newEntity = new Registro(data, infoRegisto, processoAutuado, user);
 		// Call prePersistAction
 		if (prePersistAction != null) {
 			prePersistAction.execute(newEntity);
@@ -76,6 +78,25 @@ public class RegistroDAO {
 			_expression1 = _builder.isNull(_root.get(RegistroDAO.FIELD__PROCESSOAUTUADO));
 		} else {
 			_expression1 = _builder.equal(_root.get(RegistroDAO.FIELD__PROCESSOAUTUADO), processoAutuado);
+		}
+		_query.where(_expression1);
+		List<Registro> entities = em.createQuery(_query).getResultList();
+		return entities;
+	}
+	
+	/**
+	 * Returns the Registros with the given user.
+	 */
+	public List<Registro> getByUser(EntityManager em, Usuario user) {
+		CriteriaBuilder _builder = em.getCriteriaBuilder();
+		CriteriaQuery<Registro> _query = _builder.createQuery(Registro.class);
+		Root<Registro> _root = _query.from(Registro.class);
+		_query.select(_root);
+		Expression<Boolean> _expression1;
+		if (user == null) {
+			_expression1 = _builder.isNull(_root.get(RegistroDAO.FIELD__USER));
+		} else {
+			_expression1 = _builder.equal(_root.get(RegistroDAO.FIELD__USER), user);
 		}
 		_query.where(_expression1);
 		List<Registro> entities = em.createQuery(_query).getResultList();

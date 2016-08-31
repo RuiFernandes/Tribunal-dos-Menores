@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 
 import tribunal.custom.IDBOperations;
@@ -18,10 +19,26 @@ public class distribuirPeticao {
 	
 private Peticao peticao;
 private int index;
-private List<Peticao> peticoes=dao.getAllPeticaos(false);
+private List<Peticao> listpet;
+private List<Peticao> peticoes;
 private List<Peticao> seccao1= new ArrayList<Peticao>();
 private List<Peticao> seccao2= new ArrayList<Peticao>();
 private List<Peticao> seccao3= new ArrayList<Peticao>();
+
+@Init
+public void init(){
+	peticoes=new ArrayList<Peticao>();
+	listpet=dao.getAllPeticaos(false);
+	for (Peticao peticao : listpet) {
+		
+			if (peticao.isDist()) {
+				peticoes.add(peticao);	
+				}
+		
+		
+	}
+	
+}
 
 
 public int getIndex() {
@@ -74,10 +91,13 @@ public void automatic(){
 			if (one<=three) {
 				key=1;
 				one++;
-			}
+			}else{key=3;three++;}
 		}else if(two<=three){key=2;two++;}
 		else{key=3;three++;}
-	
+	System.out.println(key);
+	System.out.println(one);
+	System.out.println(two);
+	System.out.println(three);
 	switch (key) {
 	case 1:seccao1.add(peticoes.get(i));break;
 	case 2:seccao2.add(peticoes.get(i));break;
@@ -137,8 +157,9 @@ public void ditribuir(){
 if (seccao1.isEmpty()==false) {
 	Seccao sec=dao.searchSeccaos("Seccao 1", 1).get(0);
 			for (Peticao peticao : seccao1) {
-				dao.createPeticaoDistribuida(peticao, sec, false);
+				dao.createPeticaoDistribuida(peticao.getNumeroId(), peticao.getData(), peticao.getRequerente(), peticao.getRequerido(), peticao.getResumo(), peticao.getRemetente(),true, peticao.getApenso(), true,sec);
 				peticao.setArchived(true);
+				peticao.setDist(false);
 				dao.executeInTransaction(new ICommand() {
 					
 					@Override
@@ -153,8 +174,10 @@ if (seccao1.isEmpty()==false) {
 if (seccao2.isEmpty()==false) {
 	Seccao sec=dao.searchSeccaos("Seccao 2", 1).get(0);
 			for (Peticao peticao : seccao2) {
-				dao.createPeticaoDistribuida(peticao, sec, false);
+				
+				dao.createPeticaoDistribuida(peticao.getNumeroId(), peticao.getData(), peticao.getRequerente(), peticao.getRequerido(), peticao.getResumo(), peticao.getRemetente(),true,  peticao.getApenso(), true,sec);
 				peticao.setArchived(true);
+				peticao.setDist(false);
 				dao.executeInTransaction(new ICommand() {
 					
 					@Override
@@ -169,8 +192,9 @@ if (seccao2.isEmpty()==false) {
 if (seccao3.isEmpty()==false) {
 	Seccao sec=dao.searchSeccaos("Seccao 3", 1).get(0);
 			for (Peticao peticao : seccao3) {
-				dao.createPeticaoDistribuida(peticao, sec, false);
+				dao.createPeticaoDistribuida(peticao.getNumeroId(), peticao.getData(), peticao.getRequerente(), peticao.getRequerido(), peticao.getResumo(), peticao.getRemetente(), true,peticao.getApenso(), true,sec);
 				peticao.setArchived(true);
+				peticao.setDist(false);	
 				dao.executeInTransaction(new ICommand() {
 					
 					@Override

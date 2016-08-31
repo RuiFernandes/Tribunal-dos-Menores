@@ -6,8 +6,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import tribunal.custom.IDBOperations;
 import tribunal.custom.TribunalDAO;
 import tribunal.dao.ICommand;
@@ -57,15 +59,15 @@ public class UsuarioTest {
 	
 	@Test
 	public void testCount() {
-		assertEquals("Empty database must contain no entities.", 0, dao.countUsuarios());
+		assertEquals("Empty database must contain no entities.", 0, dao.countUsuarios(true));
 	}
 	
 	@Test
 	public void testCreateAndCount() {
-		assertEquals("Empty database must contain no entities.", 0, dao.countUsuarios());
+		assertEquals("Empty database must contain no entities.", 0, dao.countUsuarios(true));
 		Usuario newEntity = createInstance(dao);
 		assertNotNull("Newly created entity must not be null.", newEntity);
-		assertEquals("Database must contain 1 entity after creating one.", 1, dao.countUsuarios());
+		assertEquals("Database must contain 1 entity after creating one.", 1, dao.countUsuarios(true));
 	}
 	
 	@Test
@@ -73,7 +75,7 @@ public class UsuarioTest {
 		final Usuario[] entities = new Usuario[1];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				entities[0] = operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)));
+				entities[0] = operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)), false);
 			}
 		});
 		final Usuario entity = entities[0];
@@ -83,7 +85,7 @@ public class UsuarioTest {
 		// test creation of a second object having the same (unique) value
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				Usuario secondEntity = operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)));
+				Usuario secondEntity = operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)), false);
 				secondEntity.setUsername(entities[0].getUsername());
 			}
 		});
@@ -111,8 +113,8 @@ public class UsuarioTest {
 		// Change value of unique property and test retrieval
 		setUsername(entity.getId(), username2[0]);
 		
-		assertNull("Entity must not exist.", dao.getUsuarioByUsername(username1[0]));
-		assertNotNull("Entity must exist.", dao.getUsuarioByUsername(username2[0]));
+		assertNull("Entity must not exist.", dao.getUsuarioByUsername(username1[0], false));
+		assertNotNull("Entity must exist.", dao.getUsuarioByUsername(username2[0], false));
 	}
 	
 	private void setUsername(final int id, final String newValue) {
@@ -133,10 +135,10 @@ public class UsuarioTest {
 	@java.lang.SuppressWarnings("deprecation")
 	public void testDatePropertyDataDeNascimento() {
 		// create test object
-		assertEquals(0, dao.countUsuarios());
+		assertEquals(0, dao.countUsuarios(true));
 		Usuario newEntity = createInstance(dao);
 		assertNotNull(newEntity);
-		assertEquals(1, dao.countUsuarios());
+		assertEquals(1, dao.countUsuarios(true));
 		
 		final int id = newEntity.getId();
 		long oneHour = 60 * 1000;
@@ -192,11 +194,62 @@ public class UsuarioTest {
 		});
 	}
 	
+	@Test
+	@java.lang.SuppressWarnings("deprecation")
+	public void testBooleanPropertyArchived() {
+		// create test objects
+		assertEquals(0, dao.countUsuarios(true));
+		
+		Usuario newEntity1 = createInstance(dao);
+		assertNotNull(newEntity1);
+		
+		Usuario newEntity2 = createInstance(dao);
+		assertNotNull(newEntity2);
+		assertEquals(2, dao.countUsuarios(true));
+		
+		final int id1 = newEntity1.getId();
+		final int id2 = newEntity2.getId();
+		
+		// change boolean property
+		setArchived(dao, id1, true);
+		
+		// fetch again from database
+		newEntity1 = dao.getUsuario(id1);
+		assertTrue(newEntity1.isArchived());
+		
+		// change boolean property
+		setArchived(dao, id1, false);
+		
+		// fetch again from database
+		newEntity1 = dao.getUsuario(id1);
+		assertFalse(newEntity1.isArchived());
+		
+		// change boolean property of all entries
+		dao.setUsuariosArchived(true, true);
+		newEntity1 = dao.getUsuario(id1);
+		assertTrue(newEntity1.isArchived());
+		newEntity2 = dao.getUsuario(id2);
+		assertTrue(newEntity2.isArchived());
+	}
+	
+	private void setArchived(TribunalDAO dao, final int id, final boolean newValue) {
+		dao.executeInTransaction(new ICommand() {
+			
+			public void execute(IDBOperations operations) {
+				
+				@java.lang.SuppressWarnings("deprecation")
+				Usuario entity = operations.getUsuario(id);
+				assertNotNull(entity);
+				entity.setArchived(newValue);
+			}
+		});
+	}
+	
 	private Usuario createInstance(TribunalDAO dao) {
 		final Usuario[] result = new Usuario[1];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				result[0] = operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)));
+				result[0] = operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)), false);
 			}
 		});
 		return result[0];

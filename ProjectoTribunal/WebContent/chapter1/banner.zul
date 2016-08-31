@@ -5,7 +5,7 @@
             <image src="../imgs/kid.png" width="90px" onClick="@global-command('site')"/>
         </a>
         <div width="400px">
-            <label value="Tribunal dos Menores" style="font-size:30px" sclass="banner-head"/>
+            <label value="Tribunal de Menores" style="font-size:30px" sclass="banner-head"/>
         </div>
         <hbox  hflex="1" vflex="1" pack="end" align="center"><label style="font-size:20px" zclass="label label-primary" value="@load(banner.user.nome)" />	 </hbox>
     </hbox>

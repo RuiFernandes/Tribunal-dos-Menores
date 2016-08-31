@@ -38,7 +38,6 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	private int nextProcessoID = 1;
 	private int nextRegistroID = 1;
 	private int nextPeticaoID = 1;
-	private int nextPeticaoDistribuidaID = 1;
 	private int nextAutoID = 1;
 	private int nextInqueritoSocialID = 1;
 	private int nextLogID = 1;
@@ -58,8 +57,6 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	private Set<Registro> cachedRegistro = null;
 	
 	private Set<Peticao> cachedPeticao = null;
-	
-	private Set<PeticaoDistribuida> cachedPeticaoDistribuida = null;
 	
 	private Set<Auto> cachedAuto = null;
 	
@@ -100,7 +97,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 */
 	public List<java.lang.Object> getAll() {
 		final List<java.lang.Object> entities = new ArrayList<java.lang.Object>();
-		entities.addAll(getAllUsuarios());
+		entities.addAll(getAllUsuarios(true));
 		entities.addAll(getAllCategorias());
 		entities.addAll(getAllSeccaos());
 		entities.addAll(getAllLivros());
@@ -145,9 +142,6 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 		if (cachedPeticao != null) {
 			cachedPeticao.clear();
 		}
-		if (cachedPeticaoDistribuida != null) {
-			cachedPeticaoDistribuida.clear();
-		}
 		if (cachedAuto != null) {
 			cachedAuto.clear();
 		}
@@ -164,8 +158,8 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Usuario createUsuario(final String nome, final Date dataDeNascimento, final String username, final String password, final Categoria categoria, final Seccao seccao) {
-		return createUsuario(nome, dataDeNascimento, username, password, categoria, seccao, null);
+	public Usuario createUsuario(final String nome, final Date dataDeNascimento, final String username, final String password, final Categoria categoria, final Seccao seccao, final boolean archived) {
+		return createUsuario(nome, dataDeNascimento, username, password, categoria, seccao, archived, null);
 	}
 	
 	/**
@@ -173,7 +167,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Usuario createUsuario(final String nome, final Date dataDeNascimento, final String username, final String password, final Categoria categoria, final Seccao seccao, final IAction<Usuario> prePersistAction) {
+	public Usuario createUsuario(final String nome, final Date dataDeNascimento, final String username, final String password, final Categoria categoria, final Seccao seccao, final boolean archived, final IAction<Usuario> prePersistAction) {
 		
 		Usuario newEntity;
 		if (delegate == null) {
@@ -185,7 +179,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			final int objectID = nextUsuarioID;
 			nextUsuarioID++;
 			@java.lang.SuppressWarnings("deprecation")
-			Usuario newUsuario = new Usuario(nome, dataDeNascimento, username, password, categoria, seccao) {
+			Usuario newUsuario = new Usuario(nome, dataDeNascimento, username, password, categoria, seccao, archived) {
 				
 				@java.lang.Override
 				public int getId() {
@@ -219,7 +213,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			// created.
 			checkUniqueUsuario(newEntity);
 		} else {
-			newEntity = delegate.createUsuario(nome, dataDeNascimento, username, password, categoria, seccao);
+			newEntity = delegate.createUsuario(nome, dataDeNascimento, username, password, categoria, seccao, archived);
 		}
 		
 		// Call prePersistAction
@@ -255,9 +249,13 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	/**
 	 * Returns the Usuario with the given username.
 	 */
-	public Usuario getUsuarioByUsername(final String username) {
+	public Usuario getUsuarioByUsername(final String username, final boolean includedArchivedEntities) {
 		Set<Usuario> cache = _getUsuarioCache();
 		for (Usuario concreteNext : cache) {
+			if (concreteNext.isArchived() && !includedArchivedEntities) {
+				continue;
+			}
+			
 			Object usernameValue = concreteNext.getUsername();
 			if (isSameValue(username, usernameValue)) {
 				return concreteNext;
@@ -269,10 +267,14 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	/**
 	 * Returns the Usuarios with the given categoria.
 	 */
-	public List<Usuario> getUsuariosByCategoria(final Categoria categoria) {
+	public List<Usuario> getUsuariosByCategoria(final Categoria categoria, final boolean includeArchivedEntities) {
 		List<Usuario> result = new ArrayList<Usuario>();
 		Set<Usuario> cache = _getUsuarioCache();
 		for (Usuario concreteNext : cache) {
+			if (concreteNext.isArchived() && !includeArchivedEntities) {
+				continue;
+			}
+			
 			if (categoria != null && categoria.equals(concreteNext.getCategoria())) {
 				result.add(concreteNext);
 			}
@@ -283,10 +285,14 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	/**
 	 * Returns the Usuarios with the given seccao.
 	 */
-	public List<Usuario> getUsuariosBySeccao(final Seccao seccao) {
+	public List<Usuario> getUsuariosBySeccao(final Seccao seccao, final boolean includeArchivedEntities) {
 		List<Usuario> result = new ArrayList<Usuario>();
 		Set<Usuario> cache = _getUsuarioCache();
 		for (Usuario concreteNext : cache) {
+			if (concreteNext.isArchived() && !includeArchivedEntities) {
+				continue;
+			}
+			
 			if (seccao != null && seccao.equals(concreteNext.getSeccao())) {
 				result.add(concreteNext);
 			}
@@ -335,10 +341,13 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	/**
 	 * Returns all entities of type Usuario.
 	 */
-	public List<Usuario> getAllUsuarios() {
+	public List<Usuario> getAllUsuarios(final boolean includeArchivedEntities) {
 		List<Usuario> result = new ArrayList<Usuario>();
 		Set<Usuario> cache = _getUsuarioCache();
 		for (Usuario castedNext : cache) {
+			if (castedNext.isArchived() && !includeArchivedEntities) {
+				continue;
+			}
 			result.add(castedNext);
 		}
 		return result;
@@ -385,8 +394,10 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	}
 	
 	/**
-	 * Deletes the given Usuario.
+	 * Deletes the given Usuario. This method is deprecated, because Usuario is an
+	 * archivable entity. Therefore, it should be archived instead of deleted.
 	 */
+	@java.lang.Deprecated
 	public void delete(final Usuario entity) {
 		// Check whether entity is contained in cache
 		if (!_getUsuarioCache().contains(entity)) {
@@ -397,8 +408,10 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	}
 	
 	/**
-	 * Deletes all given Usuarios.
+	 * Deletes all given Usuarios. This method is deprecated, because Usuario is an
+	 * archivable entity. Therefore, it should be archived instead of deleted.
 	 */
+	@java.lang.Deprecated
 	public void deleteUsuarios(final List<Usuario> entities) {
 		for (Usuario entity : entities ) {
 			delete(entity);
@@ -420,10 +433,42 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	}
 	
 	/**
+	 * Returns all Usuarios where the boolean property 'archived' is set to
+	 * <code>true</code>.
+	 */
+	public List<Usuario> getArchivedUsuarios() {
+		List<Usuario> result = new ArrayList<Usuario>();
+		Set<Usuario> cache = _getUsuarioCache();
+		for (Usuario concreteNext : cache) {
+			if (concreteNext.isArchived()) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Sets the boolean property 'archived' for all Usuarios to the given value.
+	 */
+	public void setUsuariosArchived(final boolean value, final boolean includeArchivedEntities) {
+		Set<Usuario> cache = _getUsuarioCache();
+		for (Usuario concreteNext : cache) {
+			concreteNext.setArchived(value);
+		}
+	}
+	
+	/**
 	 * Counts the number of Usuario entities.
 	 */
-	public int countUsuarios() {
-		return _getUsuarioCache().size();
+	public int countUsuarios(final boolean includeArchivedEntities) {
+		int count = 0;
+		Set<Usuario> entities = _getUsuarioCache();
+		for (Usuario castedNext : entities) {
+			if (!castedNext.isArchived() || includeArchivedEntities) {
+				count++;
+			}
+		}
+		return count;
 	}
 	
 	/**
@@ -991,8 +1036,8 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Processo createProcesso(final String identification, final PeticaoDistribuida peticao, final Auto auto, final Pagina pagina, final boolean archived) {
-		return createProcesso(identification, peticao, auto, pagina, archived, null);
+	public Processo createProcesso(final Date data, final String identification, final Peticao peticao, final Auto auto, final Pagina pagina, final boolean archived) {
+		return createProcesso(data, identification, peticao, auto, pagina, archived, null);
 	}
 	
 	/**
@@ -1000,7 +1045,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Processo createProcesso(final String identification, final PeticaoDistribuida peticao, final Auto auto, final Pagina pagina, final boolean archived, final IAction<Processo> prePersistAction) {
+	public Processo createProcesso(final Date data, final String identification, final Peticao peticao, final Auto auto, final Pagina pagina, final boolean archived, final IAction<Processo> prePersistAction) {
 		
 		Processo newEntity;
 		if (delegate == null) {
@@ -1013,7 +1058,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			final int objectID = nextProcessoID;
 			nextProcessoID++;
 			@java.lang.SuppressWarnings("deprecation")
-			Processo newProcesso = new Processo(identification, peticao, auto, pagina, archived) {
+			Processo newProcesso = new Processo(data, identification, peticao, auto, pagina, archived) {
 				
 				@java.lang.Override
 				public int getId() {
@@ -1029,7 +1074,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 				
 				@java.lang.Override
 				@java.lang.Deprecated
-				public void setPeticao(PeticaoDistribuida newValue) {
+				public void setPeticao(Peticao newValue) {
 					checkPersisted(newValue, false);
 					super.setPeticao(newValue);
 				}
@@ -1054,7 +1099,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			// created.
 			checkUniqueProcesso(newEntity);
 		} else {
-			newEntity = delegate.createProcesso(identification, peticao, auto, pagina, archived);
+			newEntity = delegate.createProcesso(data, identification, peticao, auto, pagina, archived);
 		}
 		
 		// Call prePersistAction
@@ -1108,7 +1153,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	/**
 	 * Returns the Processos with the given peticao.
 	 */
-	public List<Processo> getProcessosByPeticao(final PeticaoDistribuida peticao, final boolean includeArchivedEntities) {
+	public List<Processo> getProcessosByPeticao(final Peticao peticao, final boolean includeArchivedEntities) {
 		List<Processo> result = new ArrayList<Processo>();
 		Set<Processo> cache = _getProcessoCache();
 		for (Processo concreteNext : cache) {
@@ -1153,6 +1198,44 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			}
 			
 			if (pagina != null && pagina.equals(concreteNext.getPagina())) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns all Processos where data is set to a value before '_maxDate'.
+	 */
+	public List<Processo> getProcessosWithDataBefore(final Date _maxDate) {
+		List<Processo> result = new ArrayList<Processo>();
+		Set<Processo> cache = _getProcessoCache();
+		for (Processo next : cache) {
+			if (!(next instanceof Processo)) {
+				continue;
+			}
+			Processo concreteNext = (Processo) next;
+			Date value = concreteNext.getData();
+			if (value == null || value.getTime() < _maxDate.getTime()) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns all Processos where data is set to a value after '_minDate'.
+	 */
+	public List<Processo> getProcessosWithDataAfter(final Date _minDate) {
+		List<Processo> result = new ArrayList<Processo>();
+		Set<Processo> cache = _getProcessoCache();
+		for (Processo next : cache) {
+			if (!(next instanceof Processo)) {
+				continue;
+			}
+			Processo concreteNext = (Processo) next;
+			Date value = concreteNext.getData();
+			if (value != null && value.getTime() > _minDate.getTime()) {
 				result.add(concreteNext);
 			}
 		}
@@ -1226,6 +1309,20 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	}
 	
 	/**
+	 * Deletes all Processos where data is set to a value before '_maxDate'.
+	 */
+	public void deleteProcessosWithDataBefore(final Date _maxDate) {
+		_getProcessoCache().removeAll(getProcessosWithDataBefore(_maxDate));
+	}
+	
+	/**
+	 * Deletes all Processos where data is set to a value after '_minDate'.
+	 */
+	public void deleteProcessosWithDataAfter(final Date _minDate) {
+		_getProcessoCache().removeAll(getProcessosWithDataAfter(_minDate));
+	}
+	
+	/**
 	 * Returns all Processos where the boolean property 'archived' is set to
 	 * <code>true</code>.
 	 */
@@ -1269,8 +1366,8 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * If the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public ProcessoAutuado createProcessoAutuado(final String identification, final PeticaoDistribuida peticao, final Auto auto, final Pagina pagina, final boolean archived) {
-		return createProcessoAutuado(identification, peticao, auto, pagina, archived, null);
+	public ProcessoAutuado createProcessoAutuado(final Date data, final String identification, final Peticao peticao, final Auto auto, final Pagina pagina, final boolean archived, final Boolean conclusao) {
+		return createProcessoAutuado(data, identification, peticao, auto, pagina, archived, conclusao, null);
 	}
 	
 	/**
@@ -1278,7 +1375,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * If the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public ProcessoAutuado createProcessoAutuado(final String identification, final PeticaoDistribuida peticao, final Auto auto, final Pagina pagina, final boolean archived, final IAction<ProcessoAutuado> prePersistAction) {
+	public ProcessoAutuado createProcessoAutuado(final Date data, final String identification, final Peticao peticao, final Auto auto, final Pagina pagina, final boolean archived, final Boolean conclusao, final IAction<ProcessoAutuado> prePersistAction) {
 		
 		ProcessoAutuado newEntity;
 		if (delegate == null) {
@@ -1291,7 +1388,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			final int objectID = nextProcessoID;
 			nextProcessoID++;
 			@java.lang.SuppressWarnings("deprecation")
-			ProcessoAutuado newProcessoAutuado = new ProcessoAutuado(identification, peticao, auto, pagina, archived) {
+			ProcessoAutuado newProcessoAutuado = new ProcessoAutuado(data, identification, peticao, auto, pagina, archived, conclusao) {
 				
 				@java.lang.Override
 				public int getId() {
@@ -1307,7 +1404,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 				
 				@java.lang.Override
 				@java.lang.Deprecated
-				public void setPeticao(PeticaoDistribuida newValue) {
+				public void setPeticao(Peticao newValue) {
 					checkPersisted(newValue, false);
 					super.setPeticao(newValue);
 				}
@@ -1339,7 +1436,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			// created.
 			checkUniqueProcessoAutuado(newEntity);
 		} else {
-			newEntity = delegate.createProcessoAutuado(identification, peticao, auto, pagina, archived);
+			newEntity = delegate.createProcessoAutuado(data, identification, peticao, auto, pagina, archived, conclusao);
 		}
 		
 		// Call prePersistAction
@@ -1400,7 +1497,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	/**
 	 * Returns the ProcessoAutuados with the given peticao.
 	 */
-	public List<ProcessoAutuado> getProcessoAutuadosByPeticao(final PeticaoDistribuida peticao, final boolean includeArchivedEntities) {
+	public List<ProcessoAutuado> getProcessoAutuadosByPeticao(final Peticao peticao, final boolean includeArchivedEntities) {
 		List<ProcessoAutuado> result = new ArrayList<ProcessoAutuado>();
 		Set<Processo> cache = _getProcessoCache();
 		for (Processo next : cache) {
@@ -1457,6 +1554,44 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			}
 			
 			if (pagina != null && pagina.equals(concreteNext.getPagina())) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns all ProcessoAutuados where data is set to a value before '_maxDate'.
+	 */
+	public List<ProcessoAutuado> getProcessoAutuadosWithDataBefore(final Date _maxDate) {
+		List<ProcessoAutuado> result = new ArrayList<ProcessoAutuado>();
+		Set<Processo> cache = _getProcessoCache();
+		for (Processo next : cache) {
+			if (!(next instanceof ProcessoAutuado)) {
+				continue;
+			}
+			ProcessoAutuado concreteNext = (ProcessoAutuado) next;
+			Date value = concreteNext.getData();
+			if (value == null || value.getTime() < _maxDate.getTime()) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns all ProcessoAutuados where data is set to a value after '_minDate'.
+	 */
+	public List<ProcessoAutuado> getProcessoAutuadosWithDataAfter(final Date _minDate) {
+		List<ProcessoAutuado> result = new ArrayList<ProcessoAutuado>();
+		Set<Processo> cache = _getProcessoCache();
+		for (Processo next : cache) {
+			if (!(next instanceof ProcessoAutuado)) {
+				continue;
+			}
+			ProcessoAutuado concreteNext = (ProcessoAutuado) next;
+			Date value = concreteNext.getData();
+			if (value != null && value.getTime() > _minDate.getTime()) {
 				result.add(concreteNext);
 			}
 		}
@@ -1540,6 +1675,20 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	}
 	
 	/**
+	 * Deletes all ProcessoAutuados where data is set to a value before '_maxDate'.
+	 */
+	public void deleteProcessoAutuadosWithDataBefore(final Date _maxDate) {
+		_getProcessoCache().removeAll(getProcessoAutuadosWithDataBefore(_maxDate));
+	}
+	
+	/**
+	 * Deletes all ProcessoAutuados where data is set to a value after '_minDate'.
+	 */
+	public void deleteProcessoAutuadosWithDataAfter(final Date _minDate) {
+		_getProcessoCache().removeAll(getProcessoAutuadosWithDataAfter(_minDate));
+	}
+	
+	/**
 	 * Returns all ProcessoAutuados where the boolean property 'archived' is set to
 	 * <code>true</code>.
 	 */
@@ -1574,6 +1723,44 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	}
 	
 	/**
+	 * Returns all ProcessoAutuados where the boolean property 'conclusao' is set to
+	 * <code>true</code>.
+	 */
+	public List<ProcessoAutuado> getConclusaoProcessoAutuados(final boolean includeArchivedEntities) {
+		List<ProcessoAutuado> result = new ArrayList<ProcessoAutuado>();
+		Set<Processo> cache = _getProcessoCache();
+		for (Processo next : cache) {
+			if (!(next instanceof ProcessoAutuado)) {
+				continue;
+			}
+			ProcessoAutuado concreteNext = (ProcessoAutuado) next;
+			if (concreteNext.isArchived() && !includeArchivedEntities) {
+				continue;
+			}
+			
+			if (concreteNext.isConclusao()) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Sets the boolean property 'conclusao' for all ProcessoAutuados to the given
+	 * value.
+	 */
+	public void setProcessoAutuadosConclusao(final boolean value, final boolean includeArchivedEntities) {
+		Set<Processo> cache = _getProcessoCache();
+		for (Processo next : cache) {
+			if (!(next instanceof ProcessoAutuado)) {
+				continue;
+			}
+			ProcessoAutuado concreteNext = (ProcessoAutuado) next;
+			concreteNext.setConclusao(value);
+		}
+	}
+	
+	/**
 	 * Counts the number of ProcessoAutuado entities.
 	 */
 	public int countProcessoAutuados(final boolean includeArchivedEntities) {
@@ -1596,8 +1783,8 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Registro createRegistro(final Date data, final String infoRegisto, final ProcessoAutuado processoAutuado) {
-		return createRegistro(data, infoRegisto, processoAutuado, null);
+	public Registro createRegistro(final Date data, final String infoRegisto, final ProcessoAutuado processoAutuado, final Usuario user) {
+		return createRegistro(data, infoRegisto, processoAutuado, user, null);
 	}
 	
 	/**
@@ -1605,18 +1792,19 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Registro createRegistro(final Date data, final String infoRegisto, final ProcessoAutuado processoAutuado, final IAction<Registro> prePersistAction) {
+	public Registro createRegistro(final Date data, final String infoRegisto, final ProcessoAutuado processoAutuado, final Usuario user, final IAction<Registro> prePersistAction) {
 		
 		Registro newEntity;
 		if (delegate == null) {
 			// Check whether all entities passed to the constructor are persisted
 			checkPersisted(processoAutuado, true);
+			checkPersisted(user, true);
 			
 			// Call entity constructor to create non-persistent object
 			final int objectID = nextRegistroID;
 			nextRegistroID++;
 			@java.lang.SuppressWarnings("deprecation")
-			Registro newRegistro = new Registro(data, infoRegisto, processoAutuado) {
+			Registro newRegistro = new Registro(data, infoRegisto, processoAutuado, user) {
 				
 				@java.lang.Override
 				public int getId() {
@@ -1630,13 +1818,20 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 					super.setProcessoAutuado(newValue);
 				}
 				
+				@java.lang.Override
+				@java.lang.Deprecated
+				public void setUser(Usuario newValue) {
+					checkPersisted(newValue, false);
+					super.setUser(newValue);
+				}
+				
 			};
 			newEntity = newRegistro;
 			// Check constraints to make sure that no entity which violates constraints is
 			// created.
 			checkUniqueRegistro(newEntity);
 		} else {
-			newEntity = delegate.createRegistro(data, infoRegisto, processoAutuado);
+			newEntity = delegate.createRegistro(data, infoRegisto, processoAutuado, user);
 		}
 		
 		// Call prePersistAction
@@ -1670,6 +1865,20 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 		Set<Registro> cache = _getRegistroCache();
 		for (Registro concreteNext : cache) {
 			if (processoAutuado != null && processoAutuado.equals(concreteNext.getProcessoAutuado(true))) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns the Registros with the given user.
+	 */
+	public List<Registro> getRegistrosByUser(final Usuario user) {
+		List<Registro> result = new ArrayList<Registro>();
+		Set<Registro> cache = _getRegistroCache();
+		for (Registro concreteNext : cache) {
+			if (user != null && user.equals(concreteNext.getUser(true))) {
 				result.add(concreteNext);
 			}
 		}
@@ -1799,8 +2008,8 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Peticao createPeticao(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean archived) {
-		return createPeticao(numeroId, data, requerente, requerido, resumo, remetente, archived, null);
+	public Peticao createPeticao(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean dist, final String apenso, final boolean archived) {
+		return createPeticao(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, null);
 	}
 	
 	/**
@@ -1808,7 +2017,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Peticao createPeticao(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean archived, final IAction<Peticao> prePersistAction) {
+	public Peticao createPeticao(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean dist, final String apenso, final boolean archived, final IAction<Peticao> prePersistAction) {
 		
 		Peticao newEntity;
 		if (delegate == null) {
@@ -1816,7 +2025,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			final int objectID = nextPeticaoID;
 			nextPeticaoID++;
 			@java.lang.SuppressWarnings("deprecation")
-			Peticao newPeticao = new Peticao(numeroId, data, requerente, requerido, resumo, remetente, archived) {
+			Peticao newPeticao = new Peticao(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived) {
 				
 				@java.lang.Override
 				public int getId() {
@@ -1829,7 +2038,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			// created.
 			checkUniquePeticao(newEntity);
 		} else {
-			newEntity = delegate.createPeticao(numeroId, data, requerente, requerido, resumo, remetente, archived);
+			newEntity = delegate.createPeticao(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived);
 		}
 		
 		// Call prePersistAction
@@ -1952,6 +2161,13 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 				}
 			}
 			
+			if (!matches) {
+				java.lang.String apenso = concreteNext.getApenso();
+				if (apenso != null && apenso.contains(_searchString)) {
+					matches = true;
+				}
+			}
+			
 			if (matches) {
 				result.add(concreteNext);
 				if (result.size() >= _maxResults) {
@@ -2002,6 +2218,35 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	}
 	
 	/**
+	 * Returns all Peticaos where the boolean property 'dist' is set to
+	 * <code>true</code>.
+	 */
+	public List<Peticao> getDistPeticaos(final boolean includeArchivedEntities) {
+		List<Peticao> result = new ArrayList<Peticao>();
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao concreteNext : cache) {
+			if (concreteNext.isArchived() && !includeArchivedEntities) {
+				continue;
+			}
+			
+			if (concreteNext.isDist()) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Sets the boolean property 'dist' for all Peticaos to the given value.
+	 */
+	public void setPeticaosDist(final boolean value, final boolean includeArchivedEntities) {
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao concreteNext : cache) {
+			concreteNext.setDist(value);
+		}
+	}
+	
+	/**
 	 * Returns all Peticaos where the boolean property 'archived' is set to
 	 * <code>true</code>.
 	 */
@@ -2045,8 +2290,8 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * properties. If the new entity violates uniqueness constraints and a Cache is
 	 * used, an java.lang.IllegalArgumentException is thrown.
 	 */
-	public PeticaoDistribuida createPeticaoDistribuida(final Peticao peticao, final Seccao seccao, final boolean archived) {
-		return createPeticaoDistribuida(peticao, seccao, archived, null);
+	public PeticaoDistribuida createPeticaoDistribuida(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean dist, final String apenso, final boolean archived, final Seccao seccao) {
+		return createPeticaoDistribuida(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, seccao, null);
 	}
 	
 	/**
@@ -2054,30 +2299,22 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * properties. If the new entity violates uniqueness constraints and a Cache is
 	 * used, an java.lang.IllegalArgumentException is thrown.
 	 */
-	public PeticaoDistribuida createPeticaoDistribuida(final Peticao peticao, final Seccao seccao, final boolean archived, final IAction<PeticaoDistribuida> prePersistAction) {
+	public PeticaoDistribuida createPeticaoDistribuida(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean dist, final String apenso, final boolean archived, final Seccao seccao, final IAction<PeticaoDistribuida> prePersistAction) {
 		
 		PeticaoDistribuida newEntity;
 		if (delegate == null) {
 			// Check whether all entities passed to the constructor are persisted
-			checkPersisted(peticao, true);
 			checkPersisted(seccao, true);
 			
 			// Call entity constructor to create non-persistent object
-			final int objectID = nextPeticaoDistribuidaID;
-			nextPeticaoDistribuidaID++;
+			final int objectID = nextPeticaoID;
+			nextPeticaoID++;
 			@java.lang.SuppressWarnings("deprecation")
-			PeticaoDistribuida newPeticaoDistribuida = new PeticaoDistribuida(peticao, seccao, archived) {
+			PeticaoDistribuida newPeticaoDistribuida = new PeticaoDistribuida(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, seccao) {
 				
 				@java.lang.Override
 				public int getId() {
 					return objectID;
-				}
-				
-				@java.lang.Override
-				@java.lang.Deprecated
-				public void setPeticao(Peticao newValue) {
-					checkPersisted(newValue, false);
-					super.setPeticao(newValue);
 				}
 				
 				@java.lang.Override
@@ -2093,7 +2330,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			// created.
 			checkUniquePeticaoDistribuida(newEntity);
 		} else {
-			newEntity = delegate.createPeticaoDistribuida(peticao, seccao, archived);
+			newEntity = delegate.createPeticaoDistribuida(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, seccao);
 		}
 		
 		// Call prePersistAction
@@ -2102,7 +2339,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 		}
 		
 		// Add new entity to cache
-		_getPeticaoDistribuidaCache().add(newEntity);
+		_getPeticaoCache().add(newEntity);
 		return newEntity;
 	}
 	
@@ -2110,31 +2347,16 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * Returns the PeticaoDistribuida with the given id.
 	 */
 	public PeticaoDistribuida getPeticaoDistribuida(final int id) {
-		Set<PeticaoDistribuida> cache = _getPeticaoDistribuidaCache();
-		for (PeticaoDistribuida next : cache) {
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao next : cache) {
+			if (!(next instanceof PeticaoDistribuida)) {
+				continue;
+			}
 			if (next.getId() == id) {
-				return next;
+				return (PeticaoDistribuida) next;
 			}
 		}
 		return null;
-	}
-	
-	/**
-	 * Returns the PeticaoDistribuidas with the given peticao.
-	 */
-	public List<PeticaoDistribuida> getPeticaoDistribuidasByPeticao(final Peticao peticao, final boolean includeArchivedEntities) {
-		List<PeticaoDistribuida> result = new ArrayList<PeticaoDistribuida>();
-		Set<PeticaoDistribuida> cache = _getPeticaoDistribuidaCache();
-		for (PeticaoDistribuida concreteNext : cache) {
-			if (concreteNext.isArchived() && !includeArchivedEntities) {
-				continue;
-			}
-			
-			if (peticao != null && peticao.equals(concreteNext.getPeticao(true))) {
-				result.add(concreteNext);
-			}
-		}
-		return result;
 	}
 	
 	/**
@@ -2142,13 +2364,59 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 */
 	public List<PeticaoDistribuida> getPeticaoDistribuidasBySeccao(final Seccao seccao, final boolean includeArchivedEntities) {
 		List<PeticaoDistribuida> result = new ArrayList<PeticaoDistribuida>();
-		Set<PeticaoDistribuida> cache = _getPeticaoDistribuidaCache();
-		for (PeticaoDistribuida concreteNext : cache) {
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao next : cache) {
+			if (!(next instanceof PeticaoDistribuida)) {
+				continue;
+			}
+			PeticaoDistribuida concreteNext = (PeticaoDistribuida) next;
 			if (concreteNext.isArchived() && !includeArchivedEntities) {
 				continue;
 			}
 			
+			if (seccao == null && concreteNext.getSeccao() == null) {
+				result.add(concreteNext);
+				continue;
+			}
 			if (seccao != null && seccao.equals(concreteNext.getSeccao())) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns all PeticaoDistribuidas where data is set to a value before '_maxDate'.
+	 */
+	public List<PeticaoDistribuida> getPeticaoDistribuidasWithDataBefore(final Date _maxDate) {
+		List<PeticaoDistribuida> result = new ArrayList<PeticaoDistribuida>();
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao next : cache) {
+			if (!(next instanceof PeticaoDistribuida)) {
+				continue;
+			}
+			PeticaoDistribuida concreteNext = (PeticaoDistribuida) next;
+			Date value = concreteNext.getData();
+			if (value == null || value.getTime() < _maxDate.getTime()) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns all PeticaoDistribuidas where data is set to a value after '_minDate'.
+	 */
+	public List<PeticaoDistribuida> getPeticaoDistribuidasWithDataAfter(final Date _minDate) {
+		List<PeticaoDistribuida> result = new ArrayList<PeticaoDistribuida>();
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao next : cache) {
+			if (!(next instanceof PeticaoDistribuida)) {
+				continue;
+			}
+			PeticaoDistribuida concreteNext = (PeticaoDistribuida) next;
+			Date value = concreteNext.getData();
+			if (value != null && value.getTime() > _minDate.getTime()) {
 				result.add(concreteNext);
 			}
 		}
@@ -2160,8 +2428,12 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 */
 	public List<PeticaoDistribuida> getAllPeticaoDistribuidas(final boolean includeArchivedEntities) {
 		List<PeticaoDistribuida> result = new ArrayList<PeticaoDistribuida>();
-		Set<PeticaoDistribuida> cache = _getPeticaoDistribuidaCache();
-		for (PeticaoDistribuida castedNext : cache) {
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao next : cache) {
+			if (!(next instanceof PeticaoDistribuida)) {
+				continue;
+			}
+			PeticaoDistribuida castedNext = (PeticaoDistribuida) next;
 			if (castedNext.isArchived() && !includeArchivedEntities) {
 				continue;
 			}
@@ -2175,9 +2447,55 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 */
 	public List<PeticaoDistribuida> searchPeticaoDistribuidas(final java.lang.String _searchString, final int _maxResults) {
 		List<PeticaoDistribuida> result = new ArrayList<PeticaoDistribuida>();
-		Set<PeticaoDistribuida> cache = _getPeticaoDistribuidaCache();
-		for (PeticaoDistribuida concreteNext : cache) {
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao next : cache) {
+			if (!(next instanceof PeticaoDistribuida)) {
+				continue;
+			}
+			PeticaoDistribuida concreteNext = (PeticaoDistribuida) next;
 			boolean matches = false;
+			
+			if (!matches) {
+				java.lang.String numeroId = concreteNext.getNumeroId();
+				if (numeroId != null && numeroId.contains(_searchString)) {
+					matches = true;
+				}
+			}
+			
+			if (!matches) {
+				java.lang.String requerente = concreteNext.getRequerente();
+				if (requerente != null && requerente.contains(_searchString)) {
+					matches = true;
+				}
+			}
+			
+			if (!matches) {
+				java.lang.String requerido = concreteNext.getRequerido();
+				if (requerido != null && requerido.contains(_searchString)) {
+					matches = true;
+				}
+			}
+			
+			if (!matches) {
+				java.lang.String resumo = concreteNext.getResumo();
+				if (resumo != null && resumo.contains(_searchString)) {
+					matches = true;
+				}
+			}
+			
+			if (!matches) {
+				java.lang.String remetente = concreteNext.getRemetente();
+				if (remetente != null && remetente.contains(_searchString)) {
+					matches = true;
+				}
+			}
+			
+			if (!matches) {
+				java.lang.String apenso = concreteNext.getApenso();
+				if (apenso != null && apenso.contains(_searchString)) {
+					matches = true;
+				}
+			}
 			
 			if (matches) {
 				result.add(concreteNext);
@@ -2197,11 +2515,11 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	@java.lang.Deprecated
 	public void delete(final PeticaoDistribuida entity) {
 		// Check whether entity is contained in cache
-		if (!_getPeticaoDistribuidaCache().contains(entity)) {
+		if (!_getPeticaoCache().contains(entity)) {
 			return;
 		}
 		// Delete entity itself
-		_getPeticaoDistribuidaCache().remove(entity);
+		_getPeticaoCache().remove(entity);
 	}
 	
 	/**
@@ -2217,13 +2535,68 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	}
 	
 	/**
+	 * Deletes all PeticaoDistribuidas where data is set to a value before '_maxDate'.
+	 */
+	public void deletePeticaoDistribuidasWithDataBefore(final Date _maxDate) {
+		_getPeticaoCache().removeAll(getPeticaoDistribuidasWithDataBefore(_maxDate));
+	}
+	
+	/**
+	 * Deletes all PeticaoDistribuidas where data is set to a value after '_minDate'.
+	 */
+	public void deletePeticaoDistribuidasWithDataAfter(final Date _minDate) {
+		_getPeticaoCache().removeAll(getPeticaoDistribuidasWithDataAfter(_minDate));
+	}
+	
+	/**
+	 * Returns all PeticaoDistribuidas where the boolean property 'dist' is set to
+	 * <code>true</code>.
+	 */
+	public List<PeticaoDistribuida> getDistPeticaoDistribuidas(final boolean includeArchivedEntities) {
+		List<PeticaoDistribuida> result = new ArrayList<PeticaoDistribuida>();
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao next : cache) {
+			if (!(next instanceof PeticaoDistribuida)) {
+				continue;
+			}
+			PeticaoDistribuida concreteNext = (PeticaoDistribuida) next;
+			if (concreteNext.isArchived() && !includeArchivedEntities) {
+				continue;
+			}
+			
+			if (concreteNext.isDist()) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Sets the boolean property 'dist' for all PeticaoDistribuidas to the given value.
+	 */
+	public void setPeticaoDistribuidasDist(final boolean value, final boolean includeArchivedEntities) {
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao next : cache) {
+			if (!(next instanceof PeticaoDistribuida)) {
+				continue;
+			}
+			PeticaoDistribuida concreteNext = (PeticaoDistribuida) next;
+			concreteNext.setDist(value);
+		}
+	}
+	
+	/**
 	 * Returns all PeticaoDistribuidas where the boolean property 'archived' is set to
 	 * <code>true</code>.
 	 */
 	public List<PeticaoDistribuida> getArchivedPeticaoDistribuidas() {
 		List<PeticaoDistribuida> result = new ArrayList<PeticaoDistribuida>();
-		Set<PeticaoDistribuida> cache = _getPeticaoDistribuidaCache();
-		for (PeticaoDistribuida concreteNext : cache) {
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao next : cache) {
+			if (!(next instanceof PeticaoDistribuida)) {
+				continue;
+			}
+			PeticaoDistribuida concreteNext = (PeticaoDistribuida) next;
 			if (concreteNext.isArchived()) {
 				result.add(concreteNext);
 			}
@@ -2236,8 +2609,12 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * value.
 	 */
 	public void setPeticaoDistribuidasArchived(final boolean value, final boolean includeArchivedEntities) {
-		Set<PeticaoDistribuida> cache = _getPeticaoDistribuidaCache();
-		for (PeticaoDistribuida concreteNext : cache) {
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao next : cache) {
+			if (!(next instanceof PeticaoDistribuida)) {
+				continue;
+			}
+			PeticaoDistribuida concreteNext = (PeticaoDistribuida) next;
 			concreteNext.setArchived(value);
 		}
 	}
@@ -2247,8 +2624,12 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 */
 	public int countPeticaoDistribuidas(final boolean includeArchivedEntities) {
 		int count = 0;
-		Set<PeticaoDistribuida> entities = _getPeticaoDistribuidaCache();
-		for (PeticaoDistribuida castedNext : entities) {
+		Set<Peticao> entities = _getPeticaoCache();
+		for (Peticao next : entities) {
+			if (!(next instanceof PeticaoDistribuida)) {
+				continue;
+			}
+			PeticaoDistribuida castedNext = (PeticaoDistribuida) next;
 			if (!castedNext.isArchived() || includeArchivedEntities) {
 				count++;
 			}
@@ -2261,8 +2642,8 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public PeticaoApenso createPeticaoApenso(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean archived, final Processo processo) {
-		return createPeticaoApenso(numeroId, data, requerente, requerido, resumo, remetente, archived, processo, null);
+	public PeticaoApenso createPeticaoApenso(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean dist, final String apenso, final boolean archived, final Processo processo) {
+		return createPeticaoApenso(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, processo, null);
 	}
 	
 	/**
@@ -2270,7 +2651,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * the new entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public PeticaoApenso createPeticaoApenso(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean archived, final Processo processo, final IAction<PeticaoApenso> prePersistAction) {
+	public PeticaoApenso createPeticaoApenso(final String numeroId, final Date data, final String requerente, final String requerido, final String resumo, final String remetente, final boolean dist, final String apenso, final boolean archived, final Processo processo, final IAction<PeticaoApenso> prePersistAction) {
 		
 		PeticaoApenso newEntity;
 		if (delegate == null) {
@@ -2281,7 +2662,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			final int objectID = nextPeticaoID;
 			nextPeticaoID++;
 			@java.lang.SuppressWarnings("deprecation")
-			PeticaoApenso newPeticaoApenso = new PeticaoApenso(numeroId, data, requerente, requerido, resumo, remetente, archived, processo) {
+			PeticaoApenso newPeticaoApenso = new PeticaoApenso(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, processo) {
 				
 				@java.lang.Override
 				public int getId() {
@@ -2301,7 +2682,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			// created.
 			checkUniquePeticaoApenso(newEntity);
 		} else {
-			newEntity = delegate.createPeticaoApenso(numeroId, data, requerente, requerido, resumo, remetente, archived, processo);
+			newEntity = delegate.createPeticaoApenso(numeroId, data, requerente, requerido, resumo, remetente, dist, apenso, archived, processo);
 		}
 		
 		// Call prePersistAction
@@ -2461,6 +2842,13 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 				}
 			}
 			
+			if (!matches) {
+				java.lang.String apenso = concreteNext.getApenso();
+				if (apenso != null && apenso.contains(_searchString)) {
+					matches = true;
+				}
+			}
+			
 			if (matches) {
 				result.add(concreteNext);
 				if (result.size() >= _maxResults) {
@@ -2510,6 +2898,43 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 */
 	public void deletePeticaoApensosWithDataAfter(final Date _minDate) {
 		_getPeticaoCache().removeAll(getPeticaoApensosWithDataAfter(_minDate));
+	}
+	
+	/**
+	 * Returns all PeticaoApensos where the boolean property 'dist' is set to
+	 * <code>true</code>.
+	 */
+	public List<PeticaoApenso> getDistPeticaoApensos(final boolean includeArchivedEntities) {
+		List<PeticaoApenso> result = new ArrayList<PeticaoApenso>();
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao next : cache) {
+			if (!(next instanceof PeticaoApenso)) {
+				continue;
+			}
+			PeticaoApenso concreteNext = (PeticaoApenso) next;
+			if (concreteNext.isArchived() && !includeArchivedEntities) {
+				continue;
+			}
+			
+			if (concreteNext.isDist()) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Sets the boolean property 'dist' for all PeticaoApensos to the given value.
+	 */
+	public void setPeticaoApensosDist(final boolean value, final boolean includeArchivedEntities) {
+		Set<Peticao> cache = _getPeticaoCache();
+		for (Peticao next : cache) {
+			if (!(next instanceof PeticaoApenso)) {
+				continue;
+			}
+			PeticaoApenso concreteNext = (PeticaoApenso) next;
+			concreteNext.setDist(value);
+		}
 	}
 	
 	/**
@@ -2823,6 +3248,9 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 		}
 		// Delete entity itself
 		_getInqueritoSocialCache().remove(entity);
+		// Remove entities referenced by outgoing reference
+		Processo processo = entity.getProcesso(true);
+		delete(processo);
 	}
 	
 	/**
@@ -2846,8 +3274,8 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Log createLog(final Date data, final String log) {
-		return createLog(data, log, null);
+	public Log createLog(final Date data, final String log, final Usuario user) {
+		return createLog(data, log, user, null);
 	}
 	
 	/**
@@ -2855,19 +3283,29 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * entity violates uniqueness constraints and a Cache is used, an
 	 * java.lang.IllegalArgumentException is thrown.
 	 */
-	public Log createLog(final Date data, final String log, final IAction<Log> prePersistAction) {
+	public Log createLog(final Date data, final String log, final Usuario user, final IAction<Log> prePersistAction) {
 		
 		Log newEntity;
 		if (delegate == null) {
+			// Check whether all entities passed to the constructor are persisted
+			checkPersisted(user, true);
+			
 			// Call entity constructor to create non-persistent object
 			final int objectID = nextLogID;
 			nextLogID++;
 			@java.lang.SuppressWarnings("deprecation")
-			Log newLog = new Log(data, log) {
+			Log newLog = new Log(data, log, user) {
 				
 				@java.lang.Override
 				public int getId() {
 					return objectID;
+				}
+				
+				@java.lang.Override
+				@java.lang.Deprecated
+				public void setUser(Usuario newValue) {
+					checkPersisted(newValue, false);
+					super.setUser(newValue);
 				}
 				
 			};
@@ -2876,7 +3314,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			// created.
 			checkUniqueLog(newEntity);
 		} else {
-			newEntity = delegate.createLog(data, log);
+			newEntity = delegate.createLog(data, log, user);
 		}
 		
 		// Call prePersistAction
@@ -2900,6 +3338,20 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Returns the Logs with the given user.
+	 */
+	public List<Log> getLogsByUser(final Usuario user) {
+		List<Log> result = new ArrayList<Log>();
+		Set<Log> cache = _getLogCache();
+		for (Log concreteNext : cache) {
+			if (user != null && user.equals(concreteNext.getUser(true))) {
+				result.add(concreteNext);
+			}
+		}
+		return result;
 	}
 	
 	/**
@@ -3066,10 +3518,10 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * Checks if the given entity is persisted and throws an
 	 * java.lang.IllegalArgumentException if it is not.
 	 */
-	private void checkPersisted(PeticaoDistribuida peticaoDistribuida, boolean includeEntityNameInExceptionMessage) {
-		if (peticaoDistribuida != null && !_getPeticaoDistribuidaCache().contains(peticaoDistribuida)) {
+	private void checkPersisted(Peticao peticao, boolean includeEntityNameInExceptionMessage) {
+		if (peticao != null && !_getPeticaoCache().contains(peticao)) {
 			if (includeEntityNameInExceptionMessage) {
-				throw new java.lang.IllegalArgumentException("Can't use non-persistent object as argument for parameter 'peticaoDistribuida'.");
+				throw new java.lang.IllegalArgumentException("Can't use non-persistent object as argument for parameter 'peticao'.");
 			} else {
 				throw new java.lang.IllegalArgumentException("Can't use non-persistent object as argument.");
 			}
@@ -3122,10 +3574,10 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 	 * Checks if the given entity is persisted and throws an
 	 * java.lang.IllegalArgumentException if it is not.
 	 */
-	private void checkPersisted(Peticao peticao, boolean includeEntityNameInExceptionMessage) {
-		if (peticao != null && !_getPeticaoCache().contains(peticao)) {
+	private void checkPersisted(Usuario usuario, boolean includeEntityNameInExceptionMessage) {
+		if (usuario != null && !_getUsuarioCache().contains(usuario)) {
 			if (includeEntityNameInExceptionMessage) {
-				throw new java.lang.IllegalArgumentException("Can't use non-persistent object as argument for parameter 'peticao'.");
+				throw new java.lang.IllegalArgumentException("Can't use non-persistent object as argument for parameter 'usuario'.");
 			} else {
 				throw new java.lang.IllegalArgumentException("Can't use non-persistent object as argument.");
 			}
@@ -3160,7 +3612,7 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 		if (cachedUsuario == null) {
 			cachedUsuario = new LinkedHashSet<Usuario>();
 			if (delegate != null) {
-				cachedUsuario.addAll(delegate.getAllUsuarios());
+				cachedUsuario.addAll(delegate.getAllUsuarios(true));
 			}
 		}
 		return cachedUsuario;
@@ -3469,16 +3921,6 @@ public abstract class TribunalCacheBase implements IDBOperationsBase, ITransacti
 			return entity;
 		}
 		return delegate.merge(entity);
-	}
-	
-	protected Set<PeticaoDistribuida> _getPeticaoDistribuidaCache() {
-		if (cachedPeticaoDistribuida == null) {
-			cachedPeticaoDistribuida = new LinkedHashSet<PeticaoDistribuida>();
-			if (delegate != null) {
-				cachedPeticaoDistribuida.addAll(delegate.getAllPeticaoDistribuidas(true));
-			}
-		}
-		return cachedPeticaoDistribuida;
 	}
 	
 	protected void checkUniquePeticaoDistribuida(PeticaoDistribuida entity) {

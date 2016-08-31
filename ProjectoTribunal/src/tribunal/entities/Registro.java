@@ -4,11 +4,13 @@ import java.util.Date;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -37,6 +39,10 @@ public class Registro implements IIntIdentifiable {
 	@JoinColumn(name = "processoautuado", nullable = false)
 	private ProcessoAutuado processoAutuado;
 	
+	@OneToOne(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
+	@JoinColumn(name = "user", nullable = false)
+	private Usuario user;
+	
 	/**
 	 * <p>
 	 * Default constructor. Only used by JPA.
@@ -60,7 +66,7 @@ public class Registro implements IIntIdentifiable {
 	 * </p>
 	 */
 	@java.lang.Deprecated
-	public Registro(Date data, String infoRegisto, ProcessoAutuado processoAutuado) {
+	public Registro(Date data, String infoRegisto, ProcessoAutuado processoAutuado, Usuario user) {
 		super();
 		if (data == null) {
 			throw new java.lang.IllegalArgumentException("'data' must not be null.");
@@ -71,9 +77,13 @@ public class Registro implements IIntIdentifiable {
 		if (processoAutuado == null) {
 			throw new java.lang.IllegalArgumentException("'processoAutuado' must not be null.");
 		}
+		if (user == null) {
+			throw new java.lang.IllegalArgumentException("'user' must not be null.");
+		}
 		this.data = data;
 		this.infoRegisto = infoRegisto;
 		this.processoAutuado = processoAutuado;
+		this.user = user;
 	}
 	
 	/**
@@ -172,6 +182,45 @@ public class Registro implements IIntIdentifiable {
 			throw new java.lang.IllegalArgumentException("'processoAutuado' must not be null.");
 		}
 		this.processoAutuado = newValue;
+	}
+	
+	/**
+	 * Returns the value of property {@link #user}. This method does not return
+	 * archived entities. This method is marked as deprecated, because it does not
+	 * return archived entities. Please use {@link #getUser(boolean)} instead.
+	 */
+	@java.lang.Deprecated
+	public Usuario getUser() {
+		return getUser(false);
+	}
+	
+	/**
+	 * Returns the value of property {@link #user}. This method is marked as
+	 * deprecated, because it does not return archived entities. Please use {@link
+	 * #getUser(boolean)} instead.
+	 */
+	public Usuario getUser(boolean includeArchivedEntities) {
+		if (includeArchivedEntities) {
+			return user;
+		} else {
+			if (user == null) {
+				return user;
+			}
+			if (!user.isArchived() || includeArchivedEntities) {
+				return user;
+			}
+			return null;
+		}
+	}
+	
+	/**
+	 * Sets the value of property {@link #user}.
+	 */
+	public void setUser(Usuario newValue) {
+		if (newValue == null) {
+			throw new java.lang.IllegalArgumentException("'user' must not be null.");
+		}
+		this.user = newValue;
 	}
 	
 	@java.lang.Override

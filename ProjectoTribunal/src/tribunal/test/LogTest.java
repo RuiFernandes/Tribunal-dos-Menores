@@ -72,11 +72,11 @@ public class LogTest {
 		final Log[] entities = new Log[3];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				entities[0] = operations.createLog(new Date(), "stringValue" + (dummyValueCounter++));
+				entities[0] = operations.createLog(new Date(), "stringValue" + (dummyValueCounter++), operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)), false));
 				entities[0].setLog("a");
-				entities[1] = operations.createLog(new Date(), "stringValue" + (dummyValueCounter++));
+				entities[1] = operations.createLog(new Date(), "stringValue" + (dummyValueCounter++), operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)), false));
 				entities[1].setLog("ab");
-				entities[2] = operations.createLog(new Date(), "stringValue" + (dummyValueCounter++));
+				entities[2] = operations.createLog(new Date(), "stringValue" + (dummyValueCounter++), operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)), false));
 				entities[2].setLog("abc");
 			}
 		});
@@ -161,7 +161,7 @@ public class LogTest {
 		final Log[] result = new Log[1];
 		dao.executeInTransaction(new ICommand() {
 			public void execute(IDBOperations operations) {
-				result[0] = operations.createLog(new Date(), "stringValue" + (dummyValueCounter++));
+				result[0] = operations.createLog(new Date(), "stringValue" + (dummyValueCounter++), operations.createUsuario("stringValue" + (dummyValueCounter++), new Date(), "stringValue" + (dummyValueCounter++), "stringValue" + (dummyValueCounter++), operations.createCategoria("stringValue" + (dummyValueCounter++)), operations.createSeccao("stringValue" + (dummyValueCounter++)), false));
 			}
 		});
 		return result[0];

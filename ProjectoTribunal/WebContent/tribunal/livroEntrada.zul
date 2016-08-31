@@ -5,7 +5,7 @@
             <label value="Tribunal"/>
             <label value="dos Menores"/>
         </hbox>
-        <bandbox>
+        <bandbox onChanging="@command('search')" onOK="@command('search')">
             <!--  <bandpopup>
                 <grid hflex="true" vflex="true">
                     <columns>
