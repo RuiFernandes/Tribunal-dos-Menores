@@ -61,6 +61,17 @@ public class Configure {
 //		Usuario user= new Usuario("Rui Fernandes", new Date("1991/07/07"), "admin", "admin", categoria, seccao,false);
 //		dao.createUsuario("other user", new Date("1991/07/07"), "admin1", "admin1", categoria,seccao,false);
 //		dao.createUsuario(user.getNome(),user.getDataDeNascimento(),user.getUsername(),user.getPassword(),user.getCategoria(),user.getSeccao(),false);
+		dao.createAuto("Acção De Alimento");
+		dao.createAuto("Regulação Exercício Do Poder Parental");
+		dao.createAuto("Alteração Da Pensão Alimentar");
+		dao.createAuto("Alteração Da Regulação Do Exercício Do Poder Parental");
+		dao.createAuto("Autorização De Saída");
+		dao.createAuto("Interdição De Saída");
+		dao.createAuto("Autorização De Abertura De Conta");
+		dao.createAuto("Emancipação");
+		dao.createAuto("Averiguação Oficiosa De Paternidade/Maternidades");
+		dao.createAuto("Plenitude Do Poder Parental/Movimentação");
+
 //		dao.createAuto("outro");
 ////		//System.out.println(dao.getAllCategorias().get(0).toString());
 //		dao.createAuto("auto1");

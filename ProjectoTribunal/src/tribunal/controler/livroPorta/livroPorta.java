@@ -1,5 +1,7 @@
 package tribunal.controler.livroPorta;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +19,7 @@ import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Textbox;
 
+import net.sf.jasperreports.engine.JRException;
 import tribunal.custom.IDBOperations;
 import tribunal.custom.TribunalDAO;
 import tribunal.dao.ICommand;
@@ -29,6 +32,7 @@ import tribunal.entities.Processo;
 import tribunal.entities.ProcessoAutuado;
 import tribunal.entities.Seccao;
 import tribunal.entities.Usuario;
+import tribunal.report.Report;
 
 public class livroPorta {
 	TribunalDAO dao= new TribunalDAO(TribunalDAO.class);
@@ -223,7 +227,7 @@ public void limpar(){
 
 @NotifyChange("*")
 @Command
-public void actuar(){
+public void actuar() throws JRException, SQLException, IOException{
 	if (auto==null ) {
 		Clients.showNotification("Complete todos os campos obrigatorios");
 	}else if( peticao==null){
@@ -251,6 +255,7 @@ public void actuar(){
 
 			dao.createPagina(pagina.getPag()+1, livro);
 			dao.createRegistro(data, "Processo Autuado: "+outro, processoAutuado,user);
+			Report.printProcesso(processoAutuado);
 			limpar();
 			init();
 			
@@ -271,6 +276,7 @@ public void actuar(){
 		//peticoes=dao.getAllPeticaoDistribuidas(false);
 		dao.createPagina((pagina.getPag()+1), livro);
 		dao.createRegistro(data, "Processo Autuado: "+auto.getAuto(), processoAutuado,user);
+		Report.printProcesso(processoAutuado);
 		limpar();
 		init();
 	}}
