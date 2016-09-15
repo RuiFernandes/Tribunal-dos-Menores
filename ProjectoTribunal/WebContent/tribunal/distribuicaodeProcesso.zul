@@ -4,11 +4,12 @@
 
 
 <vlayout width="100%">
-<label value="Distribuicao de Peticoes" style="font-size:20px"/>
+<label value="Distribuicao de Petições Recebidas" style="font-size:20px"/>
 <hlayout vflex="true" width="100%" style="padding:10px" spacing="20px" viewModel="@id('list') @init('tribunal.controler.distribuirPeticao')" apply="org.zkoss.bind.BindComposer">
 <zscript><![CDATA[
                   String imgPath = "/widgets/listbox/dual_listbox/img"; ]]></zscript>
-	<listbox model="@bind(list.peticoes)" id="peticoes" oddRowSclass="non-odd" vflex="true"  multiple="true" rows="8" width="400px"  droppable="false" selectedIndex="@save(list.index)" selectedItem="@save(list.peticao)" onDrop="@command('move')" >
+        
+	<listbox model="@bind(list.peticoes)" id="peticoes" oddRowSclass="non-odd" vflex="true"  multiple="true" rows="7" width="400px"  droppable="false" selectedIndex="@save(list.index)" selectedItem="@save(list.peticao)" onDrop="@command('move')" >
 		<listhead>
 			<listheader label="Data" width="80px"></listheader>
 			<listheader label="Resumo" width="140px"></listheader>
@@ -33,11 +34,16 @@
 		<button label="Limpar" onClick="@command('retorno')" />
 	</vbox>
 	<vbox width="50%">
-	<listbox model="@bind(list.seccao1)" id="seccao1" width="100%" selectedIndex="@save(list.index)"  vflex="true" multiple="true" rows="4" droppable="true" oddRowSclass="non-odd" onDrop="@command('move1')">
+	<div >
+	<div align="left"><label value="Secção 1" style="font-size:10px; bold:true"/></div>
+	<div align="right"><label value="@bind(list.sec1)" style="font-size:10px; bold:true"/></div>
+	</div>
+	
+	<listbox model="@bind(list.seccao1)" id="seccao1" width="100%" selectedIndex="@save(list.index)"  vflex="true" multiple="true" rows="3" droppable="true" oddRowSclass="non-odd" onDrop="@command('move1')">
 		<listhead>
-			<listheader label="Data" width="80px"></listheader>
-			<listheader label="Resumo" width="140px"></listheader>
-			<listheader label="Remetente"></listheader>
+			<listheader label="Data" width="100px"></listheader>
+			<listheader label="Resumo" ></listheader>
+			<listheader label="Remetente" width="180px"></listheader>
 		</listhead>
 		<template name="model" var="distribuido">
 			<listitem  draggable="true" droppable="true">
@@ -48,12 +54,15 @@
 			</listitem>
 		</template>
 		</listbox>
-		
-		<listbox model="@bind(list.seccao2)" id="seccao2" width="100%" selectedIndex="@save(list.index)"  vflex="true" multiple="true" rows="4" droppable="true" oddRowSclass="non-odd" onDrop="@command('move2')">
+		<div >
+	<div align="left"><label value="Secção 2" style="font-size:10px; bold:true"/></div>
+	<div align="right"><label value="@bind(list.sec2)" style="font-size:10px; bold:true"/></div>
+	</div>
+		<listbox model="@bind(list.seccao2)" id="seccao2" width="100%" selectedIndex="@save(list.index)"  vflex="true" multiple="true" rows="3" droppable="true" oddRowSclass="non-odd" onDrop="@command('move2')">
 		<listhead>
-			<listheader label="Data" width="80px"></listheader>
-			<listheader label="Resumo" width="140px"></listheader>
-			<listheader label="Remetente"></listheader>
+			<listheader label="Data" width="100px"></listheader>
+			<listheader label="Resumo" ></listheader>
+			<listheader label="Remetente" width="180px"></listheader>
 			
 		</listhead>
 		<template name="model" var="distribuido">
@@ -65,11 +74,15 @@
 			</listitem>
 		</template>
 	</listbox>
-	<listbox model="@bind(list.seccao3)" id="seccao3" width="100%" selectedIndex="@save(list.index)"  vflex="true" multiple="true" rows="4" droppable="true" onDrop="@command('move3')" oddRowSclass="non-odd">
+	<div >
+	<div align="left"><label value="Secção 3" style="font-size:10px; bold:true"/></div>
+	<div align="right"><label value="@bind(list.sec3)" style="font-size:10px; bold:true"/></div>
+	</div>
+	<listbox model="@bind(list.seccao3)" id="seccao3" width="100%" selectedIndex="@save(list.index)"  vflex="true" multiple="true" rows="3" droppable="true" onDrop="@command('move3')" oddRowSclass="non-odd">
 		<listhead>
-			<listheader label="Data" width="80px"></listheader>
-			<listheader label="Resumo" width="140px"></listheader>
-			<listheader label="Remetente"></listheader>
+			<listheader label="Data" width="100px"></listheader>
+			<listheader label="Resumo" ></listheader>
+			<listheader label="Remetente" width="180px"></listheader>
 			
 		</listhead>
 		<template name="model" var="distribuido">

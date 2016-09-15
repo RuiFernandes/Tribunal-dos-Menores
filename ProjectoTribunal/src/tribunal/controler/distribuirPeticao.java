@@ -24,9 +24,44 @@ private List<Peticao> peticoes;
 private List<Peticao> seccao1= new ArrayList<Peticao>();
 private List<Peticao> seccao2= new ArrayList<Peticao>();
 private List<Peticao> seccao3= new ArrayList<Peticao>();
+private int sec1;
+private int sec2;
+private int sec3;
+public int getSec1() {
+	return sec1;
+}
+
+
+public void setSec1(int sec1) {
+	this.sec1 = sec1;
+}
+
+
+public int getSec2() {
+	return sec2;
+}
+
+
+public void setSec2(int sec2) {
+	this.sec2 = sec2;
+}
+
+
+public int getSec3() {
+	return sec3;
+}
+
+
+public void setSec3(int sec3) {
+	this.sec3 = sec3;
+}
+
 
 @Init
 public void init(){
+	sec1= dao.getPeticaoDistribuidasBySeccao(dao.searchSeccaos("Seccao 1", 1).get(0), false).size();
+	sec2= dao.getPeticaoDistribuidasBySeccao(dao.searchSeccaos("Seccao 2", 1).get(0), false).size();
+	sec3= dao.getPeticaoDistribuidasBySeccao(dao.searchSeccaos("Seccao 3", 1).get(0), false).size();
 	peticoes=new ArrayList<Peticao>();
 	listpet=dao.getAllPeticaos(false);
 	for (Peticao peticao : listpet) {
@@ -81,9 +116,9 @@ public void automatic(){
 	}
 	if (peticoes.isEmpty()==false) {
 	int key=0;
-	one=dao.getPeticaoDistribuidasBySeccao(dao.searchSeccaos("Seccao 1", 1).get(0), true).size();
-	two=dao.getPeticaoDistribuidasBySeccao(dao.searchSeccaos("Seccao 2", 1).get(0), true).size();
-	three=dao.getPeticaoDistribuidasBySeccao(dao.searchSeccaos("Seccao 3", 1).get(0), true).size();
+	one=dao.getPeticaoDistribuidasBySeccao(dao.searchSeccaos("Seccao 1", 1).get(0), false).size();
+	two=dao.getPeticaoDistribuidasBySeccao(dao.searchSeccaos("Seccao 2", 1).get(0), false).size();
+	three=dao.getPeticaoDistribuidasBySeccao(dao.searchSeccaos("Seccao 3", 1).get(0), false).size();
 	for (int i = 0; i < peticoes.size(); i++) {
 		
 	
@@ -99,9 +134,9 @@ public void automatic(){
 	System.out.println(two);
 	System.out.println(three);
 	switch (key) {
-	case 1:seccao1.add(peticoes.get(i));break;
-	case 2:seccao2.add(peticoes.get(i));break;
-	case 3:seccao3.add(peticoes.get(i));break;
+	case 1:seccao1.add(peticoes.get(i));sec1++;break;
+	case 2:seccao2.add(peticoes.get(i));sec2++;break;
+	case 3:seccao3.add(peticoes.get(i));sec3++;break;
 		
 
 	default:System.out.println("something wrong");
@@ -125,6 +160,7 @@ if (seccao1.isEmpty()==false)  {
 	
 			for (Peticao sec1 : seccao1) {
 				peticoes.add(sec1);
+				this.sec1--;
 				
 	}
 }	
@@ -133,7 +169,7 @@ if (seccao2.isEmpty()==false) {
 	
 			for (Peticao sec2 : seccao2) {
 				peticoes.add(sec2);
-				
+				this.sec2--;
 	}
 }
 
@@ -141,7 +177,7 @@ if (seccao3.isEmpty()==false) {
 	
 			for (Peticao sec3 : seccao3) {
 				peticoes.add(sec3);
-				
+				this.sec3--;
 	}
 		
 		
@@ -216,7 +252,8 @@ if (seccao3.isEmpty()==false) {
 public void move1(){
 	if(peticao==null){}else{
 		seccao1.add(peticao);	
-		peticoes.remove(peticao);	
+		peticoes.remove(peticao);
+		sec1++;
 	}
 	
 }
@@ -226,7 +263,8 @@ public void move1(){
 public void move2(){
 	if(peticao==null){}else{
 		seccao2.add(peticao);	
-		peticoes.remove(peticao);	
+		peticoes.remove(peticao);
+		sec2++;
 	}
 
 }
@@ -235,7 +273,9 @@ public void move2(){
 public void move3(){
 	if(peticao==null){}else{
 		seccao3.add(peticao);	
-	peticoes.remove(peticao);}
+	peticoes.remove(peticao);
+	sec3++;
+	}
 	
 }
 public Peticao getPeticao() {

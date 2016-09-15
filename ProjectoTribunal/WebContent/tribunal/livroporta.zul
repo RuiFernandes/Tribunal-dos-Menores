@@ -73,7 +73,7 @@
             <groupbox>
                 <listbox model="@load(p.processos)"  id="box" mold="paging" pagingPosition="bottom" rows="10" selectedItem="@bind(p.processo)" onSelect="@command('detailProcess')">
                     <listhead>
-                    	<listheader label="Nr.Proc." width="7%"/>                        
+                    	<listheader label="Nr.Proc." width="10%"/>                        
                         <listheader label="Auto" width="32%"/>
                         <listheader label="Requerente"/>
                         <listheader label="Requerido(a)"/>

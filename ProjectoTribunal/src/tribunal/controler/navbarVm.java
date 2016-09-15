@@ -49,6 +49,15 @@ public void distribuicao(){
 	src="/tribunal/distribuicaodeProcesso.zul";
 }
 
+@Command
+@NotifyChange({"*"})
+public void relatorioPeticao(){
+	//System.out.println(Executions.getCurrent().getSession().getAttributes());
+	
+	src="/tribunal/relatorioPeticao.zul";
+}
+
+
 @GlobalCommand
 @NotifyChange({"*"})
 public void site(@ContextParam(ContextType.VIEW) Component view){

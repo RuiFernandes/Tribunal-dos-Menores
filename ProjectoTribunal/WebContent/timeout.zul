@@ -13,8 +13,8 @@
                 <rows>
                     <row>
                         <label value="Usuario :"/>
-                         <combobox id="ususario" width="80%" model="@load(vm.userList)" constraint="no empty" focus="true" popup="username" selectedItem="@bind(vm.selected)"><template name="model" var="user"><comboitem label="@load(user.nome)"/></template></combobox>                                      
-                        <label value="@load(vm.selected.categoria)" />
+                         <combobox id="ususario" width="80%" model="@load(vm.userList)" constraint="no empty" focus="true" popup="username" selectedItem="@bind(vm.selected)"><template name="model" var="user"><comboitem label="@load(user.username)"/></template></combobox>                                      
+                        <label value="@load(vm.selected.nome)" />
                     </row>
                     <row>
                         <label value="Password :"/>

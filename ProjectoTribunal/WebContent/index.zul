@@ -20,10 +20,12 @@
 			<navitem label="-Receber Documento" style="font:20px; bold:true" onClick="@command('receberDocumento')"></navitem>
 			<navitem label="-Distribuir Peticoes" onClick="@command('distribuicao')"></navitem>
 			<navitem label="-Lista de Entradas/Correspondecias" onClick="@command('listaDeEntradas')"></navitem>
+			<navitem label="-Relatorios" onClick="@command('relatorioPeticao')"></navitem>
 		</nav>
 		<nav label="Livro de Porta" >
 		
 			<navitem id="autuar" label="-Autuar Processo" onClick="@command('autuarProcesso')"></navitem>
+			<navitem label="-Lista de Processos Autuados" onClick="@command('listaDeProcessos')"></navitem>
 			<navitem label="-Lista de Processos Autuados" onClick="@command('listaDeProcessos')"></navitem>
 			
 			

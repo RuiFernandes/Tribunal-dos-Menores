@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.zk.ui.Sessions;
+
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -20,7 +22,8 @@ import tribunal.entities.ProcessoAutuado;
 //import util.HibernateConfig;
 
 public class Report {
-	private static final String REPORT_PATH="src/tribunal/report/Auto";
+	private static final String REPORT_PATH=Sessions.getCurrent().getWebApp().getRealPath("/Report/Auto");
+			//Sessions.getCurrent().getWebApp().getRealPath("/Report/Auto");
 			//"Report/Auto";
 	private static final String REPORT_EXT_JRXML=".jrxml";
 	private static final String REPORT_EXT_PDF=".pdf";
@@ -68,7 +71,7 @@ public class Report {
 		JasperPrint print = JasperFillManager.
 				fillReport(report, null, new JRBeanCollectionDataSource(lista));
 		//fillReport(report, null, new JRBeanCollectionDataSource(lista));
-		
+		System.out.println(REPORT_PATH);
 		JasperExportManager.exportReportToPdfFile(print,REPORT_PATH+REPORT_EXT_PDF);
 	}
 	
@@ -77,6 +80,7 @@ public class Report {
 		ArrayList<ProcessoAutuado> lista= new ArrayList<>();
 		lista.add(processo);
 		printReport(lista);
+		openReport();
 	}
 	
 	private static void openReport() throws IOException
